@@ -1,3 +1,5 @@
 ^unigd\.Rproj$
 ^\.Rproj\.user$
 ^\.github$
+^\.vscode$
+^windows$

@@ -2,14 +2,40 @@ Package: unigd
 Title: Universal unified graphics device
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+    c(
+      person(given = "Florian", family = "Rupprecht", email = "floruppr@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1795-8624")),
+      person(given = "Kun", family = "Ren", role = "ctb", email = "mail@renkun.me"),
+      person("Jeroen", "Ooms", role = c("ctb"), email = "jeroen@berkeley.edu", comment = c(ORCID = "0000-0002-4035-0289")),
+      person("Hadley", "Wickham", email = "hadley@rstudio.com", role = "cph", comment = "Author of included svglite code"),
+      person("Lionel", "Henry", email = "lionel@rstudio.com", role = "cph", comment = "Author of included svglite code"),
+      person("Thomas Lin", "Pedersen", email = "thomas.pedersen@rstudio.com", role = "cph", comment = "Author and creator of included svglite code"),
+      person("T Jake", "Luciani", email = "jake@apache.org", role = "cph", comment = "Author of included svglite code"),
+      person("Matthieu", "Decorde", email = "matthieu.decorde@ens-lyon.fr", role = "cph", comment = "Author of included svglite code"),
+      person("Vaudor", "Lise", email = "lise.vaudor@ens-lyon.fr", role = "cph", comment = "Author of included svglite code"),
+      person("Tony", "Plate", role = "cph", comment = "Contributor to included svglite code"),
+      person("David", "Gohel", role = "cph", comment = "Contributor to included svglite code"),
+      person("Yixuan", "Qiu", role = "cph", comment = "Contributor to included svglite code"),
+      person("Håkon", "Malmedal", role = "cph", comment = "Contributor to included svglite code"),
+      person("RStudio", role = "cph", comment = "Copyright holder of included svglite code"),
+      person("Brett", "Robinson", role = "cph", comment = "Author of included belle library"),
+      person("Google", role = "cph", comment = "Copyright holder of included material design icons"),
+      person("Victor", "Zverovich", role = "cph", comment = "Author of included fmt library")
+    )
 Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+License: GPL (>= 2)
+Depends:
+    R (>= 3.2.0)
+Imports: 
+    systemfonts (>= 1.0.0)
+LinkingTo: 
+    cpp11 (>= 0.2.4),
+    systemfonts
 Encoding: UTF-8
+SystemRequirements: 
+    C++17,
+    libpng,
+    cairo,
+    freetype2, 
+    fontconfig
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
-LinkingTo: 
-    cpp11
-SystemRequirements: C++11

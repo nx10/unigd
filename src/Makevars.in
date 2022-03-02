@@ -1,0 +1,12 @@
+CXX_STD = CXX17
+
+PKG_CPPFLAGS = @cflags@ -Ilib -DFMT_HEADER_ONLY
+
+#PKG_CXXFLAGS=$(C_VISIBILITY)
+
+PKG_LIBS = @libs@ -lpng -lz -ltiff -ltiffxx -ljpeg
+
+all: clean
+
+clean:
+	rm -f $(SHLIB) $(OBJECTS)
