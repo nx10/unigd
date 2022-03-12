@@ -1,22 +1,3 @@
-
-#include <cpp11/function.hpp>
-#include <cpp11/strings.hpp>
-#include <cpp11/list.hpp>
-#include <cpp11/integers.hpp>
-#include <cpp11/logicals.hpp>
-#include <cpp11/data_frame.hpp>
-#include <cpp11/as.hpp>
-#include <cpp11/raws.hpp>
-
-#include <vector>
-#include <string>
-
-#include "HttpgdDev.h"
-#include "RendererSvg.h"
-#include "RendererManager.h"
-#include "RThread.h"
-
-
 #include <cpp11/function.hpp>
 #include <cpp11/strings.hpp>
 #include <cpp11/list.hpp>
@@ -35,6 +16,8 @@
 #include "RendererSvg.h"
 #include "RendererManager.h"
 #include "RThread.h"
+#include "unigd_external.h"
+
 
 namespace
 {
@@ -82,6 +65,7 @@ namespace
 
 } // namespace unigd
 
+
 [[cpp11::register]]
 bool unigd_ugd_(std::string bg, double width, double height,
              double pointsize, cpp11::list aliases,
@@ -117,7 +101,7 @@ cpp11::list unigd_state_(int devnum)
 }
 
 [[cpp11::register]]
-cpp11::list unigd_info_(int /*devnum*/)
+cpp11::list unigd_info_(int devnum)
 {
     /*auto dev = validate_unigddev(devnum);*/
 
@@ -326,4 +310,9 @@ void unigd_ipc_open_()
 void unigd_ipc_close_()
 {
     unigd::async::ipc_close();
+}
+
+[[cpp11::init]]
+void unigd_exports_init_(DllInfo* dll) {
+    unigd::unigd_register_exports();
 }

@@ -134,8 +134,11 @@ static const R_CallMethodDef CallEntries[] = {
 };
 }
 
+void unigd_exports_init_(DllInfo* dll);
+
 extern "C" attribute_visible void R_init_unigd(DllInfo* dll){
   R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
   R_useDynamicSymbols(dll, FALSE);
+  unigd_exports_init_(dll);
   R_forceSymbols(dll, TRUE);
 }

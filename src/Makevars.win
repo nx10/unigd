@@ -6,7 +6,7 @@ VERSION_CAIRO = 1.16.0
 RWINLIB_HARFBUZZ = ../windows/harfbuzz-${VERSION_HARFBUZZ}
 RWINLIB_CAIRO = ../windows/cairo-${VERSION_CAIRO}
 
-PKG_CPPFLAGS = -Ilib -I${RWINLIB_HARFBUZZ}/include \
+PKG_CPPFLAGS = -Ilib -I../inst/include -I${RWINLIB_HARFBUZZ}/include \
 	-I${RWINLIB_CAIRO}/include/cairo \
 	-I${RWINLIB_CAIRO}/include/freetype2 \
 	-DFMT_HEADER_ONLY

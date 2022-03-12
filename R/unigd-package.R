@@ -7,6 +7,7 @@ NULL
 
 .onLoad <- function(libname, pkgname) {
   #unigd_ipc_open_()
+  TRUE
 }
 
 #' @importFrom grDevices dev.list dev.off

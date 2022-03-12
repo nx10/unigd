@@ -14,7 +14,7 @@
 #include "HttpgdDataStore.h"
 #include "HttpgdApiAsync.h"
 
-#include "Client.h"
+#include "unigd/Client.h"
 
 #include "PlotHistory.h"
 
