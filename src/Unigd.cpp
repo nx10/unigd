@@ -10,12 +10,12 @@
 #include <vector>
 #include <string>
 
-#include "HttpgdDev.h"
-#include "Uuid.h"
-#include "Version.h"
-#include "RendererSvg.h"
-#include "RendererManager.h"
-#include "RThread.h"
+#include "unigd_dev.h"
+#include "uuid.h"
+#include "unigd_version.h"
+#include "renderer_svg.h"
+#include "renderers.h"
+#include "r_thread.h"
 #include "unigd_external.h"
 
 
