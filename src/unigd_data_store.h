@@ -1,10 +1,10 @@
 #ifndef UNIGD_SERVER_STORE_H
 #define UNIGD_SERVER_STORE_H
 
-#include "draw_data.h"
-#include "unigd_api.h"
-#include "unigd_commons.h"
-#include "unigd_geom.h"
+#include <unigd_api/device.h>
+#include <unigd_api/geom.h>
+#include <unigd_api/draw_data.h>
+#include <compat/optional.hpp>
 
 #include <atomic>
 #include <functional>
@@ -37,12 +37,12 @@ namespace unigd
         void add_dc(page_index_t t_index, std::shared_ptr<dc::DrawCall> t_dc, bool t_silent);
         void clip(page_index_t t_index, grect<double> t_rect);
 
-        HttpgdState state();
+        device_state state();
         void set_device_active(bool t_active);
 
-        HttpgdQueryResults query_all();
-        HttpgdQueryResults query_index(page_index_t t_index);
-        HttpgdQueryResults query_range(page_index_t t_offset, page_index_t t_limit);
+        device_api_query_result query_all();
+        device_api_query_result query_index(page_index_t t_index);
+        device_api_query_result query_range(page_index_t t_offset, page_index_t t_limit);
 
         void extra_css(std::experimental::optional<std::string> t_extra_css);
 

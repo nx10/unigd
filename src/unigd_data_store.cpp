@@ -2,6 +2,7 @@
 #include "unigd_data_store.h"
 #include <cmath>
 #include <iostream>
+#include "unigd_commons.h"
 
 // Do not include any R headers here!
 
@@ -185,7 +186,7 @@ namespace unigd
     {
         m_upid = incwrap(m_upid);
     }
-    HttpgdState HttpgdDataStore::state()
+    device_state HttpgdDataStore::state()
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         return {
@@ -200,7 +201,7 @@ namespace unigd
         m_device_active = t_active;
     }
 
-    HttpgdQueryResults HttpgdDataStore::query_all()
+    device_api_query_result HttpgdDataStore::query_all()
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
 
@@ -214,7 +215,7 @@ namespace unigd
                  m_device_active},
                 res};
     }
-    HttpgdQueryResults HttpgdDataStore::query_index(page_id_t t_index)
+    device_api_query_result HttpgdDataStore::query_index(page_id_t t_index)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
 
@@ -231,7 +232,7 @@ namespace unigd
                  m_device_active},
                 {m_pages[index].id}};
     }
-    HttpgdQueryResults HttpgdDataStore::query_range(page_id_t t_offset, page_id_t t_limit)
+    device_api_query_result HttpgdDataStore::query_range(page_id_t t_offset, page_id_t t_limit)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
 

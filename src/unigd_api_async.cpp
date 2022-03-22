@@ -4,21 +4,8 @@
 namespace unigd
 {
 
-    struct AsyncApiCallIndexSizeData
-    {
-        HttpgdApi *api;
-        int index;
-        double width;
-        double height;
-    };
-    struct AsyncApiCallIndexData
-    {
-        HttpgdApi *api;
-        int index;
-    };
-
     HttpgdApiAsync::HttpgdApiAsync(
-        HttpgdApi *t_rdevice,
+        device_api *t_rdevice,
         std::shared_ptr<HttpgdDataStore> t_data_store)
         : m_rdevice(t_rdevice),
           m_rdevice_alive(true),
@@ -74,25 +61,25 @@ namespace unigd
         return m_data_store->render(index, t_renderer, t_scale);
     }
 
-    std::experimental::optional<int> HttpgdApiAsync::api_index(int32_t id)
+    int HttpgdApiAsync::api_index(int32_t id)
     {
-        return m_data_store->find_index(id);
+        return m_data_store->find_index(id).value_or(-1);
     }
 
-    HttpgdState HttpgdApiAsync::api_state()
+    device_state HttpgdApiAsync::api_state()
     {
         return m_data_store->state();
     }
     
-    HttpgdQueryResults HttpgdApiAsync::api_query_all()
+    device_api_query_result HttpgdApiAsync::api_query_all()
     {
         return m_data_store->query_all();
     }
-    HttpgdQueryResults HttpgdApiAsync::api_query_index(int index)
+    device_api_query_result HttpgdApiAsync::api_query_index(int index)
     {
         return m_data_store->query_index(index);
     }
-    HttpgdQueryResults HttpgdApiAsync::api_query_range(int offset, int limit)
+    device_api_query_result HttpgdApiAsync::api_query_range(int offset, int limit)
     {
         return m_data_store->query_range(offset, limit);
     }

@@ -20,16 +20,7 @@ namespace unigd
         return v + 1;
     }
 
-    struct HttpgdState {
-        int upid;
-        size_t hsize;
-        bool active;
-    };
-
-    struct HttpgdQueryResults {
-        HttpgdState state;
-        std::vector<int32_t> ids;
-    };
+    
 
 } // namespace unigd
 

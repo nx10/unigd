@@ -56,16 +56,13 @@ ugd <-
            user_fonts = getOption("unigd.user_fonts", list()),
            reset_par = getOption("unigd.reset_par", FALSE)) {
     
-
     aliases <- validate_aliases(system_fonts, user_fonts)
-    if (!unigd_ugd_(
+
+    unigd_ugd_(
       bg, width, height,
       pointsize, aliases,
       reset_par
-    )) {
-      ugd_close()
-      stop("Failed to start server. (Port might be in use.)")
-    }
+    )
   }
 
 #' unigd device status.

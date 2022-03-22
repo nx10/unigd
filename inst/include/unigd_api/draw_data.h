@@ -1,7 +1,7 @@
 #ifndef UNIGD_DRAWDATA_H
 #define UNIGD_DRAWDATA_H
 
-#include "unigd_geom.h"
+#include <unigd_api/geom.h>
 
 #include <memory>
 #include <string>
@@ -102,15 +102,44 @@ namespace unigd::dc
 
     // Draw calls
 
-    class Renderer;
+    class Page;
+    class DrawCall;
+    class Rect;
+    class Text;
+    class Circle;
+    class Line;
+    class Polyline;
+    class Polygon;
+    class Path;
+    class Raster;
+
+    class Renderer
+    {
+    public:
+        virtual ~Renderer() = default;
+
+        inline virtual void page(const Page &t_page);
+        inline virtual void dc(const DrawCall &t_dc);
+        inline virtual void rect(const Rect &t_rect);
+        inline virtual void text(const Text &t_text);
+        inline virtual void circle(const Circle &t_circle);
+        inline virtual void line(const Line &t_line);
+        inline virtual void polyline(const Polyline &t_polyline);
+        inline virtual void polygon(const Polygon &t_polygon);
+        inline virtual void path(const Path &t_path);
+        inline virtual void raster(const Raster &t_raster);
+    };
 
     class Clip;
 
-    class DrawCall
+    struct DrawCall
     {
     public:
         virtual ~DrawCall() = default; 
-        virtual void render(Renderer *t_renderer) const;
+        virtual inline void render(Renderer *t_renderer) const
+        {
+            t_renderer->dc(*this);
+        }
 
         clip_id_t clip_id = 0;
     };
@@ -118,8 +147,14 @@ namespace unigd::dc
     class Text : public DrawCall
     {
     public:
-        Text(color_t t_col, gvertex<double> t_pos, std::string &&t_str, double t_rot, double t_hadj, TextInfo &&t_text);
-        void render(Renderer *t_renderer) const override;
+        Text(color_t t_col, gvertex<double> t_pos, std::string &&t_str, double t_rot, double t_hadj, TextInfo &&t_text)
+            : col(t_col), pos(t_pos), rot(t_rot), hadj(t_hadj), str(t_str), text(t_text)
+        {
+        }
+        inline void render(Renderer *t_renderer) const override
+        {
+            t_renderer->text(*this);
+        }
 
         color_t col;
         gvertex<double> pos;
@@ -131,8 +166,14 @@ namespace unigd::dc
     class Circle : public DrawCall
     {
     public:
-        Circle(LineInfo &&t_line, color_t t_fill, gvertex<double> t_pos, double t_radius);
-        void render(Renderer *t_renderer) const override;
+        Circle(LineInfo &&t_line, color_t t_fill, gvertex<double> t_pos, double t_radius)
+            : line(t_line), fill(t_fill), pos(t_pos), radius(t_radius)
+        {
+        }
+        inline void render(Renderer *t_renderer) const override
+        {
+            t_renderer->circle(*this);
+        }
 
         LineInfo line;
         color_t fill;
@@ -143,8 +184,14 @@ namespace unigd::dc
     class Line : public DrawCall
     {
     public:
-        Line(LineInfo &&t_line, gvertex<double> t_orig, gvertex<double> t_dest);
-        void render(Renderer *t_renderer) const override;
+        Line(LineInfo &&t_line, gvertex<double> t_orig, gvertex<double> t_dest)
+            : line(t_line), orig(t_orig), dest(t_dest)
+        {
+        }
+        inline void render(Renderer *t_renderer) const override
+        {
+            t_renderer->line(*this);
+        }
 
         LineInfo line;
         gvertex<double> orig, dest;
@@ -153,8 +200,14 @@ namespace unigd::dc
     class Rect : public DrawCall
     {
     public:
-        Rect(LineInfo &&t_line, color_t t_fill, grect<double> t_rect);
-        void render(Renderer *t_renderer) const override;
+        Rect(LineInfo &&t_line, color_t t_fill, grect<double> t_rect)
+            : line(t_line), fill(t_fill), rect(t_rect)
+        {
+        }
+        inline void render(Renderer *t_renderer) const override
+        {
+            t_renderer->rect(*this);
+        }
 
         LineInfo line;
         color_t fill;
@@ -164,8 +217,14 @@ namespace unigd::dc
     class Polyline : public DrawCall
     {
     public:
-        Polyline(LineInfo &&t_line, std::vector<gvertex<double>> &&t_points);
-        void render(Renderer *t_renderer) const override;
+        Polyline(LineInfo &&t_line, std::vector<gvertex<double>> &&t_points)
+            : line(t_line), points(t_points)
+        {
+        }
+        inline void render(Renderer *t_renderer) const override
+        {
+            t_renderer->polyline(*this);
+        }
 
         LineInfo line;
         std::vector<gvertex<double>> points;
@@ -173,8 +232,14 @@ namespace unigd::dc
     class Polygon : public DrawCall
     {
     public:
-        Polygon(LineInfo &&t_line, color_t t_fill, std::vector<gvertex<double>> &&t_points);
-        void render(Renderer *t_renderer) const override;
+        Polygon(LineInfo &&t_line, color_t t_fill, std::vector<gvertex<double>> &&t_points)
+            : line(t_line), fill(t_fill), points(t_points)
+        {
+        }
+        inline void render(Renderer *t_renderer) const override
+        {
+            t_renderer->polygon(*this);
+        }
 
         LineInfo line;
         color_t fill;
@@ -183,8 +248,15 @@ namespace unigd::dc
     class Path : public DrawCall
     {
     public:
-        Path(LineInfo &&t_line, color_t t_fill, std::vector<gvertex<double>> &&t_points, std::vector<int> &&t_nper, bool t_winding);
-        void render(Renderer *t_renderer) const override;
+        Path(LineInfo &&t_line, color_t t_fill, std::vector<gvertex<double>> &&t_points, std::vector<int> &&t_nper, bool t_winding)
+         : line(t_line), fill(t_fill), points(t_points), nper(t_nper), winding(t_winding)
+        {
+        }
+        inline void render(Renderer *t_renderer) const override
+        {
+            t_renderer->path(*this);
+        }
+           
 
         LineInfo line;
         color_t fill;
@@ -199,8 +271,14 @@ namespace unigd::dc
         Raster(std::vector<unsigned int> &&t_raster, gvertex<int> t_wh,
                grect<double> t_rect,
                double t_rot,
-               bool t_interpolate);
-        void render(Renderer *t_renderer) const override;
+               bool t_interpolate)
+            : raster(t_raster), wh(t_wh), rect(t_rect), rot(t_rot), interpolate(t_interpolate)
+        {
+        }
+        inline void render(Renderer *t_renderer) const override
+        {
+            t_renderer->raster(*this);
+        }
 
         std::vector<unsigned int> raster;
         gvertex<int> wh;
@@ -212,8 +290,14 @@ namespace unigd::dc
     class Clip
     {
     public:
-        Clip(clip_id_t t_id, grect<double> t_rect);
-        [[nodiscard]] bool equals(grect<double> t_rect) const;
+        Clip(clip_id_t t_id, grect<double> t_rect)
+            : id(t_id), rect(t_rect)
+        {
+        }
+        [[nodiscard]] inline bool equals(grect<double> t_rect) const
+        {
+            return rect_equals(t_rect, rect, 0.01);
+        }
 
         clip_id_t id;
         grect<double> rect;
@@ -222,10 +306,30 @@ namespace unigd::dc
     class Page
     {
     public:
-        Page(page_id_t t_id, gvertex<double> t_size);
-        void put(std::shared_ptr<DrawCall> t_dc);
-        void clear();
-        void clip(grect<double> t_rect);
+        Page(page_id_t t_id, gvertex<double> t_size)
+            : id(t_id), size(t_size)
+        {
+            clip({0, 0, size.x, size.y});
+        }
+        inline void put(std::shared_ptr<DrawCall> t_dc)
+        {
+            dcs.emplace_back(t_dc);
+            t_dc->clip_id = cps.back().id;
+        }
+        inline void clear()
+        {
+            dcs.clear();
+            cps.clear();
+            clip({0, 0, size.x, size.y});
+        }
+        inline void clip(grect<double> t_rect)
+        {
+            const auto cps_count = cps.size();
+            if (cps_count == 0 || !cps.back().equals(t_rect))
+            {
+                cps.emplace_back(Clip(cps_count, t_rect));
+            }
+        }
 
         page_id_t id;
         gvertex<double> size;
@@ -235,50 +339,44 @@ namespace unigd::dc
         std::vector<Clip> cps;
     };
 
-    class Renderer
+    void Renderer::page(const Page &t_page)
     {
-    public:
-        virtual ~Renderer() = default;
-
-        virtual void page(const Page &t_page)
-        {
-        }
-        virtual void dc(const DrawCall &t_dc)
-        {
-        }
-        virtual void rect(const Rect &t_rect)
-        {
-            dc(t_rect);
-        }
-        virtual void text(const Text &t_text)
-        {
-            dc(t_text);
-        }
-        virtual void circle(const Circle &t_circle)
-        {
-            dc(t_circle);
-        }
-        virtual void line(const Line &t_line)
-        {
-            dc(t_line);
-        }
-        virtual void polyline(const Polyline &t_polyline)
-        {
-            dc(t_polyline);
-        }
-        virtual void polygon(const Polygon &t_polygon)
-        {
-            dc(t_polygon);
-        }
-        virtual void path(const Path &t_path)
-        {
-            dc(t_path);
-        }
-        virtual void raster(const Raster &t_raster)
-        {
-            dc(t_raster);
-        }
-    };
+    }
+    void Renderer::dc(const DrawCall &t_dc)
+    {
+    }
+    void Renderer::rect(const Rect &t_rect)
+    {
+        dc(t_rect);
+    }
+    void Renderer::text(const Text &t_text)
+    {
+        dc(t_text);
+    }
+    void Renderer::circle(const Circle &t_circle)
+    {
+        dc(t_circle);
+    }
+    void Renderer::line(const Line &t_line)
+    {
+        dc(t_line);
+    }
+    void Renderer::polyline(const Polyline &t_polyline)
+    {
+        dc(t_polyline);
+    }
+    void Renderer::polygon(const Polygon &t_polygon)
+    {
+        dc(t_polygon);
+    }
+    void Renderer::path(const Path &t_path)
+    {
+        dc(t_path);
+    }
+    void Renderer::raster(const Raster &t_raster)
+    {
+        dc(t_raster);
+    }
 
     class RenderingTarget
     {

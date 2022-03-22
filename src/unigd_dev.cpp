@@ -48,12 +48,12 @@ namespace unigd
         m_index = -1;
     }
 
-    HttpgdDev::HttpgdDev(const HttpgdDevStartParams &t_params)
+    HttpgdDev::HttpgdDev(const device_params &t_params)
         : devGeneric(t_params.width, t_params.height, t_params.pointsize, t_params.bg),
           system_aliases(cpp11::as_cpp<cpp11::list>(t_params.aliases["system"])),
           user_aliases(cpp11::as_cpp<cpp11::list>(t_params.aliases["user"])),
           m_history(),
-          m_client()
+          m_client(nullptr)
     {
         m_df_displaylist = true;
 
@@ -67,6 +67,18 @@ namespace unigd
     HttpgdDev::~HttpgdDev()
     {
         //Rcpp::Rcout << "Httpgd Device destructed.\n";
+    }
+    
+    bool HttpgdDev::attach_client(const std::shared_ptr<graphics_client> &t_client)
+    {
+        if (!m_client) 
+        {
+            m_client = t_client;
+            m_client->api = m_api_async_watcher;
+            m_client->start();
+            return true;
+        }
+        return false;
     }
 
     // DEVICE CALLBACKS
@@ -119,7 +131,7 @@ namespace unigd
         // shutdown client
         if (m_client)
         {
-            m_client->stop();
+            m_client->close();
         }
 
         // cleanup r session data
@@ -437,25 +449,25 @@ namespace unigd
         return m_data_store->render(index, t_renderer, t_scale);
     }
 
-    std::experimental::optional<int> HttpgdDev::api_index(int32_t id)
+    int HttpgdDev::api_index(int32_t id)
     {
-        return m_data_store->find_index(id);
+        return m_data_store->find_index(id).value_or(-1);
     }
 
-    HttpgdState HttpgdDev::api_state()
+    device_state HttpgdDev::api_state()
     {
         return m_data_store->state();
     }
 
-    HttpgdQueryResults HttpgdDev::api_query_all()
+    device_api_query_result HttpgdDev::api_query_all()
     {
         return m_data_store->query_all();
     }
-    HttpgdQueryResults HttpgdDev::api_query_index(int index)
+    device_api_query_result HttpgdDev::api_query_index(int index)
     {
         return m_data_store->query_index(index);
     }
-    HttpgdQueryResults HttpgdDev::api_query_range(int offset, int limit)
+    device_api_query_result HttpgdDev::api_query_range(int offset, int limit)
     {
         return m_data_store->query_range(offset, limit);
     }

@@ -6,10 +6,10 @@
 #include <mutex>
 #include <functional>
 #include <vector>
-#include "unigd_api.h"
+#include <unigd_api/device.h>
 #include "unigd_commons.h"
 #include "unigd_data_store.h"
-#include "compat/optional.hpp"
+#include <compat/optional.hpp>
 
 namespace unigd
 {
@@ -20,13 +20,13 @@ namespace unigd
         virtual void plot_changed(int upid) = 0;
     };
 
-    class HttpgdApiAsync : public HttpgdApi
+    class HttpgdApiAsync : public device_api
     {
 
     public:
         std::function<void ()> broadcast_notify_change;
 
-        HttpgdApiAsync(HttpgdApi *t_rdevice, std::shared_ptr<HttpgdDataStore> t_data_store);
+        HttpgdApiAsync(device_api *t_rdevice, std::shared_ptr<HttpgdDataStore> t_data_store);
         virtual ~HttpgdApiAsync() = default; 
 
         // Calls that DO synchronize with R
@@ -37,19 +37,19 @@ namespace unigd
 
         // Calls that MAYBE synchronize with R
         bool api_render(int index, double width, double height, dc::RenderingTarget *t_renderer, double t_scale) override;
-        std::experimental::optional<int> api_index(int32_t id) override;
+        int api_index(int32_t id) override;
         
         // Calls that DONT synchronize with R
-        HttpgdState api_state() override;
-        HttpgdQueryResults api_query_all() override;
-        HttpgdQueryResults api_query_index(int index) override;
-        HttpgdQueryResults api_query_range(int offset, int limit) override;
+        device_state api_state() override;
+        device_api_query_result api_query_all() override;
+        device_api_query_result api_query_index(int index) override;
+        device_api_query_result api_query_range(int offset, int limit) override;
 
         // this will block when a operation is running in another thread that needs the r device to be alive
         void rdevice_destructing();
 
     private:
-        HttpgdApi *m_rdevice;
+        device_api *m_rdevice;
         bool m_rdevice_alive;
         std::mutex m_rdevice_alive_mutex;
         

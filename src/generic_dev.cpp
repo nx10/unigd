@@ -155,8 +155,9 @@ namespace unigd
         return dd;
     }
 
-    void devGeneric::make_device(const char *t_device_name, devGeneric *t_dev)
+    int devGeneric::make_device(const char *t_device_name, devGeneric *t_dev)
     {
+        int devnum = -1;
 
         R_GE_checkVersionOrDie(R_GE_version);
         R_CheckDeviceAvailable();
@@ -170,8 +171,11 @@ namespace unigd
             pGEDevDesc gdd = GEcreateDevDesc(dd);
             GEaddDevice2(gdd, t_device_name);
             GEinitDisplayList(gdd);
+            devnum = GEdeviceNumber(gdd);
         }
         END_SUSPEND_INTERRUPTS;
+
+        return devnum + 1;
     }
 
     pDevDesc devGeneric::get_active_pDevDesc()

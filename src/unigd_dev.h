@@ -9,18 +9,18 @@
 #include <compat/optional.hpp>
 
 #include "generic_dev.h"
-#include "unigd_api.h"
 #include "unigd_commons.h"
 #include "unigd_data_store.h"
 #include "unigd_api_async.h"
 
 #include "unigd_api/client.h"
+#include "unigd_api/device.h"
 
 #include "plot_history.h"
 
 namespace unigd
 {
-    struct HttpgdDevStartParams
+    struct device_params
     {
         int bg;
         double width;
@@ -47,7 +47,7 @@ namespace unigd
     };
 
     class HttpgdDev : public devGeneric,
-                      public HttpgdApi
+                      public device_api
     {
     public:
 
@@ -55,20 +55,22 @@ namespace unigd
         cpp11::list system_aliases;
         cpp11::list user_aliases;
 
-        HttpgdDev(const HttpgdDevStartParams &t_params);
+        HttpgdDev(const device_params &t_params);
         virtual ~HttpgdDev();
+
+        bool attach_client(const std::shared_ptr<graphics_client> &t_client);
 
         // API functions
 
         virtual void api_prerender(int index, double width, double height) override;
         virtual bool api_remove(int index) override;
         virtual bool api_clear() override;
-        virtual HttpgdState api_state() override;
-        HttpgdQueryResults api_query_all() override;
-        HttpgdQueryResults api_query_index(int index) override;
-        HttpgdQueryResults api_query_range(int offset, int limit) override;
+        virtual device_state api_state() override;
+        device_api_query_result api_query_all() override;
+        device_api_query_result api_query_index(int index) override;
+        device_api_query_result api_query_range(int offset, int limit) override;
         bool api_render(int index, double width, double height, dc::RenderingTarget *t_renderer, double t_scale) override;
-        virtual std::experimental::optional<int> api_index(int32_t id) override;
+        virtual int api_index(int32_t id) override;
 
     protected:
         // Device callbacks
@@ -96,7 +98,7 @@ namespace unigd
         std::shared_ptr<HttpgdDataStore> m_data_store;
         std::shared_ptr<HttpgdApiAsync> m_api_async_watcher;
         
-        std::shared_ptr<Client> m_client;
+        std::shared_ptr<graphics_client> m_client;
 
         bool replaying{false}; // Is the device replaying
         DeviceTarget m_target;

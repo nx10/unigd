@@ -16,7 +16,6 @@
 #include "renderer_svg.h"
 #include "renderers.h"
 #include "r_thread.h"
-#include "unigd_external.h"
 
 
 namespace
@@ -67,11 +66,10 @@ namespace
 
 
 [[cpp11::register]]
-bool unigd_ugd_(std::string bg, double width, double height,
+int unigd_ugd_(std::string bg, double width, double height,
              double pointsize, cpp11::list aliases,
              bool reset_par)
 {
-    bool recording = true;
     int ibg = R_GE_str2col(bg.c_str());
 
     auto dev = new unigd::HttpgdDev(
@@ -82,8 +80,7 @@ bool unigd_ugd_(std::string bg, double width, double height,
          aliases,
          reset_par});
 
-    unigd::HttpgdDev::make_device("unigd", dev);
-    return true; //dev->server_start();
+    return unigd::HttpgdDev::make_device("unigd", dev);
 }
 
 [[cpp11::register]]
@@ -91,7 +88,7 @@ cpp11::list unigd_state_(int devnum)
 {
     auto dev = validate_unigddev(devnum);
 
-    unigd::HttpgdState state = dev->api_state();
+    unigd::device_state state = dev->api_state();
 
     using namespace cpp11::literals;
     return cpp11::writable::list{
@@ -134,7 +131,7 @@ cpp11::data_frame unigd_renderers_()
     cpp11::writable::strings ren_descr{nren};
 
     R_xlen_t i = 0;
-    for (auto it = renderers.string_renderers().begin(); it != renderers.string_renderers().end(); it++) 
+    for (auto it = renderers.string_renderers().begin(); it != renderers.string_renderers().end(); it++)
     {
         ren_id[i] = it->second.id;
         ren_mime[i] = it->second.mime;
@@ -145,7 +142,7 @@ cpp11::data_frame unigd_renderers_()
         ren_descr[i] = it->second.description;
         i++;
     }
-    for (auto it = renderers.binary_renderers().begin(); it != renderers.binary_renderers().end(); it++) 
+    for (auto it = renderers.binary_renderers().begin(); it != renderers.binary_renderers().end(); it++)
     {
         ren_id[i] = it->second.id;
         ren_mime[i] = it->second.mime;
@@ -186,11 +183,11 @@ int unigd_plot_find_(int devnum, std::string plot_id)
     long pid = validate_plotid(plot_id);
     auto dev = validate_unigddev(devnum);
     auto page = dev->api_index(pid);
-    if (!page)
+    if (page == -1)
     {
         cpp11::stop("Not a valid plot ID.");
     }
-    return *page;
+    return page;
 }
 
 [[cpp11::register]]
@@ -249,20 +246,20 @@ bool unigd_remove_id_(int devnum, std::string id)
     long pid = validate_plotid(id);
     auto dev = validate_unigddev(devnum);
     auto page = dev->api_index(pid);
-    if (!page)
+    if (page == -1)
     {
         cpp11::stop("Not a valid plot ID.");
     }
 
-    return dev->api_remove(*page);
+    return dev->api_remove(page);
 }
 
 [[cpp11::register]]
 cpp11::writable::list unigd_id_(int devnum, int page, int limit)
 {
     auto dev = validate_unigddev(devnum);
-    unigd::HttpgdQueryResults res;
-    
+    unigd::device_api_query_result res;
+
     if (page == -1)
     {
         res = dev->api_query_index(page);
@@ -310,9 +307,4 @@ void unigd_ipc_open_()
 void unigd_ipc_close_()
 {
     unigd::async::ipc_close();
-}
-
-[[cpp11::init]]
-void unigd_exports_init_(DllInfo* dll) {
-    unigd::unigd_register_exports();
 }
