@@ -8,9 +8,10 @@ namespace unigd::dc
         page(t_page);
     }
 
-    std::string RendererMeta::get_string() const
+    void RendererMeta::get_data(const uint8_t **t_buf, size_t *t_size) const
     {
-        return fmt::to_string(os);
+        *t_buf = reinterpret_cast<const uint8_t *>(os.begin());
+        *t_size = os.size();
     }
 
     void RendererMeta::page(const Page &t_page)

@@ -1,5 +1,6 @@
 #include <unigd_api/client.h>
 #include "unigd_dev.h"
+#include "renderers.h"
 
 namespace
 {
@@ -48,4 +49,16 @@ bool ugd_c_attach_client(int devnum, const std::shared_ptr<unigd::graphics_clien
     dev->attach_client(t_client);
 
     return true;
+}
+
+[[cpp11::external("ugd_renderers_find")]]
+bool ugd_c_renderers_find(const std::__cxx11::string& id, const unigd::renderers::renderer_gen** renderer)
+{
+    return unigd::renderers::find_renderer(id, renderer);
+}
+
+[[cpp11::external("ugd_renderers_find_info")]]
+bool ugd_c_renderers_find_info(const std::__cxx11::string& id, const unigd::renderers::renderer_info** renderer)
+{
+    return unigd::renderers::find_info(id, renderer);
 }

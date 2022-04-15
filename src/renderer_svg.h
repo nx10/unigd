@@ -8,13 +8,12 @@
 
 namespace unigd::dc
 {
-    class RendererSVG : public Renderer, public StringRenderingTarget
+    class RendererSVG : public Renderer
     {
     public:
         explicit RendererSVG(std::experimental::optional<std::string> t_extra_css);
         void render(const Page &t_page, double t_scale) override;
-        [[nodiscard]] 
-        std::string get_string() const override;
+        void get_data(const uint8_t **t_buf, size_t *t_size) const override;
 
         // Renderer
         void page(const Page &t_page) override;
@@ -40,13 +39,12 @@ namespace unigd::dc
      * - Does not use style tags or CDATA embedded CSS.
      * - Appends random UUID to document-wide (clipPath) IDs.
      */
-    class RendererSVGPortable : public Renderer, public StringRenderingTarget
+    class RendererSVGPortable : public Renderer
     {
     public:
         RendererSVGPortable();
         void render(const Page &t_page, double t_scale) override;
-        [[nodiscard]] 
-        std::string get_string() const override;
+        void get_data(const uint8_t **t_buf, size_t *t_size) const override;
 
         // Renderer
         void page(const Page &t_page) override;
@@ -66,20 +64,26 @@ namespace unigd::dc
         std::string m_unique_id;
     };
 
-    class RendererSVGZ : public RendererSVG, public BinaryRenderingTarget
+    class RendererSVGZ : public RendererSVG
     {
     public:
         explicit RendererSVGZ(std::experimental::optional<std::string> t_extra_css);
-        [[nodiscard]] 
-        std::vector<unsigned char> get_binary() const override;
+        void render(const Page &t_page, double t_scale) override;
+        void get_data(const uint8_t **t_buf, size_t *t_size) const override;
+
+    private:
+        std::vector<unsigned char> m_compressed;
     };
     
-    class RendererSVGZPortable : public RendererSVGPortable, public BinaryRenderingTarget
+    class RendererSVGZPortable : public RendererSVGPortable
     {
     public:
         RendererSVGZPortable();
-        [[nodiscard]] 
-        std::vector<unsigned char> get_binary() const override;
+        void render(const Page &t_page, double t_scale) override;
+        void get_data(const uint8_t **t_buf, size_t *t_size) const override;
+
+    private:
+        std::vector<unsigned char> m_compressed;
     };
     
 } // namespace unigd::dc

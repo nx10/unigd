@@ -16,24 +16,12 @@ unigd_renderers_ <- function() {
   .Call(`_unigd_unigd_renderers_`)
 }
 
-unigd_renderer_is_str_ <- function(renderer_id) {
-  .Call(`_unigd_unigd_renderer_is_str_`, renderer_id)
-}
-
-unigd_renderer_is_raw_ <- function(renderer_id) {
-  .Call(`_unigd_unigd_renderer_is_raw_`, renderer_id)
-}
-
 unigd_plot_find_ <- function(devnum, plot_id) {
   .Call(`_unigd_unigd_plot_find_`, devnum, plot_id)
 }
 
-unigd_plot_str_ <- function(devnum, page, width, height, zoom, renderer_id) {
-  .Call(`_unigd_unigd_plot_str_`, devnum, page, width, height, zoom, renderer_id)
-}
-
-unigd_plot_raw_ <- function(devnum, page, width, height, zoom, renderer_id) {
-  .Call(`_unigd_unigd_plot_raw_`, devnum, page, width, height, zoom, renderer_id)
+unigd_render_ <- function(devnum, page, width, height, zoom, renderer_id) {
+  .Call(`_unigd_unigd_render_`, devnum, page, width, height, zoom, renderer_id)
 }
 
 unigd_remove_ <- function(devnum, page) {

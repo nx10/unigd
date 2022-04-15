@@ -36,7 +36,7 @@ namespace unigd
 
 
         // Calls that MAYBE synchronize with R
-        bool api_render(int index, double width, double height, dc::RenderingTarget *t_renderer, double t_scale) override;
+        bool api_render(int index, double width, double height, dc::Renderer *t_renderer, double t_scale) override;
         int api_index(int32_t id) override;
         
         // Calls that DONT synchronize with R

@@ -6,12 +6,12 @@
 
 namespace unigd::dc
 {
-    class RendererMeta : public StringRenderingTarget, public Renderer
+    class RendererMeta : public Renderer
     {
     public:
         void render(const Page &t_page, double t_scale) override;
         [[nodiscard]]
-        std::string get_string() const override;
+        void get_data(const uint8_t **t_buf, size_t *t_size) const override;
 
         // Renderer
         void page(const Page &t_page) override;

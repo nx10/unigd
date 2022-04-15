@@ -11,13 +11,212 @@
 
 namespace unigd
 {
-    const RendererManager RendererManager::defaults_ = RendererManager::generate_default();
-
-    const RendererManager &RendererManager::defaults() 
+    namespace renderers 
     {
-        return RendererManager::defaults_;
+  
+    static std::unordered_map<std::string, renderer_gen> renderer_map = 
+    {
+      {
+        "svg",
+        {
+          {
+            "svg",
+            "image/svg+xml",
+            ".svg",
+            "SVG",
+            "plot",
+            "Scalable Vector Graphics (SVG).",
+            true
+          },
+          []() { return std::make_unique<dc::RendererSVG>(std::experimental::nullopt); }
+        }
+      },
+      {
+        "svgp",
+        {
+          {
+            "svgp",
+            "image/svg+xml",
+            ".svg",
+            "Portable SVG",
+            "plot",
+            "Version of the SVG renderer that produces portable SVGs.",
+            true
+          },
+          []() { return std::make_unique<dc::RendererSVGPortable>(); }
+        }
+      },
+      {
+        "json",
+        {
+          {
+            "json",
+            "application/json",
+            ".json",
+            "JSON",
+            "plot",
+            "Plot data serialized to JSON format.",
+            true
+          },
+          []() { return std::make_unique<dc::RendererJSON>(); }
+        }
+      },
+      {
+        "tikz",
+        {
+          {
+            "tikz",
+            "text/plain",
+            ".tex",
+            "TikZ",
+            "plot",
+            "LaTeX TikZ code.",
+            true
+          },
+          []() { return std::make_unique<dc::RendererTikZ>(); }
+        }
+      },
+      {
+        "strings",
+        {
+          {
+            "strings",
+            "text/plain",
+            ".txt",
+            "Strings",
+            "data",
+            "List of strings contained in plot.",
+            true
+          },
+          []() { return std::make_unique<dc::RendererStrings>(); }
+        }
+      },
+      {
+        "meta",
+        {
+          {
+            "meta",
+            "application/json",
+            ".json",
+            "Meta",
+            "data",
+            "Plot meta information.",
+            true
+          },
+          []() { return std::make_unique<dc::RendererMeta>(); }
+        }
+      },
+      {
+        "svgz",
+        {
+          {
+            "svgz",
+            "image/svg+xml",
+            ".svgz",
+            "SVGZ",
+            "plot",
+            "Compressed Scalable Vector Graphics (SVGZ).",
+            false
+          },
+          []() { return std::make_unique<dc::RendererSVGZ>(std::experimental::nullopt); }
+        }
+      },
+      {
+        "svgzp",
+        {
+          {
+            "svgzp",
+            "image/svg+xml",
+            ".svgz",
+            "Portable SVGZ",
+            "plot",
+            "Version of the SVG renderer that produces portable SVGZs.",
+            false
+          },
+          []() { return std::make_unique<dc::RendererSVGZPortable>(); }
+        }
+      }
+
+#ifndef UNIGD_NO_CAIRO
+      ,
+      {"ps",{
+        {"ps",
+        "application/postscript",
+        ".ps",
+        "PS",
+        "plot",
+        "PostScript (PS)."},
+        []() { return std::make_unique<dc::RendererCairoPs>(); },
+      }},
+      {"eps",{
+        {"eps",
+        "application/postscript",
+        ".eps",
+        "EPS",
+        "plot",
+        "Encapsulated PostScript (EPS)."},
+        []() { return std::make_unique<dc::RendererCairoEps>(); }
+      }},
+      
+      {"png",{
+        {"png",
+        "image/png",
+        ".png",
+        "PNG",
+        "plot",
+        "Portable Network Graphics (PNG)."},
+        []() { return std::make_unique<dc::RendererCairoPng>(); }
+      }},
+      
+      {"pdf",{
+        {"pdf",
+        "application/pdf",
+        ".pdf",
+        "PDF",
+        "plot",
+        "Adobe Portable Document Format (PDF)."},
+        []() { return std::make_unique<dc::RendererCairoPdf>(); }
+      }},
+      
+      {"tiff",{
+        {"tiff",
+        "image/tiff",
+        ".tiff",
+        "TIFF",
+        "plot",
+        "Tagged Image File Format (TIFF)."},
+        []() { return std::make_unique<dc::RendererCairoTiff>(); }
+      }}
+#endif
+    };
+
+    bool find_renderer(const std::string &id, const renderer_gen **renderer)
+    {
+        const auto it = renderer_map.find(id);
+        if (it != renderer_map.end())
+        {
+            *renderer = &it->second;
+            return true;
+        }
+        return false;
     }
 
+    bool find_info(const std::string &id, const renderer_info **renderer)
+    {
+        const renderer_gen *renderer_str = nullptr;
+        if (find_renderer(id, &renderer_str))
+        {
+            *renderer = &renderer_str->info;
+            return true;
+        }
+        return false;
+    }
+
+    const std::unordered_map<std::string, renderer_gen> *renderers() {
+      return &renderer_map;
+    }
+
+/*
     const RendererManager RendererManager::generate_default() 
     {
         RendererManager manager;
@@ -115,94 +314,8 @@ namespace unigd
         });
         
 #endif
-        
-        manager.add({
-          "json",
-          "application/json",
-          ".json",
-          "JSON",
-          "plot",
-          []() { return std::make_unique<dc::RendererJSON>(); },
-          "Plot data serialized to JSON format."
-        });
-        
-        manager.add({
-          "tikz",
-          "text/plain",
-          ".tex",
-          "TikZ",
-          "plot",
-          []() { return std::make_unique<dc::RendererTikZ>(); },
-          "LaTeX TikZ code."
-        });
-        
-        manager.add({
-          "strings",
-          "text/plain",
-          ".txt",
-          "Strings",
-          "data",
-          []() { return std::make_unique<dc::RendererStrings>(); },
-          "List of strings contained in plot."
-        });
-        
-        manager.add({
-          "meta",
-          "application/json",
-          ".json",
-          "Meta",
-          "data",
-          []() { return std::make_unique<dc::RendererMeta>(); },
-          "Plot meta information."
-        });
+        */
 
-        return manager;
-    }
 
-    const std::unordered_map<std::string, StringRendererInfo>& RendererManager::string_renderers() const
-    {
-        return m_string_renderers;
-    }
-    
-    const std::unordered_map<std::string, BinaryRendererInfo>& RendererManager::binary_renderers() const
-    {
-        return m_binary_renderers;
-    }
-    
-    void RendererManager::add(const StringRendererInfo &renderer) 
-    {
-        m_string_renderers[renderer.id] = renderer;
-    }
-    
-    void RendererManager::add(const BinaryRendererInfo &renderer) 
-    {
-        m_binary_renderers[renderer.id] = renderer;
-    }
-    
-    std::experimental::optional<const StringRendererInfo &> RendererManager::find_string(const std::string &id) const
-    {
-        auto it = m_string_renderers.find(id);
-        if (it != m_string_renderers.end())
-        {
-            return it->second;
-        }
-        return std::experimental::nullopt;
-    }
-    
-    std::experimental::optional<const BinaryRendererInfo &> RendererManager::find_binary(const std::string &id) const
-    {
-        auto it = m_binary_renderers.find(id);
-        if (it != m_binary_renderers.end())
-        {
-            return it->second;
-        }
-        return std::experimental::nullopt;
-    }
-    
-    std::size_t RendererManager::size() const
-    {
-        return m_string_renderers.size() + m_binary_renderers.size();
-    }
-    
-
+    } // namespace renderers
 } // namespace unigd

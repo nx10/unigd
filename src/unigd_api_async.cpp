@@ -51,7 +51,7 @@ namespace unigd
         }).wait();        
     }
     
-    bool HttpgdApiAsync::api_render(int index, double width, double height, dc::RenderingTarget *t_renderer, double t_scale) 
+    bool HttpgdApiAsync::api_render(int index, double width, double height, dc::Renderer *t_renderer, double t_scale) 
     {
         if (m_data_store->diff(index, {width, height}))
         {

@@ -157,7 +157,7 @@ namespace unigd
                 std::fabs(new_size.y - old_size.y) > 0.1);
     }
     
-    bool HttpgdDataStore::render(page_index_t t_index, dc::RenderingTarget *t_renderer, double t_scale) 
+    bool HttpgdDataStore::render(page_index_t t_index, dc::Renderer *t_renderer, double t_scale) 
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))

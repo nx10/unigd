@@ -168,9 +168,10 @@ namespace unigd::dc
         this->page(t_page);
     }
     
-    std::string RendererSVG::get_string() const 
+    void RendererSVG::get_data(const uint8_t **t_buf, size_t *t_size) const
     {
-        return fmt::to_string(os);
+        *t_buf = reinterpret_cast<const uint8_t *>(os.begin());
+        *t_size = os.size();
     }
     
     void RendererSVG::page(const Page &t_page) 
@@ -544,9 +545,10 @@ namespace unigd::dc
         this->page(t_page);
     }
     
-    std::string RendererSVGPortable::get_string() const 
+    void RendererSVGPortable::get_data(const uint8_t **t_buf, size_t *t_size) const
     {
-        return fmt::to_string(os);
+        *t_buf = reinterpret_cast<const uint8_t *>(os.begin());
+        *t_size = os.size();
     }
     
     void RendererSVGPortable::page(const Page &t_page) 
@@ -781,9 +783,21 @@ namespace unigd::dc
     {
     }
     
-    std::vector<unsigned char> RendererSVGZ::get_binary() const 
+    void RendererSVGZ::render(const Page &t_page, double t_scale)
     {
-        return compr::compress_str(RendererSVG::get_string());
+        RendererSVG::render(t_page, t_scale);
+
+        const uint8_t *buf;
+        size_t buf_size;
+        RendererSVG::get_data(&buf, &buf_size);
+
+        m_compressed = compr::compress(buf, buf_size);
+    }
+    
+    void RendererSVGZ::get_data(const uint8_t **t_buf, size_t *t_size) const
+    {
+        *t_buf = m_compressed.data();
+        *t_size = m_compressed.size();
     }
     
     RendererSVGZPortable::RendererSVGZPortable() :
@@ -791,9 +805,21 @@ namespace unigd::dc
     {
     }
     
-    std::vector<unsigned char> RendererSVGZPortable::get_binary() const 
+    void RendererSVGZPortable::render(const Page &t_page, double t_scale)
     {
-        return compr::compress_str(RendererSVGPortable::get_string());
+        RendererSVGZPortable::render(t_page, t_scale);
+
+        const uint8_t *buf;
+        size_t buf_size;
+        RendererSVGZPortable::get_data(&buf, &buf_size);
+
+        m_compressed = compr::compress(buf, buf_size);
+    }
+    
+    void RendererSVGZPortable::get_data(const uint8_t **t_buf, size_t *t_size) const
+    {
+        *t_buf = m_compressed.data();
+        *t_size = m_compressed.size();
     }
 
 } // namespace unigd::dc

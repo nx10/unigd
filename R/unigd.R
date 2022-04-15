@@ -58,11 +58,11 @@ ugd <-
     
     aliases <- validate_aliases(system_fonts, user_fonts)
 
-    unigd_ugd_(
+    invisible(unigd_ugd_(
       bg, width, height,
       pointsize, aliases,
       reset_par
-    )
+    ))
   }
 
 #' unigd device status.
@@ -253,21 +253,21 @@ ugd_plot <- function(page = 0,
   if (class(page) == "unigd_pid") {
     page <- unigd_plot_find_(which, page$id)
   }
-  if (unigd_renderer_is_str_(renderer)) {
-    ret <- unigd_plot_str_(which, page - 1, width, height, zoom, renderer)
-    if (!is.na(file)) {
-      cat(ret, file = file)
-      return()
-    }
-  } else if (unigd_renderer_is_raw_(renderer)) {
-    ret <- unigd_plot_raw_(which, page - 1, width, height, zoom, renderer)
-    if (!is.na(file)) {
-      writeBin(ret, con = file)
-      return()
-    }
-  } else {
-    stop("Not a valid renderer ID.")
-  }
+  #if (unigd_renderer_is_str_(renderer)) {
+    ret <- unigd_render_(which, page - 1, width, height, zoom, renderer)
+  #  if (!is.na(file)) {
+  #    cat(ret, file = file)
+  #    return()
+  #  }
+  #} else if (unigd_renderer_is_raw_(renderer)) {
+  #  ret <- unigd_plot_raw_(which, page - 1, width, height, zoom, renderer)
+  #  if (!is.na(file)) {
+  #    writeBin(ret, con = file)
+  #    return()
+  #  }
+  #} else {
+  #  stop("Not a valid renderer ID.")
+  #}
   return(ret)
 }
 

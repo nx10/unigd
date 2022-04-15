@@ -14,12 +14,3 @@ You can install the development version of unigd from GitHub with:
 remotes::install_github("nx10/unigd")
 ```
 
-## Example
-
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-library(unigd)
-## basic example code
-```
-

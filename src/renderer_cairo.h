@@ -1,6 +1,7 @@
 #ifndef RENDERER_CAIRO_H
 #define RENDERER_CAIRO_H
 
+#define UNIGD_NO_CAIRO
 #ifndef UNIGD_NO_CAIRO
 
 #include <unigd_api/draw_data.h>

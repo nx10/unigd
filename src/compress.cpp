@@ -9,7 +9,7 @@ namespace unigd
     namespace compr
     {
         template<typename charTypeIn, typename charTypeOut>
-        static std::vector<charTypeOut> compressToGzip(const charTypeIn *input, size_t inputSize)
+        inline std::vector<charTypeOut> compressToGzip(const charTypeIn *input, size_t inputSize)
         {
             static_assert(sizeof(charTypeIn) == 1, "input not a char type");
             static_assert(sizeof(charTypeOut) == 1, "output not a char type vector");
@@ -48,6 +48,11 @@ namespace unigd
             }
             deflateEnd(&zs);
             return buffer;
+        }
+
+        std::vector<uint8_t> compress(const uint8_t *input, size_t input_size)
+        {
+            return compressToGzip<uint8_t, uint8_t>(input, input_size);
         }
 
         std::vector<unsigned char> compress_str(const std::string &s)

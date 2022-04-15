@@ -24,7 +24,7 @@ namespace unigd
         virtual bool api_clear() = 0;
 
         virtual void api_prerender(int index, double width, double height) = 0;
-        virtual bool api_render(int index, double width, double height, dc::RenderingTarget *t_renderer, double t_scale) = 0;
+        virtual bool api_render(int index, double width, double height, dc::Renderer *t_renderer, double t_scale) = 0;
         virtual int api_index(int32_t id) = 0;
         
 

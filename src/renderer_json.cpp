@@ -2,7 +2,7 @@
 
 #include "base_64.h"
 
-namespace unigd::dc
+namespace unigd { namespace dc
 {
 
     static inline std::string hexcol(color_t t_color)
@@ -36,9 +36,10 @@ namespace unigd::dc
         page(t_page);
     }
 
-    std::string RendererJSON::get_string() const
+    void RendererJSON::get_data(const uint8_t **t_buf, size_t *t_size) const
     {
-        return fmt::to_string(os);
+        *t_buf = reinterpret_cast<const uint8_t *>(os.begin());
+        *t_size = os.size();
     }
 
     void RendererJSON::page(const Page &t_page)
@@ -139,4 +140,4 @@ namespace unigd::dc
                        t_raster.clip_id, t_raster.rect.x, t_raster.rect.y, t_raster.rect.width, t_raster.rect.height, t_raster.rot, t_raster.wh.x, t_raster.wh.y, raster_base64(t_raster));
     }
 
-} // namespace unigd::dc
+} } // namespace unigd::dc

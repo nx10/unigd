@@ -128,6 +128,9 @@ namespace unigd::dc
         inline virtual void polygon(const Polygon &t_polygon);
         inline virtual void path(const Path &t_path);
         inline virtual void raster(const Raster &t_raster);
+
+        inline virtual void render(const Page &t_page, double t_scale);
+        inline virtual void get_data(const uint8_t **t_buf, size_t *t_size) const;
     };
 
     class Clip;
@@ -377,36 +380,6 @@ namespace unigd::dc
     {
         dc(t_raster);
     }
-
-    class RenderingTarget
-    {
-    public:
-        virtual ~RenderingTarget() = default;
-        virtual void render(const Page &t_page, double t_scale)
-        {
-        }
-    };
-
-    class StringRenderingTarget : virtual public RenderingTarget
-    {
-    public:
-        virtual ~StringRenderingTarget() = default;
-        [[nodiscard]] 
-        virtual std::string get_string() const
-        {
-            return std::string("");
-        }
-    };
-    class BinaryRenderingTarget : virtual public RenderingTarget
-    {
-    public:
-        virtual ~BinaryRenderingTarget() = default; 
-        [[nodiscard]] 
-        virtual std::vector<unsigned char> get_binary() const
-        {
-            return {};
-        }
-    };
 
 } // namespace unigd::dc
 

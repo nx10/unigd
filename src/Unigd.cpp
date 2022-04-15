@@ -116,41 +116,30 @@ cpp11::data_frame unigd_renderers_()
 {
     using namespace cpp11::literals;
 
-    const auto &renderers = unigd::RendererManager::defaults();
+    const auto renderers = unigd::renderers::renderers();
 
-    cpp11::writable::list rens{static_cast<R_xlen_t>(renderers.size())};
+    cpp11::writable::list rens{static_cast<R_xlen_t>(renderers->size())};
 
-    const R_xlen_t nren = renderers.size();
+    const R_xlen_t nren = renderers->size();
     cpp11::writable::strings ren_id{nren};
     cpp11::writable::strings ren_mime{nren};
     cpp11::writable::strings ren_ext{nren};
     cpp11::writable::strings ren_name{nren};
     cpp11::writable::strings ren_type{nren};
-    cpp11::writable::logicals ren_bin;
-    ren_bin.resize(nren); // R cpp11 bug?
+    cpp11::writable::logicals ren_text;
+    ren_text.resize(nren); // R cpp11 bug?
     cpp11::writable::strings ren_descr{nren};
 
     R_xlen_t i = 0;
-    for (auto it = renderers.string_renderers().begin(); it != renderers.string_renderers().end(); it++)
+    for (auto it = renderers->begin(); it != renderers->end(); it++)
     {
-        ren_id[i] = it->second.id;
-        ren_mime[i] = it->second.mime;
-        ren_ext[i] = it->second.fileext;
-        ren_name[i] = it->second.name;
-        ren_type[i] = it->second.type;
-        ren_bin[i] = false;
-        ren_descr[i] = it->second.description;
-        i++;
-    }
-    for (auto it = renderers.binary_renderers().begin(); it != renderers.binary_renderers().end(); it++)
-    {
-        ren_id[i] = it->second.id;
-        ren_mime[i] = it->second.mime;
-        ren_ext[i] = it->second.fileext;
-        ren_name[i] = it->second.name;
-        ren_type[i] = it->second.type;
-        ren_bin[i] = true;
-        ren_descr[i] = it->second.description;
+        ren_id[i] = it->second.info.id;
+        ren_mime[i] = it->second.info.mime;
+        ren_ext[i] = it->second.info.fileext;
+        ren_name[i] = it->second.info.name;
+        ren_type[i] = it->second.info.type;
+        ren_text[i] = it->second.info.text;
+        ren_descr[i] = it->second.info.description;
         i++;
     }
 
@@ -160,22 +149,12 @@ cpp11::data_frame unigd_renderers_()
                 "ext"_nm = ren_ext,
                 "name"_nm = ren_name,
                 "type"_nm = ren_type,
-                "bin"_nm = ren_bin,
+                "text"_nm = ren_text,
                 "descr"_nm = ren_descr
     });
     return res;
 }
 
-[[cpp11::register]]
-bool unigd_renderer_is_str_(std::string renderer_id)
-{
-    return unigd::RendererManager::defaults().find_string(renderer_id) ? true : false;
-}
-[[cpp11::register]]
-bool unigd_renderer_is_raw_(std::string renderer_id)
-{
-    return unigd::RendererManager::defaults().find_binary(renderer_id) ? true : false;
-}
 
 [[cpp11::register]]
 int unigd_plot_find_(int devnum, std::string plot_id)
@@ -191,7 +170,7 @@ int unigd_plot_find_(int devnum, std::string plot_id)
 }
 
 [[cpp11::register]]
-std::string unigd_plot_str_(int devnum, int page, double width, double height, double zoom, std::string renderer_id)
+SEXP unigd_render_(int devnum, int page, double width, double height, double zoom, std::string renderer_id)
 {
     auto dev = validate_unigddev(devnum);
 
@@ -200,37 +179,24 @@ std::string unigd_plot_str_(int devnum, int page, double width, double height, d
         zoom = 1;
     }
 
-    auto fi_renderer = unigd::RendererManager::defaults().find_string(renderer_id);
+    const unigd::renderers::renderer_gen *ren;
+    auto fi_renderer = unigd::renderers::find_renderer(renderer_id, &ren);
     if (!fi_renderer)
     {
         cpp11::stop("Not a valid string renderer ID.");
     }
-    auto renderer = (*fi_renderer).renderer();
-    dev->api_render(page, width / zoom, height / zoom, renderer.get(), zoom);
-    return renderer->get_string();
-}
-
-[[cpp11::register]]
-cpp11::raws unigd_plot_raw_(int devnum, int page, double width, double height, double zoom, std::string renderer_id)
-{
-    auto dev = validate_unigddev(devnum);
-
-    if (width < 0 || height < 0)
-    {
-        zoom = 1;
-    }
-
-    auto fi_renderer = unigd::RendererManager::defaults().find_binary(renderer_id);
-    if (!fi_renderer)
-    {
-        cpp11::stop("Not a valid binary renderer ID.");
-    }
-    auto renderer = (*fi_renderer).renderer();
+    auto renderer = ren->renderer();
     dev->api_render(page, width / zoom, height / zoom, renderer.get(), zoom);
 
-    auto bin = renderer->get_binary();
-    cpp11::writable::raws raw(bin.begin(), bin.end());
-    return raw;
+    const uint8_t *buf;
+    size_t buf_size;
+    renderer->get_data(&buf, &buf_size);
+
+    if (ren->info.text) {
+        return cpp11::writable::strings({ cpp11::r_string(std::string(buf, buf+buf_size)) });
+    } else {
+        return cpp11::writable::raws(buf, buf+buf_size);
+    }
 }
 
 [[cpp11::register]]

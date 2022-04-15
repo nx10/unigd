@@ -34,20 +34,6 @@ extern "C" SEXP _unigd_unigd_renderers_() {
   END_CPP11
 }
 // unigd.cpp
-bool unigd_renderer_is_str_(std::string renderer_id);
-extern "C" SEXP _unigd_unigd_renderer_is_str_(SEXP renderer_id) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(unigd_renderer_is_str_(cpp11::as_cpp<cpp11::decay_t<std::string>>(renderer_id)));
-  END_CPP11
-}
-// unigd.cpp
-bool unigd_renderer_is_raw_(std::string renderer_id);
-extern "C" SEXP _unigd_unigd_renderer_is_raw_(SEXP renderer_id) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(unigd_renderer_is_raw_(cpp11::as_cpp<cpp11::decay_t<std::string>>(renderer_id)));
-  END_CPP11
-}
-// unigd.cpp
 int unigd_plot_find_(int devnum, std::string plot_id);
 extern "C" SEXP _unigd_unigd_plot_find_(SEXP devnum, SEXP plot_id) {
   BEGIN_CPP11
@@ -55,17 +41,10 @@ extern "C" SEXP _unigd_unigd_plot_find_(SEXP devnum, SEXP plot_id) {
   END_CPP11
 }
 // unigd.cpp
-std::string unigd_plot_str_(int devnum, int page, double width, double height, double zoom, std::string renderer_id);
-extern "C" SEXP _unigd_unigd_plot_str_(SEXP devnum, SEXP page, SEXP width, SEXP height, SEXP zoom, SEXP renderer_id) {
+SEXP unigd_render_(int devnum, int page, double width, double height, double zoom, std::string renderer_id);
+extern "C" SEXP _unigd_unigd_render_(SEXP devnum, SEXP page, SEXP width, SEXP height, SEXP zoom, SEXP renderer_id) {
   BEGIN_CPP11
-    return cpp11::as_sexp(unigd_plot_str_(cpp11::as_cpp<cpp11::decay_t<int>>(devnum), cpp11::as_cpp<cpp11::decay_t<int>>(page), cpp11::as_cpp<cpp11::decay_t<double>>(width), cpp11::as_cpp<cpp11::decay_t<double>>(height), cpp11::as_cpp<cpp11::decay_t<double>>(zoom), cpp11::as_cpp<cpp11::decay_t<std::string>>(renderer_id)));
-  END_CPP11
-}
-// unigd.cpp
-cpp11::raws unigd_plot_raw_(int devnum, int page, double width, double height, double zoom, std::string renderer_id);
-extern "C" SEXP _unigd_unigd_plot_raw_(SEXP devnum, SEXP page, SEXP width, SEXP height, SEXP zoom, SEXP renderer_id) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(unigd_plot_raw_(cpp11::as_cpp<cpp11::decay_t<int>>(devnum), cpp11::as_cpp<cpp11::decay_t<int>>(page), cpp11::as_cpp<cpp11::decay_t<double>>(width), cpp11::as_cpp<cpp11::decay_t<double>>(height), cpp11::as_cpp<cpp11::decay_t<double>>(zoom), cpp11::as_cpp<cpp11::decay_t<std::string>>(renderer_id)));
+    return cpp11::as_sexp(unigd_render_(cpp11::as_cpp<cpp11::decay_t<int>>(devnum), cpp11::as_cpp<cpp11::decay_t<int>>(page), cpp11::as_cpp<cpp11::decay_t<double>>(width), cpp11::as_cpp<cpp11::decay_t<double>>(height), cpp11::as_cpp<cpp11::decay_t<double>>(zoom), cpp11::as_cpp<cpp11::decay_t<std::string>>(renderer_id)));
   END_CPP11
 }
 // unigd.cpp
@@ -115,32 +94,33 @@ extern "C" SEXP _unigd_unigd_ipc_close_() {
 
 extern "C" {
 static const R_CallMethodDef CallEntries[] = {
-    {"_unigd_unigd_clear_",           (DL_FUNC) &_unigd_unigd_clear_,           1},
-    {"_unigd_unigd_id_",              (DL_FUNC) &_unigd_unigd_id_,              3},
-    {"_unigd_unigd_info_",            (DL_FUNC) &_unigd_unigd_info_,            1},
-    {"_unigd_unigd_ipc_close_",       (DL_FUNC) &_unigd_unigd_ipc_close_,       0},
-    {"_unigd_unigd_ipc_open_",        (DL_FUNC) &_unigd_unigd_ipc_open_,        0},
-    {"_unigd_unigd_plot_find_",       (DL_FUNC) &_unigd_unigd_plot_find_,       2},
-    {"_unigd_unigd_plot_raw_",        (DL_FUNC) &_unigd_unigd_plot_raw_,        6},
-    {"_unigd_unigd_plot_str_",        (DL_FUNC) &_unigd_unigd_plot_str_,        6},
-    {"_unigd_unigd_remove_",          (DL_FUNC) &_unigd_unigd_remove_,          2},
-    {"_unigd_unigd_remove_id_",       (DL_FUNC) &_unigd_unigd_remove_id_,       2},
-    {"_unigd_unigd_renderer_is_raw_", (DL_FUNC) &_unigd_unigd_renderer_is_raw_, 1},
-    {"_unigd_unigd_renderer_is_str_", (DL_FUNC) &_unigd_unigd_renderer_is_str_, 1},
-    {"_unigd_unigd_renderers_",       (DL_FUNC) &_unigd_unigd_renderers_,       0},
-    {"_unigd_unigd_state_",           (DL_FUNC) &_unigd_unigd_state_,           1},
-    {"_unigd_unigd_ugd_",             (DL_FUNC) &_unigd_unigd_ugd_,             6},
+    {"_unigd_unigd_clear_",     (DL_FUNC) &_unigd_unigd_clear_,     1},
+    {"_unigd_unigd_id_",        (DL_FUNC) &_unigd_unigd_id_,        3},
+    {"_unigd_unigd_info_",      (DL_FUNC) &_unigd_unigd_info_,      1},
+    {"_unigd_unigd_ipc_close_", (DL_FUNC) &_unigd_unigd_ipc_close_, 0},
+    {"_unigd_unigd_ipc_open_",  (DL_FUNC) &_unigd_unigd_ipc_open_,  0},
+    {"_unigd_unigd_plot_find_", (DL_FUNC) &_unigd_unigd_plot_find_, 2},
+    {"_unigd_unigd_remove_",    (DL_FUNC) &_unigd_unigd_remove_,    2},
+    {"_unigd_unigd_remove_id_", (DL_FUNC) &_unigd_unigd_remove_id_, 2},
+    {"_unigd_unigd_render_",    (DL_FUNC) &_unigd_unigd_render_,    6},
+    {"_unigd_unigd_renderers_", (DL_FUNC) &_unigd_unigd_renderers_, 0},
+    {"_unigd_unigd_state_",     (DL_FUNC) &_unigd_unigd_state_,     1},
+    {"_unigd_unigd_ugd_",       (DL_FUNC) &_unigd_unigd_ugd_,       6},
     {NULL, NULL, 0}
 };
 }
 
 int ugd_c_test_fun(); // unigd_external.cpp
 bool ugd_c_attach_client(int devnum, const std::shared_ptr<unigd::graphics_client>& t_client); // unigd_external.cpp
+bool ugd_c_renderers_find(const std::__cxx11::string& id, const unigd::renderers::renderer_gen** renderer); // unigd_external.cpp
+bool ugd_c_renderers_find_info(const std::__cxx11::string& id, const unigd::renderers::renderer_info** renderer); // unigd_external.cpp
 
 extern "C" attribute_visible void R_init_unigd(DllInfo* dll){
   R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
   R_useDynamicSymbols(dll, FALSE);
   R_RegisterCCallable("unigd", "_unigd_ex_ugd_c_test_fun", (DL_FUNC) ugd_c_test_fun);
   R_RegisterCCallable("unigd", "_unigd_ex_ugd_c_attach_client", (DL_FUNC) ugd_c_attach_client);
+  R_RegisterCCallable("unigd", "_unigd_ex_ugd_c_renderers_find", (DL_FUNC) ugd_c_renderers_find);
+  R_RegisterCCallable("unigd", "_unigd_ex_ugd_c_renderers_find_info", (DL_FUNC) ugd_c_renderers_find_info);
   R_forceSymbols(dll, TRUE);
 }

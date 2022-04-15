@@ -69,7 +69,7 @@ namespace unigd
         device_api_query_result api_query_all() override;
         device_api_query_result api_query_index(int index) override;
         device_api_query_result api_query_range(int offset, int limit) override;
-        bool api_render(int index, double width, double height, dc::RenderingTarget *t_renderer, double t_scale) override;
+        bool api_render(int index, double width, double height, dc::Renderer *t_renderer, double t_scale) override;
         virtual int api_index(int32_t id) override;
 
     protected:

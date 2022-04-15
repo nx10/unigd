@@ -27,4 +27,20 @@ static inline bool ugd_attach_client(int devnum, const std::shared_ptr<unigd::gr
     return p_ugd_c_attach_client(devnum, t_client);
 }
 
+static inline bool ugd_renderers_find(const std::__cxx11::string& id, const unigd::renderers::renderer_gen** renderer) {
+    static bool(*p_ugd_c_renderers_find)(const std::__cxx11::string&, const unigd::renderers::renderer_gen**) = NULL;
+    if (p_ugd_c_renderers_find == NULL) {
+        p_ugd_c_renderers_find = (bool(*)(const std::__cxx11::string&, const unigd::renderers::renderer_gen**)) R_GetCCallable("unigd", "_unigd_ex_ugd_c_renderers_find");
+    }
+    return p_ugd_c_renderers_find(id, renderer);
+}
+
+static inline bool ugd_renderers_find_info(const std::__cxx11::string& id, const unigd::renderers::renderer_info** renderer) {
+    static bool(*p_ugd_c_renderers_find_info)(const std::__cxx11::string&, const unigd::renderers::renderer_info**) = NULL;
+    if (p_ugd_c_renderers_find_info == NULL) {
+        p_ugd_c_renderers_find_info = (bool(*)(const std::__cxx11::string&, const unigd::renderers::renderer_info**)) R_GetCCallable("unigd", "_unigd_ex_ugd_c_renderers_find_info");
+    }
+    return p_ugd_c_renderers_find_info(id, renderer);
+}
+
 #endif // UNIGD_EXTERNAL_API_H
