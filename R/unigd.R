@@ -311,7 +311,7 @@ ugd_save <- function(file,
   }
   ret <- unigd_render_(which, page - 1, width, height, zoom, as)
   if (is.character(ret)) {
-    cat(ret, file = file)
+    writeLines(text = ret, con = file, useBytes = TRUE)
   } else {
     writeBin(object = ret, con = file)
   }

@@ -87,7 +87,7 @@ namespace unigd
     {
         if (!m_initialized)
             return;
-        //Rcpp::Rcout << "ACTIVATE 1\n";
+        debug_println("ACTIVATE");
         m_data_store->set_device_active(true);
         if (m_client)
         {
@@ -98,7 +98,7 @@ namespace unigd
     {
         if (!m_initialized)
             return;
-        //Rcpp::Rcout << "DEACTIVATE 0\n";
+        debug_println("DEACTIVATE");
         m_data_store->set_device_active(false);
         if (m_client)
         {
@@ -108,8 +108,13 @@ namespace unigd
 
     void HttpgdDev::dev_mode(int mode, pDevDesc dd)
     {
+        //debug_println("MODE %i", mode);
         if (m_target.is_void() || mode == 1)
             return;
+
+        // flush buffer
+        m_data_store->add_dc(m_target.get_index(), m_dc_buffer, replaying);
+        m_dc_buffer.clear();
 
         if (m_client)
             m_client->broadcast_state_current();
@@ -117,6 +122,7 @@ namespace unigd
 
     void HttpgdDev::dev_close(pDevDesc dd)
     {
+        debug_println("CLOSE");
         m_initialized = false;
 
         // TODO: inform client close (?)
@@ -347,7 +353,9 @@ namespace unigd
         if (m_target.is_void())
             return;
 
-        m_data_store->add_dc(m_target.get_index(), dc, replaying);
+        //debug_println("DC put");
+        m_dc_buffer.emplace_back(dc);
+        //m_data_store->add_dc(m_target.get_index(), dc, replaying);
     }
 
     void HttpgdDev::api_prerender(int index, double width, double height)

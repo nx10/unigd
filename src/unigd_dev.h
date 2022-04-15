@@ -112,6 +112,8 @@ namespace unigd
         
         // graphical parameters for reseting
         cpp11::list m_reset_par;
+
+        std::vector<std::shared_ptr<unigd::dc::DrawCall>> m_dc_buffer{};
     };
 
 } // namespace unigd

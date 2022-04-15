@@ -35,6 +35,7 @@ namespace unigd
 
         void fill(page_index_t t_index, color_t t_fill);
         void add_dc(page_index_t t_index, std::shared_ptr<dc::DrawCall> t_dc, bool t_silent);
+        void add_dc(page_index_t t_index, const std::vector<std::shared_ptr<dc::DrawCall>> &t_dcs, bool t_silent);
         void clip(page_index_t t_index, grect<double> t_rect);
 
         device_state state();

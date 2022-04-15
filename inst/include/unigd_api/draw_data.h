@@ -319,6 +319,13 @@ namespace unigd::dc
             dcs.emplace_back(t_dc);
             t_dc->clip_id = cps.back().id;
         }
+        inline void put(const std::vector<std::shared_ptr<DrawCall>> t_dcs)
+        {
+            for (auto cp : t_dcs) {
+                cp->clip_id = cps.back().id;
+            }
+            dcs.insert(dcs.end(), t_dcs.begin(), t_dcs.end());
+        }
         inline void clear()
         {
             dcs.clear();

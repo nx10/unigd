@@ -41,6 +41,22 @@ namespace unigd
             m_inc_upid();
         }
     }
+    
+    void HttpgdDataStore::add_dc(page_index_t t_index, const std::vector<std::shared_ptr<dc::DrawCall>> &t_dcs, bool t_silent)
+    {
+        const std::lock_guard<std::mutex> lock(m_store_mutex);
+        if (!m_valid_index(t_index))
+        {
+            return;
+        }
+        auto index = m_index_to_pos(t_index);
+
+        m_pages[index].put(t_dcs);
+        if (!t_silent)
+        {
+            m_inc_upid();
+        }
+    }
     void HttpgdDataStore::clear(page_index_t t_index, bool t_silent)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
