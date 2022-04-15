@@ -207,8 +207,9 @@ ugd_id <- function(index = 0, limit = 1, which = dev.cur(), state = FALSE) {
   return(res$plots)
 }
 
-#' Render unigd plot.
+#' Render unigd plot and return it.
 #'
+#' See [ugd_save()] for saving rendered plots as files.
 #' This function will only work after starting a device with [ugd()].
 #'
 #' @param page Plot page to render. If this is set to `0`, the last page will
@@ -219,12 +220,12 @@ ugd_id <- function(index = 0, limit = 1, which = dev.cur(), state = FALSE) {
 #' @param height Height of the plot. If this is set to `-1`, the last height
 #'   will be selected.
 #' @param zoom Zoom level. (For example: `2` corresponds to 200%, `0.5` would
-#' be 50%.)
-#' @param renderer Renderer.
+#'   be 50%.)
+#' @param as Renderer.
 #' @param which Which device (ID).
-#' @param file Filepath to save SVG. (No file will be created if this is NA)
 #'
-#' @return Rendered SVG string.
+#' @return Rendered plot. Text renderers return strings, binary renderers 
+#'   return byte arrays.
 #'
 #' @importFrom grDevices dev.cur
 #' @export
@@ -234,41 +235,86 @@ ugd_id <- function(index = 0, limit = 1, which = dev.cur(), state = FALSE) {
 #'
 #' ugd()
 #' plot(1, 1)
-#' s <- ugd_plot(width = 600, height = 400, renderer = "svg")
-#' hist(rnorm(100))
-#' ugd_plot(file = tempfile(), width = 600, height = 400, renderer = "png")
+#' ugd_render(width = 600, height = 400, as = "svg")
 #'
 #' dev.off()
 #' }
-ugd_plot <- function(page = 0,
+ugd_render <- function(page = 0,
                      width = -1,
                      height = -1,
                      zoom = 1,
-                     renderer = "svg",
-                     which = dev.cur(),
-                     file = NA) {
+                     as = "svg",
+                     which = dev.cur()) {
   if (names(which) != "unigd") {
     stop("Device is not of type unigd. (Start a device by calling: `ugd()`)")
   }
   if (class(page) == "unigd_pid") {
     page <- unigd_plot_find_(which, page$id)
   }
-  #if (unigd_renderer_is_str_(renderer)) {
-    ret <- unigd_render_(which, page - 1, width, height, zoom, renderer)
-  #  if (!is.na(file)) {
-  #    cat(ret, file = file)
-  #    return()
-  #  }
-  #} else if (unigd_renderer_is_raw_(renderer)) {
-  #  ret <- unigd_plot_raw_(which, page - 1, width, height, zoom, renderer)
-  #  if (!is.na(file)) {
-  #    writeBin(ret, con = file)
-  #    return()
-  #  }
-  #} else {
-  #  stop("Not a valid renderer ID.")
-  #}
-  return(ret)
+  unigd_render_(which, page - 1, width, height, zoom, as)
+}
+
+#' Render unigd plot to a file.
+#'
+#' See [ugd_render()] for acessing plot data directly in memory without
+#' saving as a file.
+#' This function will only work after starting a device with [ugd()].
+#'
+#' @param file Filepath to save plot.
+#' @param page Plot page to render. If this is set to `0`, the last page will
+#'   be selected. Can be set to a numeric plot index or plot ID
+#'   (see [ugd_id()]).
+#' @param width Width of the plot. If this is set to `-1`, the last width will
+#'   be selected.
+#' @param height Height of the plot. If this is set to `-1`, the last height
+#'   will be selected.
+#' @param zoom Zoom level. (For example: `2` corresponds to 200%, `0.5` would
+#'   be 50%.)
+#' @param as Renderer. When set to `"auto"` renderer is inferred from the file 
+#'   extension.
+#' @param which Which device (ID).
+#'
+#' @return Rendered SVG string.
+#'
+#' @importFrom grDevices dev.cur
+#' @importFrom tools file_ext
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' ugd()
+#' plot(1, 1)
+#' ugd_save(file = tempfile(), width = 600, height = 400, as = "png")
+#'
+#' dev.off()
+#' }
+ugd_save <- function(file,
+                     page = 0,
+                     width = -1,
+                     height = -1,
+                     zoom = 1,
+                     as = "auto",
+                     which = dev.cur()) {
+  if (names(which) != "unigd") {
+    stop("Device is not of type unigd. (Start a device by calling: `ugd()`)")
+  }
+  if (class(page) == "unigd_pid") {
+    page <- unigd_plot_find_(which, page$id)
+  }
+  if (as == "auto") {
+    as <- tolower(tools::file_ext(file))
+    if (!(as %in% ugd_renderers()$id)) {
+      stop("Renderer could not automatically be inferred from file extension.",
+        " (Set the renderer explicitly with e.g. `ugd_save(..., as = \"svg\")`)")
+    }
+  }
+  ret <- unigd_render_(which, page - 1, width, height, zoom, as)
+  if (is.character(ret)) {
+    cat(ret, file = file)
+  } else {
+    writeBin(object = ret, con = file)
+  }
 }
 
 #' Remove a unigd plot page.
@@ -374,62 +420,131 @@ ugd_close <- function(which = dev.cur(), all = FALSE) {
   }
 }
 
-#' Inline SVG rendering.
+#' Inline plot rendering.
 #'
-#' Convenience function for quick inline SVG rendering.
-#' This is similar to [ugd_plot()] but the plotting code is specified inline
-#' and an offline unigd graphics device is managed (created and closed)
-#' automatically. Starting a device with [ugd()] is therefore not necessary.
+#' Convenience function for quick inline plot rendering.
+#' This is similar to [ugd_render()] but the plotting code
+#' is specified inline and an unigd graphics device is managed
+#' (created and closed) automatically. Starting a device with [ugd()] is
+#' therefore not necessary.
 #'
 #' @param code Plotting code. See examples for more information.
 #' @param page Plot page to render. If this is set to `0`, the last page will
 #'   be selected. Can be set to a numeric plot index or plot ID
 #'   (see [ugd_id()]).
-#' @param page_width Width of the plot. If this is set to `-1`, the last width
-#'   will be selected.
-#' @param page_height Height of the plot. If this is set to `-1`, the last
-#'   height will be selected.
+#' @param width Width of the plot.
+#' @param height Height of the plot.
 #' @param zoom Zoom level. (For example: `2` corresponds to 200%, `0.5` would
 #'   be 50%.)
 #' @param renderer Renderer.
-#' @param file Filepath to save SVG. (No file will be created if this is `NA`)
 #' @param ... Additional parameters passed to `ugd(webserver=FALSE, ...)`
 #'
-#' @return Rendered SVG string.
+#' @return Rendered plot. Text renderers return strings, binary renderers 
+#'   return byte arrays.
 #' @export
 #'
 #' @examples
-#' ugd_inline({
-#'   hist(rnorm(100))
-#' })
+#' \dontrun{
 #'
-#' s <- ugd_inline({
+#' ugd_render_inline({
+#'   hist(rnorm(100))
+#' }, as = "svgz")
+#'
+#' s <- ugd_render_inline({
 #'   plot.new()
 #'   lines(c(0.5, 1, 0.5), c(0.5, 1, 1))
 #' })
 #' cat(s)
-ugd_inline <- function(code,
+#' }
+ugd_render_inline <- function(code,
                        page = 0,
-                       page_width = -1,
-                       page_height = -1,
+                       width = getOption("unigd.width", 720),
+                       height = getOption("unigd.height", 576),
                        zoom = 1,
                        renderer = "svg",
-                       file = NA,
                        ...) {
-  ugd(webserver = FALSE, ...)
+  ugd(
+    width = (width / zoom),
+    height = (height / zoom),
+    ...
+  )
   tryCatch(code,
     finally = {
-      s <-
-        ugd_plot(
+      tryCatch({
+        s <- ugd_render(
           page = page,
-          width = page_width,
-          height = page_height,
+          width = width,
+          height = height,
           zoom = zoom,
-          renderer = renderer,
-          file = file
+          renderer = renderer
         )
-      dev.off()
+      }, finally = {
+        s <- NA
+        dev.off()
+      })
     }
   )
   s
+}
+
+
+#' Inline plot rendering to a file.
+#'
+#' Convenience function for quick inline plot rendering.
+#' This is similar to [ugd_save()] but the plotting code
+#' is specified inline and an unigd graphics device is managed
+#' (created and closed) automatically. Starting a device with [ugd()] is
+#' therefore not necessary.
+#'
+#' @param code Plotting code. See examples for more information.
+#' @param file Filepath to save plot.
+#' @param page Plot page to render. If this is set to `0`, the last page will
+#'   be selected. Can be set to a numeric plot index or plot ID
+#'   (see [ugd_id()]).
+#' @param width Width of the plot.
+#' @param height Height of the plot.
+#' @param zoom Zoom level. (For example: `2` corresponds to 200%, `0.5` would
+#'   be 50%.)
+#' @param renderer Renderer.
+#' @param ... Additional parameters passed to `ugd(...)`
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' ugd_save_inline({
+#'   plot.new()
+#'   lines(c(0.5, 1, 0.5), c(0.5, 1, 1))
+#' }, file = "plot.svg")
+#' }
+ugd_save_inline <- function(code,
+                       file,
+                       page = 0,
+                       width = getOption("unigd.width", 720),
+                       height = getOption("unigd.height", 576),
+                       zoom = 1,
+                       renderer = "auto",
+                       ...) {
+  ugd(
+    width = (width / zoom),
+    height = (height / zoom),
+    ...
+  )
+  tryCatch(code,
+    finally = {
+      tryCatch({
+        ugd_save(
+          file = file,
+          page = page,
+          width = width,
+          height = height,
+          zoom = zoom,
+          renderer = renderer
+        )
+      }, finally = {
+        dev.off()
+      })
+    }
+  )
 }
