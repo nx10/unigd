@@ -1,7 +1,7 @@
 #ifndef RENDERER_META_H
 #define RENDERER_META_H
 
-#include <unigd_api/draw_data.h>
+#include "draw_data.h"
 #include <fmt/format.h>
 
 namespace unigd::dc
@@ -14,7 +14,7 @@ namespace unigd::dc
         void get_data(const uint8_t **t_buf, size_t *t_size) const override;
 
         // Renderer
-        void page(const Page &t_page) override;
+        void page(const Page &t_page);
     
     private:
         fmt::memory_buffer os;

@@ -11,6 +11,8 @@
 #include <svglite_utils.h>
 #include <string>
 
+#include "r_thread.h"
+
 namespace unigd
 {
     static inline void r_graphics_par_set(cpp11::list t_par) {
@@ -48,7 +50,7 @@ namespace unigd
         m_index = -1;
     }
 
-    HttpgdDev::HttpgdDev(const device_params &t_params)
+    unigd_device::unigd_device(const device_params &t_params)
         : devGeneric(t_params.width, t_params.height, t_params.pointsize, t_params.bg),
           system_aliases(cpp11::as_cpp<cpp11::list>(t_params.aliases["system"])),
           user_aliases(cpp11::as_cpp<cpp11::list>(t_params.aliases["user"])),
@@ -58,32 +60,37 @@ namespace unigd
         m_df_displaylist = true;
 
         m_data_store = std::make_shared<HttpgdDataStore>();
-        m_api_async_watcher = std::make_shared<HttpgdApiAsync>(this, m_data_store);
 
         m_reset_par = t_params.reset_par ? r_graphics_par_get() : cpp11::list();
 
         m_initialized = true;
     }
-    HttpgdDev::~HttpgdDev()
+    
+    bool unigd_device::attach_client(const std::shared_ptr<graphics_client> &t_client)
     {
-        //Rcpp::Rcout << "Httpgd Device destructed.\n";
+        if (m_client) 
+        {
+            return false;
+        }
+        m_client = t_client;
+        m_client->api = std::static_pointer_cast<unigd_device>(shared_from_this());
+        m_client->start();
+        return true;
     }
     
-    bool HttpgdDev::attach_client(const std::shared_ptr<graphics_client> &t_client)
+    bool unigd_device::get_client(std::shared_ptr<graphics_client> *t_client) 
     {
         if (!m_client) 
         {
-            m_client = t_client;
-            m_client->api = m_api_async_watcher;
-            m_client->start();
-            return true;
+            return false;
         }
-        return false;
+        *t_client = m_client;
+        return true;
     }
 
     // DEVICE CALLBACKS
 
-    void HttpgdDev::dev_activate(pDevDesc dd)
+    void unigd_device::dev_activate(pDevDesc dd)
     {
         if (!m_initialized)
             return;
@@ -94,7 +101,7 @@ namespace unigd
             m_client->broadcast_state_current();
         }
     }
-    void HttpgdDev::dev_deactivate(pDevDesc dd)
+    void unigd_device::dev_deactivate(pDevDesc dd)
     {
         if (!m_initialized)
             return;
@@ -106,7 +113,7 @@ namespace unigd
         }
     }
 
-    void HttpgdDev::dev_mode(int mode, pDevDesc dd)
+    void unigd_device::dev_mode(int mode, pDevDesc dd)
     {
         //debug_println("MODE %i", mode);
         if (m_target.is_void() || mode == 1)
@@ -120,15 +127,10 @@ namespace unigd
             m_client->broadcast_state_current();
     }
 
-    void HttpgdDev::dev_close(pDevDesc dd)
+    void unigd_device::dev_close(pDevDesc dd)
     {
         debug_println("CLOSE");
         m_initialized = false;
-
-        // TODO: inform client close (?)
-
-        // notify watcher
-        m_api_async_watcher->rdevice_destructing();
 
         // stop accepting draw calls
         m_target.set_void();
@@ -144,7 +146,7 @@ namespace unigd
         m_history.clear();
     }
 
-    void HttpgdDev::dev_metricInfo(int c, pGEcontext gc, double *ascent, double *descent, double *width, pDevDesc dd)
+    void unigd_device::dev_metricInfo(int c, pGEcontext gc, double *ascent, double *descent, double *width, pDevDesc dd)
     {
         if (c < 0)
         {
@@ -165,7 +167,7 @@ namespace unigd
         *descent *= mod;
         *width *= mod;
     }
-    double HttpgdDev::dev_strWidth(const char *str, pGEcontext gc, pDevDesc dd)
+    double unigd_device::dev_strWidth(const char *str, pGEcontext gc, pDevDesc dd)
     {
         FontSettings font = get_font_file(gc->fontfamily, gc->fontface, user_aliases);
 
@@ -181,7 +183,7 @@ namespace unigd
         return width * 72. / 1e4;
     }
 
-    void HttpgdDev::dev_clip(double x0, double x1, double y0, double y1, pDevDesc dd)
+    void unigd_device::dev_clip(double x0, double x1, double y0, double y1, pDevDesc dd)
     {
         if (m_target.is_void())
         {
@@ -189,7 +191,7 @@ namespace unigd
         }
         m_data_store->clip(m_target.get_index(), normalize_rect(x0, y0, x1, y1));
     }
-    void HttpgdDev::dev_size(double *left, double *right, double *bottom, double *top, pDevDesc dd)
+    void unigd_device::dev_size(double *left, double *right, double *bottom, double *top, pDevDesc dd)
     {
     }
 
@@ -206,7 +208,7 @@ namespace unigd
         return {minw, minh};
     }
 
-    void HttpgdDev::resize_device_to_page(pDevDesc dd)
+    void unigd_device::resize_device_to_page(pDevDesc dd)
     {
         int index = (m_target.is_void()) ? m_target.get_newest_index() : m_target.get_index();
 
@@ -219,7 +221,7 @@ namespace unigd
         dd->bottom = std::max(size.y, minsize.y);
     }
 
-    void HttpgdDev::dev_newPage(pGEcontext gc, pDevDesc dd)
+    void unigd_device::dev_newPage(pGEcontext gc, pDevDesc dd)
     {
         const double width = dd->right;
         const double height = dd->bottom;
@@ -263,11 +265,11 @@ namespace unigd
         return gc->fill;
     }
 
-    void HttpgdDev::dev_line(double x1, double y1, double x2, double y2, pGEcontext gc, pDevDesc dd)
+    void unigd_device::dev_line(double x1, double y1, double x2, double y2, pGEcontext gc, pDevDesc dd)
     {
         put(std::make_shared<dc::Line>(gc_lineinfo(gc), gvertex<double>{x1, y1}, gvertex<double>{x2, y2}));
     }
-    void HttpgdDev::dev_text(double x, double y, const char *str, double rot, double hadj, pGEcontext gc, pDevDesc dd)
+    void unigd_device::dev_text(double x, double y, const char *str, double rot, double hadj, pGEcontext gc, pDevDesc dd)
     {
         FontSettings font_info = get_font_file(gc->fontfamily, gc->fontface, user_aliases);
 
@@ -295,15 +297,15 @@ namespace unigd
                                            is_italic(gc->fontface),
                                            dev_strWidth(str, gc, dd)}));
     }
-    void HttpgdDev::dev_rect(double x0, double y0, double x1, double y1, pGEcontext gc, pDevDesc dd)
+    void unigd_device::dev_rect(double x0, double y0, double x1, double y1, pGEcontext gc, pDevDesc dd)
     {
         put(std::make_shared<dc::Rect>(gc_lineinfo(gc), gc_fill(gc), normalize_rect(x0, y0, x1, y1)));
     }
-    void HttpgdDev::dev_circle(double x, double y, double r, pGEcontext gc, pDevDesc dd)
+    void unigd_device::dev_circle(double x, double y, double r, pGEcontext gc, pDevDesc dd)
     {
         put(std::make_shared<dc::Circle>(gc_lineinfo(gc), gc_fill(gc), gvertex<double>{x, y}, r));
     }
-    void HttpgdDev::dev_polygon(int n, double *x, double *y, pGEcontext gc, pDevDesc dd)
+    void unigd_device::dev_polygon(int n, double *x, double *y, pGEcontext gc, pDevDesc dd)
     {
         std::vector<gvertex<double>> points(n);
         for (int i = 0; i < n; ++i)
@@ -312,7 +314,7 @@ namespace unigd
         }
         put(std::make_shared<dc::Polygon>(gc_lineinfo(gc), gc_fill(gc), std::move(points)));
     }
-    void HttpgdDev::dev_polyline(int n, double *x, double *y, pGEcontext gc, pDevDesc dd)
+    void unigd_device::dev_polyline(int n, double *x, double *y, pGEcontext gc, pDevDesc dd)
     {
         std::vector<gvertex<double>> points(n);
         for (int i = 0; i < n; ++i)
@@ -321,7 +323,7 @@ namespace unigd
         }
         put(std::make_shared<dc::Polyline>(gc_lineinfo(gc), std::move(points)));
     }
-    void HttpgdDev::dev_path(double *x, double *y, int npoly, int *nper, Rboolean winding, pGEcontext gc, pDevDesc dd)
+    void unigd_device::dev_path(double *x, double *y, int npoly, int *nper, Rboolean winding, pGEcontext gc, pDevDesc dd)
     {
         std::vector<int> vnper(nper, nper + npoly);
         int npoints = 0;
@@ -337,7 +339,7 @@ namespace unigd
 
         put(std::make_shared<dc::Path>(gc_lineinfo(gc), gc_fill(gc), std::move(points), std::move(vnper), winding));
     }
-    void HttpgdDev::dev_raster(unsigned int *raster, int w, int h, double x, double y, double width, double height, double rot, Rboolean interpolate, pGEcontext gc, pDevDesc dd)
+    void unigd_device::dev_raster(unsigned int *raster, int w, int h, double x, double y, double width, double height, double rot, Rboolean interpolate, pGEcontext gc, pDevDesc dd)
     {
         const double abs_height = std::fabs(height);
         const double abs_width = std::fabs(width);
@@ -348,7 +350,7 @@ namespace unigd
 
     // OTHER
 
-    void HttpgdDev::put(std::shared_ptr<dc::DrawCall> dc)
+    void unigd_device::put(std::shared_ptr<dc::DrawCall> dc)
     {
         if (m_target.is_void())
             return;
@@ -358,7 +360,7 @@ namespace unigd
         //m_data_store->add_dc(m_target.get_index(), dc, replaying);
     }
 
-    void HttpgdDev::api_prerender(int index, double width, double height)
+    void unigd_device::plt_prerender(int index, double width, double height)
     {
         if (index == -1)
             index = m_target.get_newest_index();
@@ -392,7 +394,7 @@ namespace unigd
         replaying = false;
     }
 
-    bool HttpgdDev::api_clear()
+    bool unigd_device::plt_clear()
     {
         // clear store
         bool r = m_data_store->remove_all();
@@ -414,7 +416,7 @@ namespace unigd
         return r;
     }
 
-    bool HttpgdDev::api_remove(int index)
+    bool unigd_device::plt_remove(int index)
     {
         if (index == -1)
             index = m_target.get_newest_index();
@@ -445,37 +447,92 @@ namespace unigd
         return r;
     }
     
-    bool HttpgdDev::api_render(int index, double width, double height, dc::Renderer *t_renderer, double t_scale) 
+    bool unigd_device::plt_render(int index, double width, double height, dc::Renderer *t_renderer, double t_scale) 
     {
         debug_print("DIFF \n");
         if (m_data_store->diff(index, {width, height}))
         {
             debug_print("RENDER \n");
-            api_prerender(index, width, height);
+            plt_prerender(index, width, height);
         }
         debug_print("SVG \n");
         return m_data_store->render(index, t_renderer, t_scale);
     }
 
-    int HttpgdDev::api_index(int32_t id)
+    int unigd_device::plt_index(int32_t id)
     {
         return m_data_store->find_index(id).value_or(-1);
     }
 
-    device_state HttpgdDev::api_state()
+    device_state unigd_device::plt_state()
     {
         return m_data_store->state();
     }
 
-    device_api_query_result HttpgdDev::api_query_all()
+    device_api_query_result unigd_device::plt_query_all()
     {
         return m_data_store->query_all();
     }
-    device_api_query_result HttpgdDev::api_query_index(int index)
+    device_api_query_result unigd_device::plt_query_index(int index)
     {
         return m_data_store->query_index(index);
     }
-    device_api_query_result HttpgdDev::api_query_range(int offset, int limit)
+    device_api_query_result unigd_device::plt_query_range(int offset, int limit)
+    {
+        return m_data_store->query_range(offset, limit);
+    }
+
+
+    bool unigd_device::api_remove(int index)
+    {
+        try {
+            return async::r_thread([&](){
+                return plt_remove(index);
+            }).get();
+        } catch (...) {}
+        return false;
+    }
+    bool unigd_device::api_clear()
+    {
+        try {
+            return async::r_thread([&](){
+                return plt_clear();
+            }).get();
+        } catch (...) {}
+        return false;
+    }
+
+    
+    bool unigd_device::api_render(renderer_id_t t_renderer, plot_id_t t_plot, double t_width, double t_height, double t_scale) 
+    {
+        /*if (m_data_store->diff(index, {width, height}))
+        {
+            const std::lock_guard<std::mutex> lock(m_rdevice_alive_mutex);
+            if (!m_rdevice_alive)
+                return;
+
+            async::r_thread([&](){
+                plt_render(index, width, height);
+            }).wait();   
+        }
+        return m_data_store->render(index, t_renderer, t_scale);*/
+        return false; // todo
+    }
+
+    device_state unigd_device::api_state()
+    {
+        return m_data_store->state();
+    }
+    
+    device_api_query_result unigd_device::api_query_all()
+    {
+        return m_data_store->query_all();
+    }
+    device_api_query_result unigd_device::api_query_index(int index)
+    {
+        return m_data_store->query_index(index);
+    }
+    device_api_query_result unigd_device::api_query_range(int offset, int limit)
     {
         return m_data_store->query_range(offset, limit);
     }

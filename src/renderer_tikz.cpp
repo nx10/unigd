@@ -197,7 +197,7 @@ namespace unigd::dc
                                next_clip.rect.x, next_clip.rect.y, next_clip.rect.x + next_clip.rect.width, next_clip.rect.y + next_clip.rect.height);
                 last_clip_id = next_clip.id;
             }
-            (*it)->render(this);
+            (*it)->visit(this);
         }
         fmt::format_to(std::back_inserter(os), "\n"
                            R""(\end{{scope}})""
@@ -205,39 +205,35 @@ namespace unigd::dc
                            R""(\end{{tikzpicture}})"");
     }
 
-    void RendererTikZ::dc(const DrawCall &t_dc)
-    {
-    }
-
-    void RendererTikZ::rect(const Rect &t_rect)
+    void RendererTikZ::visit(const Rect *t_rect)
     {
         fmt::format_to(std::back_inserter(os), R""(\draw[)"");
-        tex_fill_or_omit(os, t_rect.fill);
-        tex_lineinfo(os, t_rect.line);
-        fmt::format_to(std::back_inserter(os), R""(] ({:.2f},{:.2f}) rectangle ({:.2f},{:.2f});)"", t_rect.rect.x, t_rect.rect.y, t_rect.rect.x + t_rect.rect.width, t_rect.rect.y + t_rect.rect.height);
+        tex_fill_or_omit(os, t_rect->fill);
+        tex_lineinfo(os, t_rect->line);
+        fmt::format_to(std::back_inserter(os), R""(] ({:.2f},{:.2f}) rectangle ({:.2f},{:.2f});)"", t_rect->rect.x, t_rect->rect.y, t_rect->rect.x + t_rect->rect.width, t_rect->rect.y + t_rect->rect.height);
     }
 
-    void RendererTikZ::text(const Text &t_text)
+    void RendererTikZ::visit(const Text *t_text)
     {
         fmt::format_to(std::back_inserter(os), R""(\node[text=)"");
-        tex_xcolor_rgb(os, t_text.col);
-        if (!color::opaque(t_text.col))
+        tex_xcolor_rgb(os, t_text->col);
+        if (!color::opaque(t_text->col))
         {
-            fmt::format_to(std::back_inserter(os), ",text opacity={:.2f}", color::alpha(t_text.col) / 255.0);
+            fmt::format_to(std::back_inserter(os), ",text opacity={:.2f}", color::alpha(t_text->col) / 255.0);
         }
 
-        if (t_text.rot > 0)
+        if (t_text->rot > 0)
         {
-            fmt::format_to(std::back_inserter(os), R""(,rotate={:.2f})"", t_text.rot);
+            fmt::format_to(std::back_inserter(os), R""(,rotate={:.2f})"", t_text->rot);
         }
 
         fmt::format_to(std::back_inserter(os), ",anchor=");
 
-        if (std::fabs(t_text.hadj - 0.5) < 0.1)
+        if (std::fabs(t_text->hadj - 0.5) < 0.1)
         {
             fmt::format_to(std::back_inserter(os), "base");
         }
-        else if (std::fabs(t_text.hadj - 1) < 0.1)
+        else if (std::fabs(t_text->hadj - 1) < 0.1)
         {
             fmt::format_to(std::back_inserter(os), "base east");
         }
@@ -247,34 +243,34 @@ namespace unigd::dc
         }
 
         fmt::format_to(std::back_inserter(os), R""(,inner sep=0pt, outer sep=0pt, scale={:.2f}] at ({:.2f},{:.2f}) {{\fontsize{{{:.2f}}}{{\baselineskip}}\selectfont )"",
-                       m_scale, t_text.pos.x, t_text.pos.y, t_text.text.fontsize);
-        write_tex_escaped(os, t_text.str);
+                       m_scale, t_text->pos.x, t_text->pos.y, t_text->text.fontsize);
+        write_tex_escaped(os, t_text->str);
         fmt::format_to(std::back_inserter(os), R""(}};)"");
     }
 
-    void RendererTikZ::circle(const Circle &t_circle)
+    void RendererTikZ::visit(const Circle *t_circle)
     {
         fmt::format_to(std::back_inserter(os), R""(\draw[)"");
-        tex_fill_or_omit(os, t_circle.fill);
-        tex_lineinfo(os, t_circle.line);
-        fmt::format_to(std::back_inserter(os), R""(] ({:.2f},{:.2f}) circle ({:.2f});)"", t_circle.pos.x, t_circle.pos.y, t_circle.radius);
+        tex_fill_or_omit(os, t_circle->fill);
+        tex_lineinfo(os, t_circle->line);
+        fmt::format_to(std::back_inserter(os), R""(] ({:.2f},{:.2f}) circle ({:.2f});)"", t_circle->pos.x, t_circle->pos.y, t_circle->radius);
     }
 
-    void RendererTikZ::line(const Line &t_line)
+    void RendererTikZ::visit(const Line *t_line)
     {
         fmt::format_to(std::back_inserter(os), R""(\draw[)"");
-        tex_lineinfo(os, t_line.line);
-        fmt::format_to(std::back_inserter(os), R""(] ({:.2f},{:.2f}) -- ({:.2f},{:.2f});)"", t_line.orig.x, t_line.orig.y, t_line.dest.x, t_line.dest.y);
+        tex_lineinfo(os, t_line->line);
+        fmt::format_to(std::back_inserter(os), R""(] ({:.2f},{:.2f}) -- ({:.2f},{:.2f});)"", t_line->orig.x, t_line->orig.y, t_line->dest.x, t_line->dest.y);
     }
 
-    void RendererTikZ::polyline(const Polyline &t_polyline)
+    void RendererTikZ::visit(const Polyline *t_polyline)
     {
         fmt::format_to(std::back_inserter(os), R""(\draw[)"");
-        tex_lineinfo(os, t_polyline.line);
+        tex_lineinfo(os, t_polyline->line);
         fmt::format_to(std::back_inserter(os), R""(] )"");
-        for (auto it = t_polyline.points.begin(); it != t_polyline.points.end(); ++it)
+        for (auto it = t_polyline->points.begin(); it != t_polyline->points.end(); ++it)
         {
-            if (it != t_polyline.points.begin())
+            if (it != t_polyline->points.begin())
             {
                 fmt::format_to(std::back_inserter(os), " -- ");
             }
@@ -283,28 +279,28 @@ namespace unigd::dc
         fmt::format_to(std::back_inserter(os), ";");
     }
 
-    void RendererTikZ::polygon(const Polygon &t_polygon)
+    void RendererTikZ::visit(const Polygon *t_polygon)
     {
         fmt::format_to(std::back_inserter(os), R""(\draw[)"");
-        tex_fill_or_omit(os, t_polygon.fill);
-        tex_lineinfo(os, t_polygon.line);
+        tex_fill_or_omit(os, t_polygon->fill);
+        tex_lineinfo(os, t_polygon->line);
         fmt::format_to(std::back_inserter(os), R""(] )"");
-        for (auto it = t_polygon.points.begin(); it != t_polygon.points.end(); ++it)
+        for (auto it = t_polygon->points.begin(); it != t_polygon->points.end(); ++it)
         {
             fmt::format_to(std::back_inserter(os), "({:.2f},{:.2f}) -- ", it->x, it->y);
         }
         fmt::format_to(std::back_inserter(os), "cycle;");
     }
 
-    void RendererTikZ::path(const Path &t_path)
+    void RendererTikZ::visit(const Path *t_path)
     {
         fmt::format_to(std::back_inserter(os), R""(\draw[)"");
-        tex_fill_or_omit(os, t_path.fill);
-        tex_lineinfo(os, t_path.line);
+        tex_fill_or_omit(os, t_path->fill);
+        tex_lineinfo(os, t_path->line);
         fmt::format_to(std::back_inserter(os), R""(] )"");
-        auto it_poly = t_path.nper.begin();
+        auto it_poly = t_path->nper.begin();
         std::size_t left = 0;
-        for (auto it = t_path.points.begin(); it != t_path.points.end(); ++it)
+        for (auto it = t_path->points.begin(); it != t_path->points.end(); ++it)
         {
             if (left == 0)
             {
@@ -326,7 +322,7 @@ namespace unigd::dc
         fmt::format_to(std::back_inserter(os), ";");
     }
 
-    void RendererTikZ::raster(const Raster &t_raster)
+    void RendererTikZ::visit(const Raster *t_raster)
     {
         fmt::format_to(std::back_inserter(os), R""(% WARNING: TikZ raster image drawing not yet supported.)"");
     }

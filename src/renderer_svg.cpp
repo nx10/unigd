@@ -219,136 +219,131 @@ namespace unigd::dc
                 fmt::format_to(std::back_inserter(os), R""(</g><g clip-path="url(#c{:d})">)"" "\n", dc->clip_id);
                 last_id = dc->clip_id;
             }
-            dc->render(this);
+            dc->visit(this);
             fmt::format_to(std::back_inserter(os), "\n");
         }
         fmt::format_to(std::back_inserter(os), "</g>\n</svg>");
     }
 
-    void RendererSVG::dc(const DrawCall &)
-    {
-        fmt::format_to(std::back_inserter(os), "<!-- unknown draw call -->");
-    }
-
-    void RendererSVG::text(const Text &t_text)
+    void RendererSVG::visit(const Text *t_text)
     {
         // If we specify the clip path inside <image>, the "transform" also
         // affects the clip path, so we need to specify clip path at an outer level
         // (according to svglite)
         fmt::format_to(std::back_inserter(os), "<g><text ");
 
-        if (t_text.rot == 0.0)
+        if (t_text->rot == 0.0)
         {
-            fmt::format_to(std::back_inserter(os), R""(x="{:.2f}" y="{:.2f}" )"", t_text.pos.x, t_text.pos.y);
+            fmt::format_to(std::back_inserter(os), R""(x="{:.2f}" y="{:.2f}" )"", t_text->pos.x, t_text->pos.y);
         }
         else
         {
-            fmt::format_to(std::back_inserter(os), R""(transform="translate({:.2f},{:.2f}) rotate({:.2f})" )"", t_text.pos.x, t_text.pos.y, t_text.rot * -1.0);
+            fmt::format_to(std::back_inserter(os), R""(transform="translate({:.2f},{:.2f}) rotate({:.2f})" )"", t_text->pos.x, t_text->pos.y, t_text->rot * -1.0);
         }
 
-        if (t_text.hadj == 0.5)
+        if (t_text->hadj == 0.5)
         {
             fmt::format_to(std::back_inserter(os), R""(text-anchor="middle" )"");
         }
-        else if (t_text.hadj == 1)
+        else if (t_text->hadj == 1)
         {
             fmt::format_to(std::back_inserter(os), R""(text-anchor="end" )"");
         }
 
         fmt::format_to(std::back_inserter(os), "style=\"");
-        fmt::format_to(std::back_inserter(os), "font-family: {};font-size: {:.2f}px;", t_text.text.font_family, t_text.text.fontsize);
+        fmt::format_to(std::back_inserter(os), "font-family: {};font-size: {:.2f}px;", t_text->text.font_family, t_text->text.fontsize);
 
-        if (t_text.text.weight != 400)
+        if (t_text->text.weight != 400)
         {
-            if (t_text.text.weight == 700)
+            if (t_text->text.weight == 700)
             {
                 fmt::format_to(std::back_inserter(os), "font-weight: bold;");
             }
             else
             {
-                fmt::format_to(std::back_inserter(os), "font-weight: {};", t_text.text.weight);
+                fmt::format_to(std::back_inserter(os), "font-weight: {};", t_text->text.weight);
             }
         }
-        if (t_text.text.italic)
+        if (t_text->text.italic)
         {
             fmt::format_to(std::back_inserter(os), "font-style: italic;");
         }
-        if (t_text.col != (int)color::rgb(0, 0, 0))
+        if (t_text->col != (int)color::rgb(0, 0, 0))
         {
-            css_fill_or_none(os, t_text.col);
+            css_fill_or_none(os, t_text->col);
         }
-        if (t_text.text.features.length() > 0)
+        if (t_text->text.features.length() > 0)
         {
-            fmt::format_to(std::back_inserter(os), "font-feature-settings: {};", t_text.text.features);
+            fmt::format_to(std::back_inserter(os), "font-feature-settings: {};", t_text->text.features);
         }
         fmt::format_to(std::back_inserter(os), "\"");
-        if (t_text.text.txtwidth_px > 0)
+        if (t_text->text.txtwidth_px > 0)
         {
-            fmt::format_to(std::back_inserter(os), R""( textLength="{:.2f}px" lengthAdjust="spacingAndGlyphs")"", t_text.text.txtwidth_px);
+            fmt::format_to(std::back_inserter(os), R""( textLength="{:.2f}px" lengthAdjust="spacingAndGlyphs")"", t_text->text.txtwidth_px);
         }
         fmt::format_to(std::back_inserter(os), ">");
-        write_xml_escaped(os, t_text.str);
+        write_xml_escaped(os, t_text->str);
         fmt::format_to(std::back_inserter(os), "</text></g>");
     }
 
-    void RendererSVG::circle(const Circle &t_circle)
+    void RendererSVG::visit(const Circle *t_circle)
     {
         fmt::format_to(std::back_inserter(os), "<circle ");
-        fmt::format_to(std::back_inserter(os), R""(cx="{:.2f}" cy="{:.2f}" r="{:.2f}" )"", t_circle.pos.x, t_circle.pos.y, t_circle.radius);
+        fmt::format_to(std::back_inserter(os), R""(cx="{:.2f}" cy="{:.2f}" r="{:.2f}" )"", t_circle->pos.x, t_circle->pos.y, t_circle->radius);
 
         fmt::format_to(std::back_inserter(os), "style=\"");
-        css_lineinfo(os, t_circle.line);
-        css_fill_or_omit(os, t_circle.fill);
+        css_lineinfo(os, t_circle->line);
+        css_fill_or_omit(os, t_circle->fill);
         fmt::format_to(std::back_inserter(os), "\"/>");
     }
 
-    void RendererSVG::line(const Line &t_line)
+    void RendererSVG::visit(const Line *t_line)
     {
         fmt::format_to(std::back_inserter(os), "<line ");
-        fmt::format_to(std::back_inserter(os), R""(x1="{:.2f}" y1="{:.2f}" x2="{:.2f}" y2="{:.2f}" )"", t_line.orig.x, t_line.orig.y, t_line.dest.x, t_line.dest.y);
+        fmt::format_to(std::back_inserter(os), R""(x1="{:.2f}" y1="{:.2f}" x2="{:.2f}" y2="{:.2f}" )"", t_line->orig.x, t_line->orig.y, t_line->dest.x, t_line->dest.y);
 
         fmt::format_to(std::back_inserter(os), "style=\"");
-        css_lineinfo(os, t_line.line);
+        css_lineinfo(os, t_line->line);
         fmt::format_to(std::back_inserter(os), "\"/>");
     }
 
-    void RendererSVG::rect(const Rect &t_rect)
+    void RendererSVG::visit(const Rect *t_rect)
     {
         fmt::format_to(std::back_inserter(os), "<rect ");
         fmt::format_to(std::back_inserter(os), R""(x="{:.2f}" y="{:.2f}" width="{:.2f}" height="{:.2f}" )"",
-                   t_rect.rect.x,
-                   t_rect.rect.y,
-                   t_rect.rect.width,
-                   t_rect.rect.height);
+                   t_rect->rect.x,
+                   t_rect->rect.y,
+                   t_rect->rect.width,
+                   t_rect->rect.height);
 
         fmt::format_to(std::back_inserter(os), "style=\"");
-        css_lineinfo(os, t_rect.line);
-        css_fill_or_omit(os, t_rect.fill);
+        css_lineinfo(os, t_rect->line);
+        css_fill_or_omit(os, t_rect->fill);
         fmt::format_to(std::back_inserter(os), "\"/>");
     }
 
-    void RendererSVG::polyline(const Polyline &t_polyline)
+    void RendererSVG::visit(const Polyline *t_polyline)
     {
         fmt::format_to(std::back_inserter(os), "<polyline points=\"");
-        for (auto it = t_polyline.points.begin(); it != t_polyline.points.end(); ++it)
+        for (auto it = t_polyline->points.begin(); it != t_polyline->points.end(); ++it)
         {
-            if (it != t_polyline.points.begin())
+            if (it != t_polyline->points.begin())
             {
                 fmt::format_to(std::back_inserter(os), " ");
             }
             fmt::format_to(std::back_inserter(os), "{:.2f},{:.2f}", it->x, it->y);
         }
         fmt::format_to(std::back_inserter(os), "\" style=\"");
-        css_lineinfo(os, t_polyline.line);
+        css_lineinfo(os, t_polyline->line);
         fmt::format_to(std::back_inserter(os), "\"/>");
     }
 
-    void RendererSVG::polygon(const Polygon &t_polygon)
+    void RendererSVG::visit(const Polygon *t_polygon)
     {
         fmt::format_to(std::back_inserter(os), "<polygon points=\"");
-        for (auto it = t_polygon.points.begin(); it != t_polygon.points.end(); ++it)
+        for (auto it = t_polygon->points.begin(); it != t_polygon->points.end(); ++it)
         {
-            if (it != t_polygon.points.begin())
+            if (it != t_polygon->points.begin())
             {
                 fmt::format_to(std::back_inserter(os), " ");
             }
@@ -357,20 +352,20 @@ namespace unigd::dc
         fmt::format_to(std::back_inserter(os), "\" ");
 
         fmt::format_to(std::back_inserter(os), "style=\"");
-        css_lineinfo(os, t_polygon.line);
-        css_fill_or_omit(os, t_polygon.fill);
+        css_lineinfo(os, t_polygon->line);
+        css_fill_or_omit(os, t_polygon->fill);
         fmt::format_to(std::back_inserter(os), "\" ");
 
         fmt::format_to(std::back_inserter(os), "/>");
     }
 
-    void RendererSVG::path(const Path &t_path)
+    void RendererSVG::visit(const Path *t_path)
     {
         fmt::format_to(std::back_inserter(os), "<path d=\"");
 
-        auto it_poly = t_path.nper.begin();
+        auto it_poly = t_path->nper.begin();
         std::size_t left = 0;
-        for (auto it = t_path.points.begin(); it != t_path.points.end(); ++it)
+        for (auto it = t_path->points.begin(); it != t_path->points.end(); ++it)
         {
             if (left == 0)
             {
@@ -392,35 +387,35 @@ namespace unigd::dc
 
         // Finish path data
         fmt::format_to(std::back_inserter(os), "\" style=\"");
-        css_lineinfo(os, t_path.line);
-        css_fill_or_omit(os, t_path.fill);
+        css_lineinfo(os, t_path->line);
+        css_fill_or_omit(os, t_path->fill);
         fmt::format_to(std::back_inserter(os), "fill-rule: ");
-        fmt::format_to(std::back_inserter(os), t_path.winding ? "nonzero" : "evenodd");
+        fmt::format_to(std::back_inserter(os), t_path->winding ? "nonzero" : "evenodd");
         fmt::format_to(std::back_inserter(os), ";\"/>");
     }
     
-    void RendererSVG::raster(const Raster &t_raster)
+    void RendererSVG::visit(const Raster *t_raster)
     {
         // If we specify the clip path inside <image>, the "transform" also
         // affects the clip path, so we need to specify clip path at an outer level
         // (according to svglite)
         fmt::format_to(std::back_inserter(os), "<g><image ");
         fmt::format_to(std::back_inserter(os), R""( x="{:.2f}" y="{:.2f}" width="{:.2f}" height="{:.2f}" )"",
-                   t_raster.rect.x,
-                   t_raster.rect.y,
-                   t_raster.rect.width,
-                   t_raster.rect.height);
+                   t_raster->rect.x,
+                   t_raster->rect.y,
+                   t_raster->rect.width,
+                   t_raster->rect.height);
         fmt::format_to(std::back_inserter(os), R""(preserveAspectRatio="none" )"");
-        if (!t_raster.interpolate)
+        if (!t_raster->interpolate)
         {
             fmt::format_to(std::back_inserter(os), R""(image-rendering="pixelated" )"");
         }
-        if (t_raster.rot != 0)
+        if (t_raster->rot != 0)
         {
-            fmt::format_to(std::back_inserter(os), R""(transform="rotate({:.2f},{:.2f},{:.2f})" )"", -1.0 * t_raster.rot, t_raster.rect.x, t_raster.rect.y);
+            fmt::format_to(std::back_inserter(os), R""(transform="rotate({:.2f},{:.2f},{:.2f})" )"", -1.0 * t_raster->rot, t_raster->rect.x, t_raster->rect.y);
         }
         fmt::format_to(std::back_inserter(os), " xlink:href=\"data:image/png;base64,");
-        fmt::format_to(std::back_inserter(os), raster_base64(t_raster));
+        fmt::format_to(std::back_inserter(os), raster_base64(*t_raster));
         fmt::format_to(std::back_inserter(os), "\"/></g>");
     }
 
@@ -582,149 +577,144 @@ namespace unigd::dc
                 fmt::format_to(std::back_inserter(os), R""(</g><g clip-path="url(#c{:d}-{})">)"" "\n", dc->clip_id, m_unique_id);
                 last_id = dc->clip_id;
             }
-            dc->render(this);
+            dc->visit(this);
             fmt::format_to(std::back_inserter(os), "\n");
         }
         fmt::format_to(std::back_inserter(os), "</g>\n</svg>");
     }
     
-    void RendererSVGPortable::dc(const DrawCall &t_dc) 
-    {
-        fmt::format_to(std::back_inserter(os), "<!-- unknown draw call -->");
-    }
-    
-    void RendererSVGPortable::rect(const Rect &t_rect) 
+    void RendererSVGPortable::visit(const Rect *t_rect) 
     {
         fmt::format_to(std::back_inserter(os), "<rect ");
         fmt::format_to(std::back_inserter(os), R""(x="{:.2f}" y="{:.2f}" width="{:.2f}" height="{:.2f}" )"",
-                   t_rect.rect.x,
-                   t_rect.rect.y,
-                   t_rect.rect.width,
-                   t_rect.rect.height);
+                   t_rect->rect.x,
+                   t_rect->rect.y,
+                   t_rect->rect.width,
+                   t_rect->rect.height);
 
-        att_lineinfo(os, t_rect.line);
-        att_fill_or_none(os, t_rect.fill);
+        att_lineinfo(os, t_rect->line);
+        att_fill_or_none(os, t_rect->fill);
         fmt::format_to(std::back_inserter(os), "/>");
     }
     
-    void RendererSVGPortable::text(const Text &t_text) 
+    void RendererSVGPortable::visit(const Text *t_text) 
     {
         // If we specify the clip path inside <image>, the "transform" also
         // affects the clip path, so we need to specify clip path at an outer level
         // (according to svglite)
         fmt::format_to(std::back_inserter(os), "<g><text ");
 
-        if (t_text.rot == 0.0)
+        if (t_text->rot == 0.0)
         {
-            fmt::format_to(std::back_inserter(os), R""(x="{:.2f}" y="{:.2f}" )"", t_text.pos.x, t_text.pos.y);
+            fmt::format_to(std::back_inserter(os), R""(x="{:.2f}" y="{:.2f}" )"", t_text->pos.x, t_text->pos.y);
         }
         else
         {
-            fmt::format_to(std::back_inserter(os), R""(transform="translate({:.2f},{:.2f}) rotate({:.2f})" )"", t_text.pos.x, t_text.pos.y, t_text.rot * -1.0);
+            fmt::format_to(std::back_inserter(os), R""(transform="translate({:.2f},{:.2f}) rotate({:.2f})" )"", t_text->pos.x, t_text->pos.y, t_text->rot * -1.0);
         }
 
-        if (t_text.hadj == 0.5)
+        if (t_text->hadj == 0.5)
         {
             fmt::format_to(std::back_inserter(os), R""(text-anchor="middle" )"");
         }
-        else if (t_text.hadj == 1)
+        else if (t_text->hadj == 1)
         {
             fmt::format_to(std::back_inserter(os), R""(text-anchor="end" )"");
         }
 
-        fmt::format_to(std::back_inserter(os), R""(font-family="{}" font-size="{:.2f}px")"", t_text.text.font_family, t_text.text.fontsize);
+        fmt::format_to(std::back_inserter(os), R""(font-family="{}" font-size="{:.2f}px")"", t_text->text.font_family, t_text->text.fontsize);
 
-        if (t_text.text.weight != 400)
+        if (t_text->text.weight != 400)
         {
-            if (t_text.text.weight == 700)
+            if (t_text->text.weight == 700)
             {
                 fmt::format_to(std::back_inserter(os), R""( font-weight="bold")"");
             }
             else
             {
-                fmt::format_to(std::back_inserter(os), R""( font-weight="{}")"", t_text.text.weight);
+                fmt::format_to(std::back_inserter(os), R""( font-weight="{}")"", t_text->text.weight);
             }
         }
-        if (t_text.text.italic)
+        if (t_text->text.italic)
         {
             fmt::format_to(std::back_inserter(os), R""( font-style="italic")"");
         }
-        if (t_text.col != color::rgb(0, 0, 0))
+        if (t_text->col != color::rgb(0, 0, 0))
         {
-            att_fill_or_none(os, t_text.col);
+            att_fill_or_none(os, t_text->col);
         }
-        if (t_text.text.features.length() > 0)
+        if (t_text->text.features.length() > 0)
         {
-            fmt::format_to(std::back_inserter(os), R""( font-feature-settings="{}")"", t_text.text.features);
+            fmt::format_to(std::back_inserter(os), R""( font-feature-settings="{}")"", t_text->text.features);
         }
-        if (t_text.text.txtwidth_px > 0)
+        if (t_text->text.txtwidth_px > 0)
         {
-            fmt::format_to(std::back_inserter(os), R""( textLength="{:.2f}px" lengthAdjust="spacingAndGlyphs")"", t_text.text.txtwidth_px);
+            fmt::format_to(std::back_inserter(os), R""( textLength="{:.2f}px" lengthAdjust="spacingAndGlyphs")"", t_text->text.txtwidth_px);
         }
         fmt::format_to(std::back_inserter(os), ">");
-        write_xml_escaped(os, t_text.str);
+        write_xml_escaped(os, t_text->str);
         fmt::format_to(std::back_inserter(os), "</text></g>");
     }
     
-    void RendererSVGPortable::circle(const Circle &t_circle)
+    void RendererSVGPortable::visit(const Circle *t_circle)
     {
         fmt::format_to(std::back_inserter(os), "<circle ");
-        fmt::format_to(std::back_inserter(os), R""(cx="{:.2f}" cy="{:.2f}" r="{:.2f}" )"", t_circle.pos.x, t_circle.pos.y, t_circle.radius);
+        fmt::format_to(std::back_inserter(os), R""(cx="{:.2f}" cy="{:.2f}" r="{:.2f}" )"", t_circle->pos.x, t_circle->pos.y, t_circle->radius);
 
-        att_lineinfo(os, t_circle.line);
-        att_fill_or_none(os, t_circle.fill);
+        att_lineinfo(os, t_circle->line);
+        att_fill_or_none(os, t_circle->fill);
         fmt::format_to(std::back_inserter(os), "/>");
     }
 
-    void RendererSVGPortable::line(const Line &t_line)
+    void RendererSVGPortable::visit(const Line *t_line)
     {
         fmt::format_to(std::back_inserter(os), "<line ");
-        fmt::format_to(std::back_inserter(os), R""(x1="{:.2f}" y1="{:.2f}" x2="{:.2f}" y2="{:.2f}" )"", t_line.orig.x, t_line.orig.y, t_line.dest.x, t_line.dest.y);
+        fmt::format_to(std::back_inserter(os), R""(x1="{:.2f}" y1="{:.2f}" x2="{:.2f}" y2="{:.2f}" )"", t_line->orig.x, t_line->orig.y, t_line->dest.x, t_line->dest.y);
 
-        att_lineinfo(os, t_line.line);
+        att_lineinfo(os, t_line->line);
         fmt::format_to(std::back_inserter(os), "/>");
     }
     
-    void RendererSVGPortable::polyline(const Polyline &t_polyline) 
+    void RendererSVGPortable::visit(const Polyline *t_polyline) 
     {
         fmt::format_to(std::back_inserter(os), "<polyline points=\"");
-        for (auto it = t_polyline.points.begin(); it != t_polyline.points.end(); ++it)
+        for (auto it = t_polyline->points.begin(); it != t_polyline->points.end(); ++it)
         {
-            if (it != t_polyline.points.begin())
+            if (it != t_polyline->points.begin())
             {
                 fmt::format_to(std::back_inserter(os), " ");
             }
             fmt::format_to(std::back_inserter(os), "{:.2f},{:.2f}", it->x, it->y);
         }
         fmt::format_to(std::back_inserter(os), "\" fill=\"none\" ");
-        att_lineinfo(os, t_polyline.line);
+        att_lineinfo(os, t_polyline->line);
         fmt::format_to(std::back_inserter(os), "/>");
     }
     
-    void RendererSVGPortable::polygon(const Polygon &t_polygon) 
+    void RendererSVGPortable::visit(const Polygon *t_polygon) 
     {
         fmt::format_to(std::back_inserter(os), "<polygon points=\"");
-        for (auto it = t_polygon.points.begin(); it != t_polygon.points.end(); ++it)
+        for (auto it = t_polygon->points.begin(); it != t_polygon->points.end(); ++it)
         {
-            if (it != t_polygon.points.begin())
+            if (it != t_polygon->points.begin())
             {
                 fmt::format_to(std::back_inserter(os), " ");
             }
             fmt::format_to(std::back_inserter(os), "{:.2f},{:.2f}", it->x, it->y);
         }
         fmt::format_to(std::back_inserter(os), "\" ");
-        att_lineinfo(os, t_polygon.line);
-        att_fill_or_none(os, t_polygon.fill);
+        att_lineinfo(os, t_polygon->line);
+        att_fill_or_none(os, t_polygon->fill);
         fmt::format_to(std::back_inserter(os), "/>");
     }
     
-    void RendererSVGPortable::path(const Path &t_path) 
+    void RendererSVGPortable::visit(const Path *t_path) 
     {
         fmt::format_to(std::back_inserter(os), "<path d=\"");
 
-        auto it_poly = t_path.nper.begin();
+        auto it_poly = t_path->nper.begin();
         std::size_t left = 0;
-        for (auto it = t_path.points.begin(); it != t_path.points.end(); ++it)
+        for (auto it = t_path->points.begin(); it != t_path->points.end(); ++it)
         {
             if (left == 0)
             {
@@ -746,35 +736,35 @@ namespace unigd::dc
 
         // Finish path data
         fmt::format_to(std::back_inserter(os), "\" ");
-        att_lineinfo(os, t_path.line);
-        att_fill_or_none(os, t_path.fill);
+        att_lineinfo(os, t_path->line);
+        att_fill_or_none(os, t_path->fill);
         fmt::format_to(std::back_inserter(os), " fill-rule=\"");
-        fmt::format_to(std::back_inserter(os), t_path.winding ? "nonzero" : "evenodd");
+        fmt::format_to(std::back_inserter(os), t_path->winding ? "nonzero" : "evenodd");
         fmt::format_to(std::back_inserter(os), "\"/>");
     }
     
-    void RendererSVGPortable::raster(const Raster &t_raster) 
+    void RendererSVGPortable::visit(const Raster *t_raster) 
     {
         // If we specify the clip path inside <image>, the "transform" also
         // affects the clip path, so we need to specify clip path at an outer level
         // (according to svglite)
         fmt::format_to(std::back_inserter(os), "<g><image ");
         fmt::format_to(std::back_inserter(os), R""( x="{:.2f}" y="{:.2f}" width="{:.2f}" height="{:.2f}" )"",
-                   t_raster.rect.x,
-                   t_raster.rect.y,
-                   t_raster.rect.width,
-                   t_raster.rect.height);
+                   t_raster->rect.x,
+                   t_raster->rect.y,
+                   t_raster->rect.width,
+                   t_raster->rect.height);
         fmt::format_to(std::back_inserter(os), R""(preserveAspectRatio="none" )"");
-        if (!t_raster.interpolate)
+        if (!t_raster->interpolate)
         {
             fmt::format_to(std::back_inserter(os), R""(image-rendering="pixelated" )"");
         }
-        if (t_raster.rot != 0)
+        if (t_raster->rot != 0)
         {
-            fmt::format_to(std::back_inserter(os), R""(transform="rotate({:.2f},{:.2f},{:.2f})" )"", -1.0 * t_raster.rot, t_raster.rect.x, t_raster.rect.y);
+            fmt::format_to(std::back_inserter(os), R""(transform="rotate({:.2f},{:.2f},{:.2f})" )"", -1.0 * t_raster->rot, t_raster->rect.x, t_raster->rect.y);
         }
         fmt::format_to(std::back_inserter(os), " xlink:href=\"data:image/png;base64,");
-        fmt::format_to(std::back_inserter(os), raster_base64(t_raster));
+        fmt::format_to(std::back_inserter(os), raster_base64(*t_raster));
         fmt::format_to(std::back_inserter(os), "\"/></g>");
     }
 

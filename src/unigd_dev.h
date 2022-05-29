@@ -11,7 +11,6 @@
 #include "generic_dev.h"
 #include "unigd_commons.h"
 #include "unigd_data_store.h"
-#include "unigd_api_async.h"
 
 #include "unigd_api/client.h"
 #include "unigd_api/device.h"
@@ -46,8 +45,7 @@ namespace unigd
         bool m_void{true};
     };
 
-    class HttpgdDev : public devGeneric,
-                      public device_api
+    class unigd_device : public devGeneric, public device_api
     {
     public:
 
@@ -55,48 +53,57 @@ namespace unigd
         cpp11::list system_aliases;
         cpp11::list user_aliases;
 
-        HttpgdDev(const device_params &t_params);
-        virtual ~HttpgdDev();
+        unigd_device(const device_params &t_params);
 
         bool attach_client(const std::shared_ptr<graphics_client> &t_client);
+        bool get_client(std::shared_ptr<graphics_client> *t_client);
 
-        // API functions
+        // Synchronous access
 
-        virtual void api_prerender(int index, double width, double height) override;
-        virtual bool api_remove(int index) override;
-        virtual bool api_clear() override;
-        virtual device_state api_state() override;
+        void plt_prerender(int index, double width, double height);
+        bool plt_remove(int index);
+        bool plt_clear();
+        device_state plt_state();
+        device_api_query_result plt_query_all();
+        device_api_query_result plt_query_index(int index);
+        device_api_query_result plt_query_range(int offset, int limit);
+        bool plt_render(int index, double width, double height, dc::Renderer *t_renderer, double t_scale);
+        int plt_index(int32_t id);
+
+        // Asynchronous access
+
+        bool api_render(renderer_id_t t_renderer, plot_id_t t_plot, double t_width, double t_height, double t_scale) override;
+        bool api_remove(plot_id_t id) override;
+        bool api_clear() override;
+        device_state api_state() override;
         device_api_query_result api_query_all() override;
-        device_api_query_result api_query_index(int index) override;
-        device_api_query_result api_query_range(int offset, int limit) override;
-        bool api_render(int index, double width, double height, dc::Renderer *t_renderer, double t_scale) override;
-        virtual int api_index(int32_t id) override;
+        device_api_query_result api_query_index(plot_index_t index) override;
+        device_api_query_result api_query_range(plot_index_t offset, plot_index_t limit) override;
 
     protected:
         // Device callbacks
 
-        virtual void dev_activate(pDevDesc dd) override;
-        virtual void dev_deactivate(pDevDesc dd) override;
-        virtual void dev_close(pDevDesc dd) override;
-        virtual void dev_clip(double x0, double x1, double y0, double y1, pDevDesc dd) override;
-        virtual void dev_size(double *left, double *right, double *bottom, double *top, pDevDesc dd) override;
-        virtual void dev_newPage(pGEcontext gc, pDevDesc dd) override;
-        virtual void dev_line(double x1, double y1, double x2, double y2, pGEcontext gc, pDevDesc dd) override;
-        virtual void dev_text(double x, double y, const char *str, double rot, double hadj, pGEcontext gc, pDevDesc dd) override;
-        virtual double dev_strWidth(const char *str, pGEcontext gc, pDevDesc dd) override;
-        virtual void dev_rect(double x0, double y0, double x1, double y1, pGEcontext gc, pDevDesc dd) override;
-        virtual void dev_circle(double x, double y, double r, pGEcontext gc, pDevDesc dd) override;
-        virtual void dev_polygon(int n, double *x, double *y, pGEcontext gc, pDevDesc dd) override;
-        virtual void dev_polyline(int n, double *x, double *y, pGEcontext gc, pDevDesc dd) override;
-        virtual void dev_path(double *x, double *y, int npoly, int *nper, Rboolean winding, pGEcontext gc, pDevDesc dd) override;
-        virtual void dev_mode(int mode, pDevDesc dd) override;
-        virtual void dev_metricInfo(int c, pGEcontext gc, double *ascent, double *descent, double *width, pDevDesc dd) override;
-        virtual void dev_raster(unsigned int *raster, int w, int h, double x, double y, double width, double height, double rot, Rboolean interpolate, pGEcontext gc, pDevDesc dd) override;
+        void dev_activate(pDevDesc dd) override;
+        void dev_deactivate(pDevDesc dd) override;
+        void dev_close(pDevDesc dd) override;
+        void dev_clip(double x0, double x1, double y0, double y1, pDevDesc dd) override;
+        void dev_size(double *left, double *right, double *bottom, double *top, pDevDesc dd) override;
+        void dev_newPage(pGEcontext gc, pDevDesc dd) override;
+        void dev_line(double x1, double y1, double x2, double y2, pGEcontext gc, pDevDesc dd) override;
+        void dev_text(double x, double y, const char *str, double rot, double hadj, pGEcontext gc, pDevDesc dd) override;
+        double dev_strWidth(const char *str, pGEcontext gc, pDevDesc dd) override;
+        void dev_rect(double x0, double y0, double x1, double y1, pGEcontext gc, pDevDesc dd) override;
+        void dev_circle(double x, double y, double r, pGEcontext gc, pDevDesc dd) override;
+        void dev_polygon(int n, double *x, double *y, pGEcontext gc, pDevDesc dd) override;
+        void dev_polyline(int n, double *x, double *y, pGEcontext gc, pDevDesc dd) override;
+        void dev_path(double *x, double *y, int npoly, int *nper, Rboolean winding, pGEcontext gc, pDevDesc dd) override;
+        void dev_mode(int mode, pDevDesc dd) override;
+        void dev_metricInfo(int c, pGEcontext gc, double *ascent, double *descent, double *width, pDevDesc dd) override;
+        void dev_raster(unsigned int *raster, int w, int h, double x, double y, double width, double height, double rot, Rboolean interpolate, pGEcontext gc, pDevDesc dd) override;
 
     private:
         PlotHistory m_history;
         std::shared_ptr<HttpgdDataStore> m_data_store;
-        std::shared_ptr<HttpgdApiAsync> m_api_async_watcher;
         
         std::shared_ptr<graphics_client> m_client;
 

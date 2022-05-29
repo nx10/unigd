@@ -13,8 +13,9 @@ namespace unigd
 {
     namespace renderers 
     {
+
   
-    static std::unordered_map<std::string, renderer_gen> renderer_map = 
+    static std::unordered_map<std::string, renderer_map_entry> renderer_map = 
     {
       {
         "svg",
@@ -190,7 +191,7 @@ namespace unigd
 #endif
     };
 
-    bool find_renderer(const std::string &id, const renderer_gen **renderer)
+    bool find(const std::string &id, const renderer_map_entry **renderer)
     {
         const auto it = renderer_map.find(id);
         if (it != renderer_map.end())
@@ -201,10 +202,21 @@ namespace unigd
         return false;
     }
 
+    bool find_generator(const std::string &id, const renderer_gen **renderer)
+    {
+        const renderer_map_entry *renderer_str = nullptr;
+        if (find(id, &renderer_str))
+        {
+            *renderer = &renderer_str->generator;
+            return true;
+        }
+        return false;
+    }
+
     bool find_info(const std::string &id, const renderer_info **renderer)
     {
-        const renderer_gen *renderer_str = nullptr;
-        if (find_renderer(id, &renderer_str))
+        const renderer_map_entry *renderer_str = nullptr;
+        if (find(id, &renderer_str))
         {
             *renderer = &renderer_str->info;
             return true;
@@ -212,7 +224,7 @@ namespace unigd
         return false;
     }
 
-    const std::unordered_map<std::string, renderer_gen> *renderers() {
+    const std::unordered_map<std::string, renderer_map_entry> *renderers() {
       return &renderer_map;
     }
 

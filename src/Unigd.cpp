@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "unigd_dev.h"
 #include "uuid.h"
@@ -16,39 +17,19 @@
 #include "renderer_svg.h"
 #include "renderers.h"
 #include "r_thread.h"
-
+#include "generic_dev.h"
+#include "debug_print.h"
 
 namespace
 {
-    inline unigd::HttpgdDev *getDev(pDevDesc dd)
+    inline std::shared_ptr<unigd::unigd_device> validate_unigddev(int devnum)
     {
-        return static_cast<unigd::HttpgdDev *>(dd->deviceSpecific);
-    }
-
-    inline unigd::HttpgdDev *validate_unigddev(int devnum)
-    {
-        if (devnum < 1 || devnum > 64) // R_MaxDevices
+        auto a = unigd::validate_device<unigd::unigd_device>(devnum);
+        if (a == nullptr)
         {
-            cpp11::stop("invalid graphical device number");
+            cpp11::stop("Not a valid device number");
         }
-
-        pGEDevDesc gdd = GEgetDevice(devnum - 1);
-        if (!gdd)
-        {
-            cpp11::stop("invalid device");
-        }
-        pDevDesc dd = gdd->dev;
-        if (!dd)
-        {
-            cpp11::stop("invalid device");
-        }
-        auto dev = static_cast<unigd::HttpgdDev *>(dd->deviceSpecific);
-        if (!dev)
-        {
-            cpp11::stop("invalid device");
-        }
-
-        return dev;
+        return a;
     }
 
     inline long validate_plotid(const std::string &id)
@@ -72,15 +53,16 @@ int unigd_ugd_(std::string bg, double width, double height,
 {
     int ibg = R_GE_str2col(bg.c_str());
 
-    auto dev = new unigd::HttpgdDev(
-        {ibg,
-         width,
-         height,
-         pointsize,
-         aliases,
-         reset_par});
-
-    return unigd::HttpgdDev::make_device("unigd", dev);
+    const unigd::device_params dparams {
+        ibg,
+        width,
+        height,
+        pointsize,
+        aliases,
+        reset_par
+    };
+    
+    return unigd::device_container::setup("unigd", std::make_shared<unigd::unigd_device>(dparams));
 }
 
 [[cpp11::register]]
@@ -88,7 +70,7 @@ cpp11::list unigd_state_(int devnum)
 {
     auto dev = validate_unigddev(devnum);
 
-    unigd::device_state state = dev->api_state();
+    unigd::device_state state = dev->plt_state();
 
     using namespace cpp11::literals;
     return cpp11::writable::list{
@@ -161,7 +143,7 @@ int unigd_plot_find_(int devnum, std::string plot_id)
 {
     long pid = validate_plotid(plot_id);
     auto dev = validate_unigddev(devnum);
-    auto page = dev->api_index(pid);
+    auto page = dev->plt_index(pid);
     if (page == -1)
     {
         cpp11::stop("Not a valid plot ID.");
@@ -179,14 +161,14 @@ SEXP unigd_render_(int devnum, int page, double width, double height, double zoo
         zoom = 1;
     }
 
-    const unigd::renderers::renderer_gen *ren;
-    auto fi_renderer = unigd::renderers::find_renderer(renderer_id, &ren);
+    const unigd::renderers::renderer_map_entry *ren;
+    auto fi_renderer = unigd::renderers::find(renderer_id, &ren);
     if (!fi_renderer)
     {
         cpp11::stop("Not a valid string renderer ID.");
     }
-    auto renderer = ren->renderer();
-    dev->api_render(page, width / zoom, height / zoom, renderer.get(), zoom);
+    auto renderer = ren->generator();
+    dev->plt_render(page, width / zoom, height / zoom, renderer.get(), zoom);
 
     const uint8_t *buf;
     size_t buf_size;
@@ -203,7 +185,7 @@ SEXP unigd_render_(int devnum, int page, double width, double height, double zoo
 bool unigd_remove_(int devnum, int page)
 {
     auto dev = validate_unigddev(devnum);
-    return dev->api_remove(page);
+    return dev->plt_remove(page);
 }
 
 [[cpp11::register]]
@@ -211,13 +193,13 @@ bool unigd_remove_id_(int devnum, std::string id)
 {
     long pid = validate_plotid(id);
     auto dev = validate_unigddev(devnum);
-    auto page = dev->api_index(pid);
+    auto page = dev->plt_index(pid);
     if (page == -1)
     {
         cpp11::stop("Not a valid plot ID.");
     }
 
-    return dev->api_remove(page);
+    return dev->plt_remove(page);
 }
 
 [[cpp11::register]]
@@ -228,11 +210,11 @@ cpp11::writable::list unigd_id_(int devnum, int page, int limit)
 
     if (page == -1)
     {
-        res = dev->api_query_index(page);
+        res = dev->plt_query_index(page);
     }
     else
     {
-        res = dev->api_query_range(page, limit);
+        res = dev->plt_query_range(page, limit);
     }
 
     using namespace cpp11::literals;
@@ -260,7 +242,7 @@ cpp11::writable::list unigd_id_(int devnum, int page, int limit)
 bool unigd_clear_(int devnum)
 {
     auto dev = validate_unigddev(devnum);
-    return dev->api_clear();
+    return dev->plt_clear();
 }
 
 [[cpp11::register]]

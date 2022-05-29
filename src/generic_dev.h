@@ -4,14 +4,19 @@
 #define R_NO_REMAP
 #include <cpp11/R.hpp>
 #include <R_ext/GraphicsEngine.h>
+#include <memory>
 
 namespace unigd
 {
-    class devGeneric
+    class devGeneric : public std::enable_shared_from_this<devGeneric>
     {
     public:
         devGeneric(double t_width, double t_height, double t_pointsize, int t_fill);
         virtual ~devGeneric() = default;
+        
+        pDevDesc setup(void *t_device_specific);
+
+        std::shared_ptr<devGeneric> getptr();
 
         static int make_device(const char *t_device_name, devGeneric *t_dev);
         // avoid when possible
@@ -80,9 +85,41 @@ namespace unigd
         const int m_initial_col = R_RGB(0, 0, 0);
 
     private:
-        pDevDesc create();
 
     }; // namespace unigd
+
+    
+    struct device_container
+    {
+        std::shared_ptr<devGeneric> device;
+        static int setup(const char *t_device_name, std::shared_ptr<devGeneric> t_device);
+    };
+
+
+    template<class Derived>
+    inline std::shared_ptr<Derived> validate_device(int devnum)
+    {
+        if (devnum < 1 || devnum > 64) // R_MaxDevices
+        {
+            return nullptr;
+        }
+        const pGEDevDesc gdd = GEgetDevice(devnum - 1);
+        if (!gdd)
+        {
+            return nullptr;
+        }
+        const pDevDesc dd = gdd->dev;
+        if (!dd)
+        {
+            return nullptr;
+        }
+        const auto *dev = static_cast<unigd::device_container *>(dd->deviceSpecific);
+        if (!dev)
+        {
+            return nullptr;
+        }
+        return std::static_pointer_cast<Derived>(dev->device);
+    }
 } // namespace unigd
 
 #endif

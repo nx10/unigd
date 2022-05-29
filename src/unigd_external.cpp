@@ -1,64 +1,76 @@
 #include <unigd_api/client.h>
 #include "unigd_dev.h"
 #include "renderers.h"
+#include "unigd_dev.h"
+#include "unigd_api_version.h"
 
-namespace
+namespace unigd
 {
-    inline unigd::HttpgdDev *getDev(pDevDesc dd)
+    namespace external
     {
-        return static_cast<unigd::HttpgdDev *>(dd->deviceSpecific);
-    }
-
-    inline unigd::HttpgdDev *validate_unigddev(int devnum)
-    {
-        if (devnum < 1 || devnum > 64) // R_MaxDevices
+        int api_version()
         {
-            cpp11::stop("invalid graphical device number");
+            return UNIGD_EXTERNAL_API_VERSION;
         }
 
-        pGEDevDesc gdd = GEgetDevice(devnum - 1);
-        if (!gdd)
+
+        int test_fun()
         {
-            cpp11::stop("invalid device");
-        }
-        pDevDesc dd = gdd->dev;
-        if (!dd)
-        {
-            cpp11::stop("invalid device");
-        }
-        auto dev = static_cast<unigd::HttpgdDev *>(dd->deviceSpecific);
-        if (!dev)
-        {
-            cpp11::stop("invalid device");
+            return 7;
         }
 
-        return dev;
-    }
-}
 
-[[cpp11::external]]
-int ugd_c_test_fun()
+        bool attach_client(int devnum, const std::shared_ptr<unigd::graphics_client>& t_client)
+        {
+            auto dev = validate_device<unigd_device>(devnum);
+            if (!dev)
+            {
+                return false;
+            }
+            return dev->attach_client(t_client);
+        }
+
+        bool get_client(int devnum, std::shared_ptr<unigd::graphics_client>* t_client)
+        {
+            auto dev = validate_device<unigd_device>(devnum);
+            if (!dev)
+            {
+                return false;
+            }
+            return dev->get_client(t_client);
+        }
+
+        bool get_renderer_list(std::vector<unigd::renderer_info> *renderer)
+        {
+            const auto renderer_map = unigd::renderers::renderers();
+            renderer->reserve(renderer_map->size());
+            for (auto& map_entry: *renderer_map) {
+                renderer->push_back(map_entry.second.info);
+            }
+            return true;
+        }
+
+        bool get_renderer_info(const unigd::renderer_id_t& id, unigd::renderer_info* renderer)
+        {
+            const unigd::renderer_info *found;
+            if (unigd::renderers::find_info(id, &found))
+            {
+                *renderer = *found;
+                return true;
+            }
+            return false;
+        }    
+    } // namespace external
+} // namespace unigd
+
+
+[[cpp11::init]]
+void export_api(DllInfo* dll) 
 {
-    return 7;
-}
-
-[[cpp11::external("ugd_attach_client", "Attach client to unigd device.")]]
-bool ugd_c_attach_client(int devnum, const std::shared_ptr<unigd::graphics_client>& t_client)
-{
-    auto dev = validate_unigddev(devnum);
-    dev->attach_client(t_client);
-
-    return true;
-}
-
-[[cpp11::external("ugd_renderers_find")]]
-bool ugd_c_renderers_find(const std::__cxx11::string& id, const unigd::renderers::renderer_gen** renderer)
-{
-    return unigd::renderers::find_renderer(id, renderer);
-}
-
-[[cpp11::external("ugd_renderers_find_info")]]
-bool ugd_c_renderers_find_info(const std::__cxx11::string& id, const unigd::renderers::renderer_info** renderer)
-{
-    return unigd::renderers::find_info(id, renderer);
+    R_RegisterCCallable("unigd", "_ccall_api_version", reinterpret_cast<DL_FUNC>(unigd::external::api_version));
+    R_RegisterCCallable("unigd", "_ccall_test_fun", reinterpret_cast<DL_FUNC>(unigd::external::test_fun));
+    R_RegisterCCallable("unigd", "_ccall_attach_client", reinterpret_cast<DL_FUNC>(unigd::external::attach_client));
+    R_RegisterCCallable("unigd", "_ccall_get_client", reinterpret_cast<DL_FUNC>(unigd::external::get_client));
+    R_RegisterCCallable("unigd", "_ccall_get_renderer_list", reinterpret_cast<DL_FUNC>(unigd::external::get_renderer_list));
+    R_RegisterCCallable("unigd", "_ccall_get_renderer_info", reinterpret_cast<DL_FUNC>(unigd::external::get_renderer_info));
 }

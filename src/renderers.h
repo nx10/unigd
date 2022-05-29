@@ -1,15 +1,28 @@
 #ifndef UNIGD_RENDERERS_H
 #define UNIGD_RENDERERS_H
 
-#include <unigd_api/renderers_types.h>
+#include <unigd_api/device.h>
+#include <functional>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include "draw_data.h"
 
 namespace unigd
 {
     namespace renderers
     {
-        bool find_renderer(const std::string &id, const renderer_gen **renderer);
+        using renderer_gen = std::function<std::unique_ptr<unigd::dc::Renderer> ()>;
+        struct renderer_map_entry
+        {
+            renderer_info info;
+            renderer_gen generator;
+        };
+
+        bool find(const std::string &id, const renderer_map_entry **renderer);
+        bool find_generator(const std::string &id, const renderer_gen **renderer);
         bool find_info(const std::string &id, const renderer_info **renderer);
-        const std::unordered_map<std::string, renderer_gen> *renderers();
+        const std::unordered_map<std::string, renderer_map_entry> *renderers();
     } // namespace renderers
     
 } // namespace unigd

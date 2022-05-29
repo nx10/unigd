@@ -2,8 +2,8 @@
 #define UNIGD_SERVER_STORE_H
 
 #include <unigd_api/device.h>
-#include <unigd_api/geom.h>
-#include <unigd_api/draw_data.h>
+#include "geom.h"
+#include "draw_data.h"
 #include <compat/optional.hpp>
 
 #include <atomic>

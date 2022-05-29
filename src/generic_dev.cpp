@@ -12,12 +12,16 @@ namespace unigd
     {
     }
 
-    inline devGeneric *getDev(pDevDesc dd)
-    {
-        return static_cast<devGeneric *>(dd->deviceSpecific);
+    std::shared_ptr<devGeneric> devGeneric::getptr() {
+        return shared_from_this();
     }
 
-    pDevDesc devGeneric::create()
+    inline devGeneric *getDev(pDevDesc dd)
+    {
+        return static_cast<device_container *>(dd->deviceSpecific)->device.get();
+    }
+
+    pDevDesc devGeneric::setup(void *t_device_specific)
     {
         pDevDesc dd = (DevDesc*) calloc(1, sizeof(DevDesc));
         if (dd == nullptr)
@@ -34,8 +38,9 @@ namespace unigd
         dd->activate = [](pDevDesc dd) { getDev(dd)->dev_activate(dd); };
         dd->deactivate = [](pDevDesc dd) { getDev(dd)->dev_deactivate(dd); };
         dd->close = [](pDevDesc dd) {
-            getDev(dd)->dev_close(dd);
-            delete getDev(dd);
+            auto *container = static_cast<device_container *>(dd->deviceSpecific);
+            container->device->dev_close(dd);
+            delete container;
         };
         dd->clip = [](double x0, double x1, double y0, double y1, pDevDesc dd) { getDev(dd)->dev_clip(x0, x1, y0, y1, dd); };
         dd->size = [](double *left, double *right, double *bottom, double *top, pDevDesc dd) {
@@ -151,31 +156,8 @@ namespace unigd
 #endif
 
         // Device specific
-        dd->deviceSpecific = this;
+        dd->deviceSpecific = t_device_specific;
         return dd;
-    }
-
-    int devGeneric::make_device(const char *t_device_name, devGeneric *t_dev)
-    {
-        int devnum = -1;
-
-        R_GE_checkVersionOrDie(R_GE_version);
-        R_CheckDeviceAvailable();
-
-        BEGIN_SUSPEND_INTERRUPTS
-        {
-            pDevDesc dd = t_dev->create();
-            if (dd == nullptr)
-                cpp11::stop("Failed to start device");
-
-            pGEDevDesc gdd = GEcreateDevDesc(dd);
-            GEaddDevice2(gdd, t_device_name);
-            GEinitDisplayList(gdd);
-            devnum = GEdeviceNumber(gdd);
-        }
-        END_SUSPEND_INTERRUPTS;
-
-        return devnum + 1;
     }
 
     pDevDesc devGeneric::get_active_pDevDesc()
@@ -270,5 +252,29 @@ namespace unigd
     {
     }
 #endif
+
+    int device_container::setup(const char *t_device_name, std::shared_ptr<devGeneric> t_device)
+    {
+        auto *container = new device_container{t_device};
+        int devnum = -1;
+
+        R_GE_checkVersionOrDie(R_GE_version);
+        R_CheckDeviceAvailable();
+
+        BEGIN_SUSPEND_INTERRUPTS
+        {
+            pDevDesc dd = t_device->setup(container);
+            if (dd == nullptr)
+                cpp11::stop("Failed to start device");
+
+            pGEDevDesc gdd = GEcreateDevDesc(dd);
+            GEaddDevice2(gdd, t_device_name);
+            GEinitDisplayList(gdd);
+            devnum = GEdeviceNumber(gdd);
+        }
+        END_SUSPEND_INTERRUPTS;
+
+        return devnum + 1;
+    }
 
 } // namespace unigd

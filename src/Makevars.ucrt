@@ -2,7 +2,8 @@ CXX_STD = CXX17
 
 PKG_CPPFLAGS = -Ilib \
 	-DFMT_HEADER_ONLY \
-	-I$(R_TOOLS_SOFT)/include/cairo
+	-I$(R_TOOLS_SOFT)/include/cairo \
+	-I../inst/include
 
 PKG_LIBS = -lcairo -lpixman-1 -lfontconfig -lncrypt -lksecdd -lbcrypt -lexpat -lharfbuzz_too -lfreetype_too -lharfbuzz -lfreetype -lpng16 -lpng -lbz2 -lgdi32 -lintl -liconv -lz -lcfitsio -ltiff -ltiffxx -ljpeg
 
