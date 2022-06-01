@@ -11,7 +11,7 @@
 namespace unigd {
     namespace async {
         namespace {
-            const int UNIGD_ACTIVITY_ID = 501;
+            const int UNIGD_ACTIVITY_ID = 513;
             const size_t UNIGD_PIPE_BUFFER_SIZE = 32;
             threadsafe_queue<function_wrapper> work_queue;
             int message_fd[2];

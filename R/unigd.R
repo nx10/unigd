@@ -65,6 +65,12 @@ ugd <-
     ))
   }
 
+stop_if_not_unigd_device <- function(which) {
+  if (names(which) != "unigd") {
+    stop("Device is not of type unigd. (Start a device by calling: `ugd()`)")
+  }
+}
+
 #' unigd device status.
 #'
 #' Access status information of a unigd graphics device.
@@ -91,11 +97,8 @@ ugd <-
 #' dev.off()
 #' }
 ugd_state <- function(which = dev.cur()) {
-  if (names(which) != "unigd") {
-    stop("Device is not of type unigd. (Start a device by calling: `ugd()`)")
-  } else {
-    return(unigd_state_(which))
-  }
+  stop_if_not_unigd_device(which)
+  return(unigd_state_(which))
 }
 
 #' unigd device information.
@@ -121,11 +124,8 @@ ugd_state <- function(which = dev.cur()) {
 #' dev.off()
 #' }
 ugd_info <- function(which = dev.cur()) {
-  if (names(which) != "unigd") {
-    stop("Device is not of type unigd. (Start a device by calling: `ugd()`)")
-  } else {
-    return(unigd_info_(which))
-  }
+  stop_if_not_unigd_device(which)
+  return(unigd_info_(which))
 }
 
 #' unigd device renderers.
@@ -191,9 +191,7 @@ ugd_renderers <- function() {
 #' dev.off()
 #' }
 ugd_id <- function(index = 0, limit = 1, which = dev.cur(), state = FALSE) {
-  if (names(which) != "unigd") {
-    stop("Device is not of type unigd. (Start a device by calling: `ugd()`)")
-  }
+  stop_if_not_unigd_device(which)
   if (limit == 0 || is.infinite(limit)) {
     limit <- -1
   }
@@ -205,6 +203,13 @@ ugd_id <- function(index = 0, limit = 1, which = dev.cur(), state = FALSE) {
     return(res$plots[[1]])
   }
   return(res$plots)
+}
+
+page_id_to_index <- function(page) {
+  if (inherits(page, "unigd_pid")) {
+    page <- unigd_plot_find_(which, page$id)
+  }
+  page
 }
 
 #' Render unigd plot and return it.
@@ -245,12 +250,8 @@ ugd_render <- function(page = 0,
                      zoom = 1,
                      as = "svg",
                      which = dev.cur()) {
-  if (names(which) != "unigd") {
-    stop("Device is not of type unigd. (Start a device by calling: `ugd()`)")
-  }
-  if (class(page) == "unigd_pid") {
-    page <- unigd_plot_find_(which, page$id)
-  }
+  stop_if_not_unigd_device(which)
+  page <- page_id_to_index(page)
   unigd_render_(which, page - 1, width, height, zoom, as)
 }
 
@@ -296,12 +297,8 @@ ugd_save <- function(file,
                      zoom = 1,
                      as = "auto",
                      which = dev.cur()) {
-  if (names(which) != "unigd") {
-    stop("Device is not of type unigd. (Start a device by calling: `ugd()`)")
-  }
-  if (class(page) == "unigd_pid") {
-    page <- unigd_plot_find_(which, page$id)
-  }
+  stop_if_not_unigd_device(which)
+  page <- page_id_to_index(page)
   if (as == "auto") {
     as <- tolower(tools::file_ext(file))
     if (!(as %in% ugd_renderers()$id)) {
@@ -342,14 +339,11 @@ ugd_save <- function(file,
 #' dev.off()
 #' }
 ugd_remove <- function(page = 0, which = dev.cur()) {
-  if (names(which) != "unigd") {
-    stop("Device is not of type unigd. (Start a device by calling: `ugd()`)")
-  } else {
-    if (class(page) == "unigd_pid") {
-      return(unigd_remove_id_(which, page$id))
-    }
-    return(unigd_remove_(which, page - 1))
+  stop_if_not_unigd_device(which)
+  if (inherits(page, "unigd_pid")) {
+    return(unigd_remove_id_(which, page$id))
   }
+  return(unigd_remove_(which, page - 1))
 }
 
 #' Clear all unigd plot pages.
@@ -375,11 +369,8 @@ ugd_remove <- function(page = 0, which = dev.cur()) {
 #' dev.off()
 #' }
 ugd_clear <- function(which = dev.cur()) {
-  if (names(which) != "unigd") {
-    stop("Device is not of type unigd. (Start a device by calling: `ugd()`)")
-  } else {
-    return(unigd_clear_(which))
-  }
+  stop_if_not_unigd_device(which)
+  return(unigd_clear_(which))
 }
 
 #' Close unigd device.
@@ -436,8 +427,8 @@ ugd_close <- function(which = dev.cur(), all = FALSE) {
 #' @param height Height of the plot.
 #' @param zoom Zoom level. (For example: `2` corresponds to 200%, `0.5` would
 #'   be 50%.)
-#' @param renderer Renderer.
-#' @param ... Additional parameters passed to `ugd(webserver=FALSE, ...)`
+#' @param as Renderer.
+#' @param ... Additional parameters passed to `ugd(...)`
 #'
 #' @return Rendered plot. Text renderers return strings, binary renderers 
 #'   return byte arrays.
@@ -461,7 +452,7 @@ ugd_render_inline <- function(code,
                        width = getOption("unigd.width", 720),
                        height = getOption("unigd.height", 576),
                        zoom = 1,
-                       renderer = "svg",
+                       as = "svg",
                        ...) {
   ugd(
     width = (width / zoom),
@@ -476,7 +467,7 @@ ugd_render_inline <- function(code,
           width = width,
           height = height,
           zoom = zoom,
-          renderer = renderer
+          as = as
         )
       }, finally = {
         s <- NA
@@ -505,7 +496,7 @@ ugd_render_inline <- function(code,
 #' @param height Height of the plot.
 #' @param zoom Zoom level. (For example: `2` corresponds to 200%, `0.5` would
 #'   be 50%.)
-#' @param renderer Renderer.
+#' @param as Renderer.
 #' @param ... Additional parameters passed to `ugd(...)`
 #'
 #' @export
@@ -524,7 +515,7 @@ ugd_save_inline <- function(code,
                        width = getOption("unigd.width", 720),
                        height = getOption("unigd.height", 576),
                        zoom = 1,
-                       renderer = "auto",
+                       as = "auto",
                        ...) {
   ugd(
     width = (width / zoom),
@@ -540,7 +531,7 @@ ugd_save_inline <- function(code,
           width = width,
           height = height,
           zoom = zoom,
-          renderer = renderer
+          as = as
         )
       }, finally = {
         dev.off()

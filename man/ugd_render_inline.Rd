@@ -10,7 +10,7 @@ ugd_render_inline(
   width = getOption("unigd.width", 720),
   height = getOption("unigd.height", 576),
   zoom = 1,
-  renderer = "svg",
+  as = "svg",
   ...
 )
 }
@@ -28,9 +28,9 @@ be selected. Can be set to a numeric plot index or plot ID
 \item{zoom}{Zoom level. (For example: \code{2} corresponds to 200\%, \code{0.5} would
 be 50\%.)}
 
-\item{renderer}{Renderer.}
+\item{as}{Renderer.}
 
-\item{...}{Additional parameters passed to \code{ugd(webserver=FALSE, ...)}}
+\item{...}{Additional parameters passed to \code{ugd(...)}}
 }
 \value{
 Rendered plot. Text renderers return strings, binary renderers

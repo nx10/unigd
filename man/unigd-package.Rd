@@ -3,4 +3,7 @@
 \docType{package}
 \name{unigd-package}
 \alias{unigd-package}
-\title{unigd: Universal unified graphics device}
+\title{unigd: Universal graphics device}
+\description{
+Universal graphics device
+}

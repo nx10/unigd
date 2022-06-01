@@ -21,7 +21,7 @@ Authors@R:
       person("Google", role = "cph", comment = "Copyright holder of included material design icons"),
       person("Victor", "Zverovich", role = "cph", comment = "Author of included fmt library")
     )
-Description: What the package does (one paragraph).
+Description: Universal graphics device.
 License: GPL (>= 2)
 Depends:
     R (>= 3.2.0)

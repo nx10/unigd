@@ -1,4 +1,6 @@
-#' unigd: Universal unified graphics device
+#' unigd: Universal graphics device
+#'
+#' Universal graphics device
 #'
 #' @docType package
 #' @name unigd-package
@@ -6,13 +8,12 @@
 NULL
 
 .onLoad <- function(libname, pkgname) {
-  #unigd_ipc_open_()
-  TRUE
+  unigd_ipc_open_()
 }
 
 #' @importFrom grDevices dev.list dev.off
 .onUnload <- function (libpath) {
-  #ugd_close(all = TRUE)
-  #unigd_ipc_close_()
+  ugd_close(all = TRUE)
+  unigd_ipc_close_()
   library.dynam.unload("unigd", libpath)
 }

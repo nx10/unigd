@@ -16,14 +16,14 @@ namespace unigd
     {
         namespace
         {
-            const auto *UNIGD_WINDOW_CLASS_NAME = TEXT("httpgd_window_class");
-            const UINT UNIGD_MESSAGE_ID = WM_USER + 201;
+            const auto *UNIGD_WINDOW_CLASS_NAME = TEXT("unigd_window_class");
+            const UINT UNIGD_MESSAGE_ID = WM_USER + 217;
             threadsafe_queue<function_wrapper> work_queue;
             bool ipc_initialized{false};
             HWND message_hwind;
             
             inline void r_print_error(const char *message) {
-                REprintf("Error (httpgd IPC): %s\n", message);
+                REprintf("Error (unigd IPC): %s\n", message);
             }
 
             inline void process_tasks() {
@@ -61,7 +61,7 @@ namespace unigd
             }
             
             inline HWND create_message_window() {
-                return CreateWindowEx(0, UNIGD_WINDOW_CLASS_NAME, TEXT("httpgd"), 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, NULL, NULL);
+                return CreateWindowEx(0, UNIGD_WINDOW_CLASS_NAME, TEXT("unigd"), 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, NULL, NULL);
             }
 
             inline void notify()
@@ -75,24 +75,24 @@ namespace unigd
             if (ipc_initialized) return;
 
             if (!window_class_exists()) { 
-                // If there is already another version of httpgd loaded. (E.g. with pkgload::load_all,
+                // If there is already another version of unigd loaded. (E.g. with pkgload::load_all,
                 // which, unfortunately does not call .onUnload),
                 // we have to re-use the (unique) window class, but should not reuse the message window. 
                 // Otherwise we could not destroy the window while it is in use.
                 // As the callback lives inside the window class, messages be received only once.
 
-                //message_hwind = FindWindowEx(NULL, NULL, UNIGD_WINDOW_CLASS_NAME, TEXT("httpgd"));
+                //message_hwind = FindWindowEx(NULL, NULL, UNIGD_WINDOW_CLASS_NAME, TEXT("unigd"));
 
                 if (!register_window_class())
                 {
-                    r_print_error("httpgd: Failed to register window class.");
+                    r_print_error("unigd: Failed to register window class.");
                 }
             }
 
             message_hwind = create_message_window();
             if (!message_hwind)
             {
-                r_print_error("httpgd: Failed to create message window.");
+                r_print_error("unigd: Failed to create message window.");
                 return;
             }
             ipc_initialized = true;
@@ -103,14 +103,14 @@ namespace unigd
             if (!ipc_initialized) return;
 
             if (DestroyWindow(message_hwind) == 0) {
-                r_print_error("httpgd: Failed to destroy message window.");
+                r_print_error("unigd: Failed to destroy message window.");
             }
 
             // We can not be sure if there is another dll instance loaded with pkgload::load_all
             // so we cannot unregister the window class.
 
             //if (UnregisterClass(UNIGD_WINDOW_CLASS_NAME, NULL) == 0) {
-            //    r_print_error("httpgd: Failed to unregister window class.");
+            //    r_print_error("unigd: Failed to unregister window class.");
             //}
 
             ipc_initialized = false;

@@ -235,7 +235,7 @@ namespace unigd
         class Clip
         {
         public:
-            [[nodiscard]] inline bool equals(grect<double> t_rect) const
+            [[nodiscard]] inline bool equals(const grect<double> &t_rect) const
             {
                 return rect_equals(t_rect, rect, 0.01);
             }

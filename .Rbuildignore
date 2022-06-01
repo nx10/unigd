@@ -2,4 +2,7 @@
 ^\.Rproj\.user$
 ^\.github$
 ^\.vscode$
+^\.idea$
+^CMakeLists.txt$
+^cmake-build-debug$
 ^windows$

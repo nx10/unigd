@@ -32,7 +32,7 @@ namespace unigd {
     }
 
     template <class T>
-    bool rect_equals(grect<T> r0, grect<T> r1, T eps)
+    bool rect_equals(const grect<T> &r0, const grect<T> &r1, T eps)
     {
         return (std::fabs(r0.x - r1.x) < eps) &&
                (std::fabs(r0.y - r1.y) < eps) &&
