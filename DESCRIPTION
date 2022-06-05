@@ -1,4 +1,5 @@
 Package: unigd
+Type: Package
 Title: Universal graphics device
 Version: 0.0.0.9000
 Authors@R: 
@@ -31,11 +32,12 @@ LinkingTo:
     cpp11 (>= 0.2.4),
     systemfonts
 Encoding: UTF-8
-SystemRequirements: 
-    C++17,
+SystemRequirements:
     libpng,
     cairo,
     freetype2, 
     fontconfig
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.0
+URL: https://github.com/nx10/unigd
+BugReports: https://github.com/nx10/unigd/issues

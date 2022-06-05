@@ -264,10 +264,11 @@ namespace unigd
         class Renderer : public render_data
         {
         public:
+            Renderer() = default;
             virtual ~Renderer() = default;
 
-            virtual void render(const Page &t_page, double t_scale);
-            virtual void get_data(const uint8_t **t_buf, size_t *t_size) const;
+            virtual void render(const Page &t_page, double t_scale) = 0;
+            virtual void get_data(const uint8_t **t_buf, size_t *t_size) const = 0;
         };
 
 
