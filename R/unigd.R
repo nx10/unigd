@@ -470,7 +470,6 @@ ugd_render_inline <- function(code,
           as = as
         )
       }, finally = {
-        s <- NA
         dev.off()
       })
     }
