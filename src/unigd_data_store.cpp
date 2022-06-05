@@ -145,33 +145,6 @@ namespace unigd
         auto index = m_index_to_pos(t_index);
         m_pages[index].clip(t_rect);
     }
-
-    bool HttpgdDataStore::diff(page_index_t t_index, gvertex<double> t_size)
-    {
-        const std::lock_guard<std::mutex> lock(m_store_mutex);
-        if (!m_valid_index(t_index))
-        {
-            return false;
-        }
-        auto index = m_index_to_pos(t_index);
-
-        // get current state
-        gvertex<double> new_size = t_size;
-        gvertex<double> old_size = m_pages[index].size;
-
-        if (new_size.x < 0.1)
-        {
-            new_size.x = old_size.x;
-        }
-        if (new_size.y < 0.1)
-        {
-            new_size.y = old_size.y;
-        }
-
-        // Check if replay needed
-        return (std::fabs(new_size.x - old_size.x) > 0.1 ||
-                std::fabs(new_size.y - old_size.y) > 0.1);
-    }
     
     bool HttpgdDataStore::render(page_index_t t_index, dc::Renderer *t_renderer, double t_scale) 
     {
@@ -181,6 +154,38 @@ namespace unigd
             return false;
         }
         auto index = m_index_to_pos(t_index);
+        t_renderer->render(m_pages[index], std::fabs(t_scale));
+        return true;
+    }
+
+    bool HttpgdDataStore::render_if_size(page_index_t t_index, dc::Renderer *t_renderer, double t_scale, gvertex<double> t_target_size) 
+    {
+        const std::lock_guard<std::mutex> lock(m_store_mutex);
+        if (!m_valid_index(t_index))
+        {
+            return false;
+        }
+        auto index = m_index_to_pos(t_index);
+
+        // get current state
+        gvertex<double> old_size = m_pages[index].size;
+
+        if (t_target_size.x < 0.1)
+        {
+            t_target_size.x = old_size.x;
+        }
+        if (t_target_size.y < 0.1)
+        {
+            t_target_size.y = old_size.y;
+        }
+
+        // Check if replay needed
+        if (std::fabs(t_target_size.x - old_size.x) > 0.1 ||
+            std::fabs(t_target_size.y - old_size.y) > 0.1)
+        {
+            return false;
+        }
+
         t_renderer->render(m_pages[index], std::fabs(t_scale));
         return true;
     }

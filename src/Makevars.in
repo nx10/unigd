@@ -1,6 +1,6 @@
 CXX_STD = CXX17
 
-PKG_CPPFLAGS = @cflags@ -Ilib -DFMT_HEADER_ONLY
+PKG_CPPFLAGS = @cflags@ -Ilib -I../inst/include -DFMT_HEADER_ONLY
 
 #PKG_CXXFLAGS=$(C_VISIBILITY)
 

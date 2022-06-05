@@ -22,9 +22,9 @@ namespace unigd
     public:
         std::experimental::optional<page_index_t> find_index(page_id_t t_id);
 
-        bool diff(page_index_t t_index, gvertex<double> t_size);
         std::string svg(page_index_t t_index);
         bool render(page_index_t t_index, dc::Renderer *t_renderer, double t_scale);
+        bool render_if_size(page_index_t t_index, dc::Renderer *t_renderer, double t_scale, gvertex<double> t_target_size);
 
         page_index_t append(gvertex<double> t_size);
         void clear(page_index_t t_index, bool t_silent);

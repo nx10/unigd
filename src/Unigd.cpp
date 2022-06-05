@@ -72,11 +72,23 @@ cpp11::list unigd_state_(int devnum)
 
     unigd::device_state state = dev->plt_state();
 
+    SEXP client_status;
+    std::shared_ptr<unigd::graphics_client> client;
+    if (dev->get_client(&client))
+    {
+        client_status = cpp11::writable::strings({ client->client_status() });
+    }
+    else
+    {
+        client_status = R_NilValue;
+    }
+
     using namespace cpp11::literals;
     return cpp11::writable::list{
         "hsize"_nm = state.hsize,
         "upid"_nm = state.upid,
-        "active"_nm = state.active};
+        "active"_nm = state.active,
+        "client"_nm = client_status};
 }
 
 [[cpp11::register]]

@@ -72,7 +72,7 @@ namespace unigd
 
         // Asynchronous access
 
-        bool api_render(renderer_id_t t_renderer, plot_id_t t_plot, double t_width, double t_height, double t_scale) override;
+        std::unique_ptr<render_data> api_render(renderer_id_t t_renderer, plot_id_t t_plot, double t_width, double t_height, double t_scale) override;
         bool api_remove(plot_id_t id) override;
         bool api_clear() override;
         device_state api_state() override;

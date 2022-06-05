@@ -25,7 +25,8 @@ namespace unigd
     class render_data
     {
     public:
-        virtual void get_data(const uint8_t **t_buf, size_t *t_size) const;
+        virtual ~render_data() = default;
+        virtual void get_data(const uint8_t **t_buf, size_t *t_size) const = 0;
     };
 
     struct device_state {
@@ -42,7 +43,7 @@ namespace unigd
     class device_api
     {
     public:
-        virtual bool api_render(renderer_id_t t_renderer, plot_id_t t_plot, double t_width, double t_height, double t_scale) = 0;
+        virtual std::unique_ptr<render_data> api_render(renderer_id_t t_renderer, plot_id_t t_plot, double t_width, double t_height, double t_scale) = 0;
 
         virtual bool api_remove(plot_id_t id) = 0;
         virtual bool api_clear() = 0;

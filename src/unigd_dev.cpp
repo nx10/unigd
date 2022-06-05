@@ -12,13 +12,16 @@
 #include <string>
 
 #include "r_thread.h"
+#include "renderers.h"
 
 namespace unigd
 {
-    static inline void r_graphics_par_set(cpp11::list t_par) {
+    static inline void r_graphics_par_set(cpp11::list t_par)
+    {
         (cpp11::package("graphics")["par"])(t_par);
     }
-    static inline cpp11::list r_graphics_par_get() {
+    static inline cpp11::list r_graphics_par_get()
+    {
         using namespace cpp11::literals;
         return cpp11::as_cpp<cpp11::list>(cpp11::package("graphics")["par"]("no.readonly"_nm = true));
     }
@@ -65,10 +68,10 @@ namespace unigd
 
         m_initialized = true;
     }
-    
+
     bool unigd_device::attach_client(const std::shared_ptr<graphics_client> &t_client)
     {
-        if (m_client) 
+        if (m_client)
         {
             return false;
         }
@@ -77,10 +80,10 @@ namespace unigd
         m_client->start();
         return true;
     }
-    
-    bool unigd_device::get_client(std::shared_ptr<graphics_client> *t_client) 
+
+    bool unigd_device::get_client(std::shared_ptr<graphics_client> *t_client)
     {
-        if (!m_client) 
+        if (!m_client)
         {
             return false;
         }
@@ -115,7 +118,7 @@ namespace unigd
 
     void unigd_device::dev_mode(int mode, pDevDesc dd)
     {
-        //debug_println("MODE %i", mode);
+        // debug_println("MODE %i", mode);
         if (m_target.is_void() || mode == 1)
             return;
 
@@ -355,9 +358,9 @@ namespace unigd
         if (m_target.is_void())
             return;
 
-        //debug_println("DC put");
+        // debug_println("DC put");
         m_dc_buffer.emplace_back(dc);
-        //m_data_store->add_dc(m_target.get_index(), dc, replaying);
+        // m_data_store->add_dc(m_target.get_index(), dc, replaying);
     }
 
     void unigd_device::plt_prerender(int index, double width, double height)
@@ -404,7 +407,7 @@ namespace unigd
         m_target.set_void();
         m_target.set_newest_index(-1);
 
-        if (m_reset_par.size() != 0) 
+        if (m_reset_par.size() != 0)
         {
             const auto par = cpp11::package("graphics")["par"];
             par(m_reset_par);
@@ -446,16 +449,20 @@ namespace unigd
 
         return r;
     }
-    
-    bool unigd_device::plt_render(int index, double width, double height, dc::Renderer *t_renderer, double t_scale) 
+
+    bool unigd_device::plt_render(int index, double width, double height, dc::Renderer *t_renderer, double t_scale)
     {
-        debug_print("DIFF \n");
-        if (m_data_store->diff(index, {width, height}))
+        debug_println("check cached size");
+        if (m_data_store->render_if_size(index, t_renderer, t_scale, {width, height}))
         {
-            debug_print("RENDER \n");
+            return true;
+        }
+        else
+        {
+            debug_println("graphics engine rerender");
             plt_prerender(index, width, height);
         }
-        debug_print("SVG \n");
+        debug_println("render");
         return m_data_store->render(index, t_renderer, t_scale);
     }
 
@@ -482,48 +489,62 @@ namespace unigd
         return m_data_store->query_range(offset, limit);
     }
 
-
     bool unigd_device::api_remove(int index)
     {
-        try {
-            return async::r_thread([&](){
-                return plt_remove(index);
-            }).get();
-        } catch (...) {}
+        try
+        {
+            return async::r_thread([&]()
+                                   { return plt_remove(index); })
+                .get();
+        }
+        catch (...)
+        {
+        }
         return false;
     }
     bool unigd_device::api_clear()
     {
-        try {
-            return async::r_thread([&](){
-                return plt_clear();
-            }).get();
-        } catch (...) {}
+        try
+        {
+            return async::r_thread([&]()
+                                   { return plt_clear(); })
+                .get();
+        }
+        catch (...)
+        {
+        }
         return false;
     }
 
-    
-    bool unigd_device::api_render(renderer_id_t t_renderer, plot_id_t t_plot, double t_width, double t_height, double t_scale) 
+    std::unique_ptr<render_data> unigd_device::api_render(renderer_id_t t_renderer, plot_id_t t_plot, double t_width, double t_height, double t_scale)
     {
-        /*if (m_data_store->diff(index, {width, height}))
-        {
-            const std::lock_guard<std::mutex> lock(m_rdevice_alive_mutex);
-            if (!m_rdevice_alive)
-                return;
+        const auto plot_idx = plt_index(t_plot);
 
-            async::r_thread([&](){
-                plt_render(index, width, height);
-            }).wait();   
+        const renderers::renderer_map_entry *ren;
+        auto fi_renderer = renderers::find(t_renderer, &ren);
+        if (!fi_renderer)
+        {
+            return nullptr;
         }
-        return m_data_store->render(index, t_renderer, t_scale);*/
-        return false; // todo
+
+        auto renderer = ren->generator();
+        if (!m_data_store->render_if_size(plot_idx, renderer.get(), t_scale, {t_width, t_height}))
+        {
+            if (!async::r_thread([&]()
+                                 { return plt_render(plot_idx, t_width, t_height, renderer.get(), t_scale); })
+                     .get())
+            {
+                return nullptr;
+            }
+        }
+        return std::move(renderer);
     }
 
     device_state unigd_device::api_state()
     {
         return m_data_store->state();
     }
-    
+
     device_api_query_result unigd_device::api_query_all()
     {
         return m_data_store->query_all();

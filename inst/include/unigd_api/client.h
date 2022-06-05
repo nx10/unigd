@@ -13,6 +13,7 @@ namespace unigd
         virtual void close() { };
         virtual void broadcast_state_current() {};
         virtual int client_id() { return 0; };
+        virtual std::string client_status() { return ""; };
 
         std::weak_ptr<device_api> api;
     };
