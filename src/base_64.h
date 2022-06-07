@@ -5,7 +5,7 @@
 
 namespace unigd
 {
-    std::string raster_base64(const dc::Raster &t_raster);
+    std::string raster_base64(const renderers::Raster &t_raster);
 
 } // namespace unigd
 

@@ -1,10 +1,10 @@
 #ifndef RENDERER_STRINGS_H
 #define RENDERER_STRINGS_H
 
-#include "draw_data.h"
+#include "renderers.h"
 #include <fmt/format.h>
 
-namespace unigd::dc
+namespace unigd::renderers
 {
     class RendererStrings : public Renderer, public draw_call_visitor
     {
@@ -28,5 +28,5 @@ namespace unigd::dc
         size_t string_count;
     };
     
-} // namespace unigd::dc
+} // namespace unigd::renderers
 #endif // RENDERER_STRINGS_H

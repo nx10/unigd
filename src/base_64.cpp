@@ -137,7 +137,7 @@ namespace unigd
         return base64_encode(buffer.data(), buffer.size());
     }
 
-    std::string raster_base64(const dc::Raster &t_raster)
+    std::string raster_base64(const renderers::Raster &t_raster)
     {
         return raster_to_string(t_raster.raster, t_raster.wh.x, t_raster.wh.y, t_raster.rect.width, t_raster.rect.height, t_raster.interpolate);
     }

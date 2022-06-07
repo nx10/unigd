@@ -1,10 +1,10 @@
 #ifndef RENDERER_TIKZ_H
 #define RENDERER_TIKZ_H
 
-#include "draw_data.h"
+#include "renderers.h"
 #include <fmt/format.h>
 
-namespace unigd::dc
+namespace unigd::renderers
 {
     class RendererTikZ : public Renderer, public draw_call_visitor
     {
@@ -28,5 +28,5 @@ namespace unigd::dc
         double m_scale;
     };
     
-} // namespace unigd::dc
+} // namespace unigd::renderers
 #endif // RENDERER_TIKZ_H

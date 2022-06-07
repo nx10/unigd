@@ -1,6 +1,6 @@
 #include "renderer_strings.h"
 
-namespace unigd::dc
+namespace unigd::renderers
 {
 
     void RendererStrings::render(const Page &t_page, double t_scale)
@@ -59,4 +59,4 @@ namespace unigd::dc
     {
     }
 
-} // namespace unigd::dc
+} // namespace unigd::renderers

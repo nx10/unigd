@@ -3,7 +3,7 @@
 
 #include <unigd_api/device.h>
 #include "geom.h"
-#include "draw_data.h"
+#include "renderers.h"
 #include <compat/optional.hpp>
 
 #include <atomic>
@@ -23,8 +23,8 @@ namespace unigd
         std::experimental::optional<page_index_t> find_index(page_id_t t_id);
 
         std::string svg(page_index_t t_index);
-        bool render(page_index_t t_index, dc::Renderer *t_renderer, double t_scale);
-        bool render_if_size(page_index_t t_index, dc::Renderer *t_renderer, double t_scale, gvertex<double> t_target_size);
+        bool render(page_index_t t_index, renderers::Renderer *t_renderer, double t_scale);
+        bool render_if_size(page_index_t t_index, renderers::Renderer *t_renderer, double t_scale, gvertex<double> t_target_size);
 
         page_index_t append(gvertex<double> t_size);
         void clear(page_index_t t_index, bool t_silent);
@@ -34,8 +34,8 @@ namespace unigd
         gvertex<double> size(page_index_t t_index);
 
         void fill(page_index_t t_index, color_t t_fill);
-        void add_dc(page_index_t t_index, std::shared_ptr<dc::DrawCall> t_dc, bool t_silent);
-        void add_dc(page_index_t t_index, const std::vector<std::shared_ptr<dc::DrawCall>> &t_dcs, bool t_silent);
+        void add_dc(page_index_t t_index, std::shared_ptr<renderers::DrawCall> t_dc, bool t_silent);
+        void add_dc(page_index_t t_index, const std::vector<std::shared_ptr<renderers::DrawCall>> &t_dcs, bool t_silent);
         void clip(page_index_t t_index, grect<double> t_rect);
 
         device_state state();
@@ -51,7 +51,7 @@ namespace unigd
         std::mutex m_store_mutex;
 
         page_id_t m_id_counter = 0;
-        std::vector<dc::Page> m_pages;
+        std::vector<renderers::Page> m_pages;
         int m_upid = 0;
         bool m_device_active = true;
 

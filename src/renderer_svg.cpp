@@ -8,7 +8,7 @@
 #include "uuid.h"
 #include "compress.h"
 
-namespace unigd::dc
+namespace unigd::renderers
 {
     
     static inline void write_xml_escaped(fmt::memory_buffer &os, const std::string &text)
@@ -812,4 +812,4 @@ namespace unigd::dc
         *t_size = m_compressed.size();
     }
 
-} // namespace unigd::dc
+} // namespace unigd::renderers

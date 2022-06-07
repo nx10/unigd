@@ -1,10 +1,10 @@
 #ifndef RENDERER_META_H
 #define RENDERER_META_H
 
-#include "draw_data.h"
+#include "renderers.h"
 #include <fmt/format.h>
 
-namespace unigd::dc
+namespace unigd::renderers
 {
     class RendererMeta : public Renderer
     {
@@ -20,5 +20,5 @@ namespace unigd::dc
         double m_scale;
     };
     
-} // namespace unigd::dc
+} // namespace unigd::renderers
 #endif // RENDERER_META_H

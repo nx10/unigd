@@ -1,6 +1,6 @@
 #include "renderer_meta.h"
 
-namespace unigd::dc
+namespace unigd::renderers
 {
     void RendererMeta::render(const Page &t_page, double t_scale)
     {
@@ -20,4 +20,4 @@ namespace unigd::dc
         t_page.id, t_page.size.x, t_page.size.y, m_scale, t_page.cps.size(), t_page.dcs.size());
     }
     
-} // namespace unigd::dc
+} // namespace unigd::renderers

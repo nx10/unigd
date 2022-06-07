@@ -1,10 +1,10 @@
 #ifndef RENDERER_JSON_H
 #define RENDERER_JSON_H
 
-#include "draw_data.h"
+#include "renderers.h"
 #include <fmt/format.h>
 
-namespace unigd::dc
+namespace unigd::renderers
 {
     class RendererJSON : public Renderer, public draw_call_visitor
     {
@@ -29,5 +29,5 @@ namespace unigd::dc
         double m_scale;
     };
 
-} // namespace unigd::dc
+} // namespace unigd::renderers
 #endif // RENDERER_JSON_H

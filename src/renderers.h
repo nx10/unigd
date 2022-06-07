@@ -1,18 +1,29 @@
 #ifndef UNIGD_RENDERERS_H
 #define UNIGD_RENDERERS_H
 
+#include "draw_data.h"
 #include <unigd_api/device.h>
 #include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include "draw_data.h"
 
 namespace unigd
 {
     namespace renderers
     {
-        using renderer_gen = std::function<std::unique_ptr<unigd::dc::Renderer> ()>;
+        
+        class Renderer : public render_data
+        {
+        public:
+            Renderer() = default;
+            virtual ~Renderer() = default;
+
+            virtual void render(const Page &t_page, double t_scale) = 0;
+            virtual void get_data(const uint8_t **t_buf, size_t *t_size) const = 0;
+        };
+
+        using renderer_gen = std::function<std::unique_ptr<Renderer> ()>;
         struct renderer_map_entry
         {
             renderer_info info;

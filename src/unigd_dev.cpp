@@ -253,14 +253,14 @@ namespace unigd
             m_data_store->fill(m_target.get_index(), fill);
     }
 
-    inline dc::LineInfo gc_lineinfo(pGEcontext gc)
+    inline renderers::LineInfo gc_lineinfo(pGEcontext gc)
     {
         return {
             gc->col,
             gc->lwd,
             gc->lty,
-            static_cast<dc::LineInfo::GC_lineend>(gc->lend),
-            static_cast<dc::LineInfo::GC_linejoin>(gc->ljoin),
+            static_cast<renderers::LineInfo::GC_lineend>(gc->lend),
+            static_cast<renderers::LineInfo::GC_linejoin>(gc->ljoin),
             gc->lmitre};
     }
     inline color_t gc_fill(pGEcontext gc)
@@ -270,7 +270,7 @@ namespace unigd
 
     void unigd_device::dev_line(double x1, double y1, double x2, double y2, pGEcontext gc, pDevDesc dd)
     {
-        put(std::make_shared<dc::Line>(gc_lineinfo(gc), gvertex<double>{x1, y1}, gvertex<double>{x2, y2}));
+        put(std::make_shared<renderers::Line>(gc_lineinfo(gc), gvertex<double>{x1, y1}, gvertex<double>{x2, y2}));
     }
     void unigd_device::dev_text(double x, double y, const char *str, double rot, double hadj, pGEcontext gc, pDevDesc dd)
     {
@@ -291,8 +291,8 @@ namespace unigd
             feature += (i == font_info.n_features - 1 ? ";" : ",");
         }
 
-        put(std::make_shared<dc::Text>(gc->col, gvertex<double>{x, y}, str, rot, hadj,
-                                       dc::TextInfo{
+        put(std::make_shared<renderers::Text>(gc->col, gvertex<double>{x, y}, str, rot, hadj,
+                                       renderers::TextInfo{
                                            weight,
                                            feature,
                                            fontname(gc->fontfamily, gc->fontface, system_aliases, user_aliases, font_info),
@@ -302,11 +302,11 @@ namespace unigd
     }
     void unigd_device::dev_rect(double x0, double y0, double x1, double y1, pGEcontext gc, pDevDesc dd)
     {
-        put(std::make_shared<dc::Rect>(gc_lineinfo(gc), gc_fill(gc), normalize_rect(x0, y0, x1, y1)));
+        put(std::make_shared<renderers::Rect>(gc_lineinfo(gc), gc_fill(gc), normalize_rect(x0, y0, x1, y1)));
     }
     void unigd_device::dev_circle(double x, double y, double r, pGEcontext gc, pDevDesc dd)
     {
-        put(std::make_shared<dc::Circle>(gc_lineinfo(gc), gc_fill(gc), gvertex<double>{x, y}, r));
+        put(std::make_shared<renderers::Circle>(gc_lineinfo(gc), gc_fill(gc), gvertex<double>{x, y}, r));
     }
     void unigd_device::dev_polygon(int n, double *x, double *y, pGEcontext gc, pDevDesc dd)
     {
@@ -315,7 +315,7 @@ namespace unigd
         {
             points[i] = {x[i], y[i]};
         }
-        put(std::make_shared<dc::Polygon>(gc_lineinfo(gc), gc_fill(gc), std::move(points)));
+        put(std::make_shared<renderers::Polygon>(gc_lineinfo(gc), gc_fill(gc), std::move(points)));
     }
     void unigd_device::dev_polyline(int n, double *x, double *y, pGEcontext gc, pDevDesc dd)
     {
@@ -324,7 +324,7 @@ namespace unigd
         {
             points[i] = {x[i], y[i]};
         }
-        put(std::make_shared<dc::Polyline>(gc_lineinfo(gc), std::move(points)));
+        put(std::make_shared<renderers::Polyline>(gc_lineinfo(gc), std::move(points)));
     }
     void unigd_device::dev_path(double *x, double *y, int npoly, int *nper, Rboolean winding, pGEcontext gc, pDevDesc dd)
     {
@@ -340,7 +340,7 @@ namespace unigd
             points[i] = {x[i], y[i]};
         }
 
-        put(std::make_shared<dc::Path>(gc_lineinfo(gc), gc_fill(gc), std::move(points), std::move(vnper), winding));
+        put(std::make_shared<renderers::Path>(gc_lineinfo(gc), gc_fill(gc), std::move(points), std::move(vnper), winding));
     }
     void unigd_device::dev_raster(unsigned int *raster, int w, int h, double x, double y, double width, double height, double rot, Rboolean interpolate, pGEcontext gc, pDevDesc dd)
     {
@@ -348,12 +348,12 @@ namespace unigd
         const double abs_width = std::fabs(width);
 
         std::vector<unsigned int> vraster(raster, raster + (w * h));
-        put(std::make_shared<dc::Raster>(std::move(vraster), gvertex<int>{w, h}, grect<double>{x, y - abs_height, abs_width, abs_height}, rot, interpolate));
+        put(std::make_shared<renderers::Raster>(std::move(vraster), gvertex<int>{w, h}, grect<double>{x, y - abs_height, abs_width, abs_height}, rot, interpolate));
     }
 
     // OTHER
 
-    void unigd_device::put(std::shared_ptr<dc::DrawCall> dc)
+    void unigd_device::put(std::shared_ptr<renderers::DrawCall> dc)
     {
         if (m_target.is_void())
             return;
@@ -450,7 +450,7 @@ namespace unigd
         return r;
     }
 
-    bool unigd_device::plt_render(int index, double width, double height, dc::Renderer *t_renderer, double t_scale)
+    bool unigd_device::plt_render(int index, double width, double height, renderers::Renderer *t_renderer, double t_scale)
     {
         debug_println("check cached size");
         if (m_data_store->render_if_size(index, t_renderer, t_scale, {width, height}))

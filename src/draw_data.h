@@ -6,13 +6,12 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <unigd_api/device.h>
 
 // Do not include any R headers here !
 
 namespace unigd
 {
-    namespace dc
+    namespace renderers
     {
 
         namespace color
@@ -261,18 +260,7 @@ namespace unigd
             std::vector<Clip> cps;
         };
 
-        class Renderer : public render_data
-        {
-        public:
-            Renderer() = default;
-            virtual ~Renderer() = default;
-
-            virtual void render(const Page &t_page, double t_scale) = 0;
-            virtual void get_data(const uint8_t **t_buf, size_t *t_size) const = 0;
-        };
-
-
-    } // namespace dc
+    } // namespace renderers
 
 } // namespace unigd
 

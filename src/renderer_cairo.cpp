@@ -12,7 +12,7 @@
 // Implementation based on grDevices::cairo
 // https://github.com/wch/r-source/blob/trunk/src/library/grDevices/src/cairo/cairoFns.c
 
-namespace unigd::dc
+namespace unigd::renderers
 {
     constexpr double MATH_PI{3.14159265358979323846};
 
@@ -68,7 +68,7 @@ namespace unigd::dc
         cairo_set_line_join(cr, ljoin);
         cairo_set_miter_limit(cr, line.lmitre);
 
-        if (line.lty == LineInfo::TY_BLANK || line.lty == dc::LineInfo::TY_SOLID)
+        if (line.lty == LineInfo::TY_BLANK || line.lty == renderers::LineInfo::TY_SOLID)
         {
             cairo_set_dash(cr, nullptr, 0, 0);
         }
@@ -516,6 +516,6 @@ namespace unigd::dc
     }
     
 
-} // namespace unigd::dc
+} // namespace unigd::renderers
 
 #endif

@@ -10,7 +10,7 @@
 #include <fmt/format.h>
 #include <vector>
 
-namespace unigd::dc
+namespace unigd::renderers
 {
     class RendererCairo : public Renderer
     {
@@ -85,7 +85,7 @@ namespace unigd::dc
         std::vector<unsigned char> m_render_data{};
     };
 
-} // namespace unigd::dc
+} // namespace unigd::renderers
 
 #endif
 

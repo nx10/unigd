@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace unigd::dc
+namespace unigd::renderers
 {
     static inline void write_tex_escaped(fmt::memory_buffer &os, const std::string &text)
     {

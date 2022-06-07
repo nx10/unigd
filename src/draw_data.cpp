@@ -2,7 +2,7 @@
 
 namespace unigd
 {
-    namespace dc
+    namespace renderers
     {
 
         Text::Text(color_t t_col, gvertex<double> t_pos, std::string &&t_str, double t_rot, double t_hadj, TextInfo &&t_text)
@@ -114,6 +114,6 @@ namespace unigd
             }
         }
 
-    } // namespace dc
+    } // namespace renderers
 
 } // namespace unigd

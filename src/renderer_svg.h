@@ -1,12 +1,12 @@
 #ifndef RENDERER_SVG_H
 #define RENDERER_SVG_H
 
-#include "draw_data.h"
+#include "renderers.h"
 #include <fmt/format.h>
 #include <compat/optional.hpp>
 #include <string>
 
-namespace unigd::dc
+namespace unigd::renderers
 {
     class RendererSVG : public Renderer, public draw_call_visitor
     {
@@ -84,5 +84,5 @@ namespace unigd::dc
         std::vector<unsigned char> m_compressed;
     };
     
-} // namespace unigd::dc
+} // namespace unigd::renderers
 #endif // RENDERER_SVG_H

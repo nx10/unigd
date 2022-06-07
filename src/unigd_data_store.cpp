@@ -27,7 +27,7 @@ namespace unigd
 
         return m_pages.size() - 1;
     }
-    void HttpgdDataStore::add_dc(page_index_t t_index, std::shared_ptr<dc::DrawCall> t_dc, bool t_silent)
+    void HttpgdDataStore::add_dc(page_index_t t_index, std::shared_ptr<renderers::DrawCall> t_dc, bool t_silent)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -42,7 +42,7 @@ namespace unigd
         }
     }
     
-    void HttpgdDataStore::add_dc(page_index_t t_index, const std::vector<std::shared_ptr<dc::DrawCall>> &t_dcs, bool t_silent)
+    void HttpgdDataStore::add_dc(page_index_t t_index, const std::vector<std::shared_ptr<renderers::DrawCall>> &t_dcs, bool t_silent)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -146,7 +146,7 @@ namespace unigd
         m_pages[index].clip(t_rect);
     }
     
-    bool HttpgdDataStore::render(page_index_t t_index, dc::Renderer *t_renderer, double t_scale) 
+    bool HttpgdDataStore::render(page_index_t t_index, renderers::Renderer *t_renderer, double t_scale) 
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -158,7 +158,7 @@ namespace unigd
         return true;
     }
 
-    bool HttpgdDataStore::render_if_size(page_index_t t_index, dc::Renderer *t_renderer, double t_scale, gvertex<double> t_target_size) 
+    bool HttpgdDataStore::render_if_size(page_index_t t_index, renderers::Renderer *t_renderer, double t_scale, gvertex<double> t_target_size) 
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))

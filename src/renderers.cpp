@@ -29,7 +29,7 @@ namespace unigd
             "Scalable Vector Graphics (SVG).",
             true
           },
-          []() { return std::make_unique<dc::RendererSVG>(std::experimental::nullopt); }
+          []() { return std::make_unique<renderers::RendererSVG>(std::experimental::nullopt); }
         }
       },
       {
@@ -44,7 +44,7 @@ namespace unigd
             "Version of the SVG renderer that produces portable SVGs.",
             true
           },
-          []() { return std::make_unique<dc::RendererSVGPortable>(); }
+          []() { return std::make_unique<renderers::RendererSVGPortable>(); }
         }
       },
       {
@@ -59,7 +59,7 @@ namespace unigd
             "Plot data serialized to JSON format.",
             true
           },
-          []() { return std::make_unique<dc::RendererJSON>(); }
+          []() { return std::make_unique<renderers::RendererJSON>(); }
         }
       },
       {
@@ -74,7 +74,7 @@ namespace unigd
             "LaTeX TikZ code.",
             true
           },
-          []() { return std::make_unique<dc::RendererTikZ>(); }
+          []() { return std::make_unique<renderers::RendererTikZ>(); }
         }
       },
       {
@@ -89,7 +89,7 @@ namespace unigd
             "List of strings contained in plot.",
             true
           },
-          []() { return std::make_unique<dc::RendererStrings>(); }
+          []() { return std::make_unique<renderers::RendererStrings>(); }
         }
       },
       {
@@ -104,7 +104,7 @@ namespace unigd
             "Plot meta information.",
             true
           },
-          []() { return std::make_unique<dc::RendererMeta>(); }
+          []() { return std::make_unique<renderers::RendererMeta>(); }
         }
       },
       {
@@ -119,7 +119,7 @@ namespace unigd
             "Compressed Scalable Vector Graphics (SVGZ).",
             false
           },
-          []() { return std::make_unique<dc::RendererSVGZ>(std::experimental::nullopt); }
+          []() { return std::make_unique<renderers::RendererSVGZ>(std::experimental::nullopt); }
         }
       },
       {
@@ -134,7 +134,7 @@ namespace unigd
             "Version of the SVG renderer that produces portable SVGZs.",
             false
           },
-          []() { return std::make_unique<dc::RendererSVGZPortable>(); }
+          []() { return std::make_unique<renderers::RendererSVGZPortable>(); }
         }
       }
 
@@ -147,7 +147,7 @@ namespace unigd
         "PS",
         "plot",
         "PostScript (PS)."},
-        []() { return std::make_unique<dc::RendererCairoPs>(); },
+        []() { return std::make_unique<renderers::RendererCairoPs>(); },
       }},
       {"eps",{
         {"eps",
@@ -156,7 +156,7 @@ namespace unigd
         "EPS",
         "plot",
         "Encapsulated PostScript (EPS)."},
-        []() { return std::make_unique<dc::RendererCairoEps>(); }
+        []() { return std::make_unique<renderers::RendererCairoEps>(); }
       }},
       
       {"png",{
@@ -166,7 +166,7 @@ namespace unigd
         "PNG",
         "plot",
         "Portable Network Graphics (PNG)."},
-        []() { return std::make_unique<dc::RendererCairoPng>(); }
+        []() { return std::make_unique<renderers::RendererCairoPng>(); }
       }},
       
       {"pdf",{
@@ -176,7 +176,7 @@ namespace unigd
         "PDF",
         "plot",
         "Adobe Portable Document Format (PDF)."},
-        []() { return std::make_unique<dc::RendererCairoPdf>(); }
+        []() { return std::make_unique<renderers::RendererCairoPdf>(); }
       }},
       
       {"tiff",{
@@ -186,7 +186,7 @@ namespace unigd
         "TIFF",
         "plot",
         "Tagged Image File Format (TIFF)."},
-        []() { return std::make_unique<dc::RendererCairoTiff>(); }
+        []() { return std::make_unique<renderers::RendererCairoTiff>(); }
       }}
 #endif
     };
@@ -239,7 +239,7 @@ namespace unigd
           ".svg",
           "SVG",
           "plot",
-          []() { return std::make_unique<dc::RendererSVG>(std::experimental::nullopt); },
+          []() { return std::make_unique<renderers::RendererSVG>(std::experimental::nullopt); },
           "Scalable Vector Graphics (SVG)."
         });
         
@@ -249,7 +249,7 @@ namespace unigd
           ".svgz",
           "SVGZ",
           "plot",
-          []() { return std::make_unique<dc::RendererSVGZ>(std::experimental::nullopt); },
+          []() { return std::make_unique<renderers::RendererSVGZ>(std::experimental::nullopt); },
           "Compressed Scalable Vector Graphics (SVGZ)."
         });
         
@@ -259,7 +259,7 @@ namespace unigd
           ".svg",
           "Portable SVG",
           "plot",
-          []() { return std::make_unique<dc::RendererSVGPortable>(); },
+          []() { return std::make_unique<renderers::RendererSVGPortable>(); },
           "Version of the SVG renderer that produces portable SVGs."
         });
         
@@ -269,7 +269,7 @@ namespace unigd
           ".svgz",
           "Portable SVGZ",
           "plot",
-          []() { return std::make_unique<dc::RendererSVGZPortable>(); },
+          []() { return std::make_unique<renderers::RendererSVGZPortable>(); },
           "Version of the SVG renderer that produces portable SVGZs."
         });
         
@@ -281,7 +281,7 @@ namespace unigd
           ".png",
           "PNG",
           "plot",
-          []() { return std::make_unique<dc::RendererCairoPng>(); },
+          []() { return std::make_unique<renderers::RendererCairoPng>(); },
           "Portable Network Graphics (PNG)."
         });
         
@@ -291,7 +291,7 @@ namespace unigd
           ".pdf",
           "PDF",
           "plot",
-          []() { return std::make_unique<dc::RendererCairoPdf>(); },
+          []() { return std::make_unique<renderers::RendererCairoPdf>(); },
           "Adobe Portable Document Format (PDF)."
         });
         
@@ -301,7 +301,7 @@ namespace unigd
           ".ps",
           "PS",
           "plot",
-          []() { return std::make_unique<dc::RendererCairoPs>(); },
+          []() { return std::make_unique<renderers::RendererCairoPs>(); },
           "PostScript (PS)."
         });
 
@@ -311,7 +311,7 @@ namespace unigd
           ".eps",
           "EPS",
           "plot",
-          []() { return std::make_unique<dc::RendererCairoEps>(); },
+          []() { return std::make_unique<renderers::RendererCairoEps>(); },
           "Encapsulated PostScript (EPS)."
         });
         
@@ -321,7 +321,7 @@ namespace unigd
           ".tiff",
           "TIFF",
           "plot",
-          []() { return std::make_unique<dc::RendererCairoTiff>(); },
+          []() { return std::make_unique<renderers::RendererCairoTiff>(); },
           "Tagged Image File Format (TIFF)."
         });
         

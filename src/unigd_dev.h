@@ -67,7 +67,7 @@ namespace unigd
         device_api_query_result plt_query_all();
         device_api_query_result plt_query_index(int index);
         device_api_query_result plt_query_range(int offset, int limit);
-        bool plt_render(int index, double width, double height, dc::Renderer *t_renderer, double t_scale);
+        bool plt_render(int index, double width, double height, renderers::Renderer *t_renderer, double t_scale);
         int plt_index(int32_t id);
 
         // Asynchronous access
@@ -112,7 +112,7 @@ namespace unigd
 
         bool m_initialized{false};
 
-        void put(std::shared_ptr<dc::DrawCall> dc);
+        void put(std::shared_ptr<renderers::DrawCall> dc);
 
         // set device size
         void resize_device_to_page(pDevDesc dd);
@@ -120,7 +120,7 @@ namespace unigd
         // graphical parameters for reseting
         cpp11::list m_reset_par;
 
-        std::vector<std::shared_ptr<unigd::dc::DrawCall>> m_dc_buffer{};
+        std::vector<std::shared_ptr<unigd::renderers::DrawCall>> m_dc_buffer{};
     };
 
 } // namespace unigd

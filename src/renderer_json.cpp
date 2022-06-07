@@ -2,7 +2,7 @@
 
 #include "base_64.h"
 
-namespace unigd { namespace dc
+namespace unigd { namespace renderers
 {
 
     static inline std::string hexcol(color_t t_color)
@@ -135,4 +135,4 @@ namespace unigd { namespace dc
                        t_raster->clip_id, t_raster->rect.x, t_raster->rect.y, t_raster->rect.width, t_raster->rect.height, t_raster->rot, t_raster->wh.x, t_raster->wh.y, raster_base64(*t_raster));
     }
 
-} } // namespace unigd::dc
+} } // namespace unigd::renderers
