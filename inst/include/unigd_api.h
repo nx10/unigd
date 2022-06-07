@@ -18,6 +18,7 @@ namespace unigd
     bool get_client(int devnum, std::shared_ptr<unigd::graphics_client> *t_client);
     bool get_renderer_list(std::vector<unigd::renderer_info>* renderer);
     bool get_renderer_info(const unigd::renderer_id_t& id, unigd::renderer_info* renderer);
+    void log(const std::string &t_message);
 
 } // namespace unigd
 

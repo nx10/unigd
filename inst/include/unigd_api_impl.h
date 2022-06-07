@@ -20,6 +20,7 @@ namespace unigd
         bool(*pcallable_get_client)(int, std::shared_ptr<unigd::graphics_client>*) = NULL;
         bool(*pcallable_get_renderer_list)(std::vector<unigd::renderer_info>*) = NULL;
         bool(*pcallable_get_renderer_info)(const unigd::renderer_id_t&, unigd::renderer_info*) = NULL;
+        void(*pcallable_log)(const std::string&) = NULL;
     }
 
     bool load_api()
@@ -34,6 +35,7 @@ namespace unigd
         pcallable_get_client = (bool(*)(int, std::shared_ptr<unigd::graphics_client>*)) R_GetCCallable("unigd", "_ccall_get_client");
         pcallable_get_renderer_list = (bool(*)(std::vector<unigd::renderer_info>*)) R_GetCCallable("unigd", "_ccall_get_renderer_list");
         pcallable_get_renderer_info = (bool(*)(const unigd::renderer_id_t&, unigd::renderer_info*)) R_GetCCallable("unigd", "_ccall_get_renderer_info");
+        pcallable_log = (void(*)(const std::string&)) R_GetCCallable("unigd", "_ccall_log");
         return true;
     }
 
@@ -60,6 +62,11 @@ namespace unigd
     bool get_renderer_info(const unigd::renderer_id_t& id, unigd::renderer_info* renderer)
     {
         return pcallable_get_renderer_info(id, renderer);
+    }
+
+    void log(const std::string& t_message)
+    {
+        pcallable_log(t_message);
     }
     
 } // namespace unigd

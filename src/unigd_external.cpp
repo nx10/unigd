@@ -3,6 +3,7 @@
 #include "renderers.h"
 #include "unigd_dev.h"
 #include "unigd_api_version.h"
+#include "r_thread.h"
 
 namespace unigd
 {
@@ -59,13 +60,18 @@ namespace unigd
                 return true;
             }
             return false;
-        }    
+        }
+
+        void log(const std::string& t_message)
+        {
+            async::r_thread([=]() { Rprintf("unigd client: %s\n", t_message.c_str()); });
+        }
     } // namespace external
 } // namespace unigd
 
 
 [[cpp11::init]]
-void export_api(DllInfo* dll) 
+void export_api(DllInfo* dll)
 {
     R_RegisterCCallable("unigd", "_ccall_api_version", reinterpret_cast<DL_FUNC>(unigd::external::api_version));
     R_RegisterCCallable("unigd", "_ccall_test_fun", reinterpret_cast<DL_FUNC>(unigd::external::test_fun));
@@ -73,4 +79,5 @@ void export_api(DllInfo* dll)
     R_RegisterCCallable("unigd", "_ccall_get_client", reinterpret_cast<DL_FUNC>(unigd::external::get_client));
     R_RegisterCCallable("unigd", "_ccall_get_renderer_list", reinterpret_cast<DL_FUNC>(unigd::external::get_renderer_list));
     R_RegisterCCallable("unigd", "_ccall_get_renderer_info", reinterpret_cast<DL_FUNC>(unigd::external::get_renderer_info));
+    R_RegisterCCallable("unigd", "_ccall_log", reinterpret_cast<DL_FUNC>(unigd::external::log));
 }
