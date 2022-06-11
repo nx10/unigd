@@ -489,12 +489,13 @@ namespace unigd
         return m_data_store->query_range(offset, limit);
     }
 
-    bool unigd_device::api_remove(int index)
+    bool unigd_device::api_remove(plot_id_t id)
     {
+        const auto plot_idx = plt_index(id);
         try
         {
             return async::r_thread([&]()
-                                   { return plt_remove(index); })
+                                   { return plt_remove(plot_idx); })
                 .get();
         }
         catch (...)
