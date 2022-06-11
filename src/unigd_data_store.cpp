@@ -41,7 +41,7 @@ namespace unigd
             m_inc_upid();
         }
     }
-    
+
     void HttpgdDataStore::add_dc(page_index_t t_index, const std::vector<std::shared_ptr<renderers::DrawCall>> &t_dcs, bool t_silent)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
@@ -145,8 +145,8 @@ namespace unigd
         auto index = m_index_to_pos(t_index);
         m_pages[index].clip(t_rect);
     }
-    
-    bool HttpgdDataStore::render(page_index_t t_index, renderers::Renderer *t_renderer, double t_scale) 
+
+    bool HttpgdDataStore::render(page_index_t t_index, renderers::Renderer *t_renderer, double t_scale)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -158,7 +158,7 @@ namespace unigd
         return true;
     }
 
-    bool HttpgdDataStore::render_if_size(page_index_t t_index, renderers::Renderer *t_renderer, double t_scale, gvertex<double> t_target_size) 
+    bool HttpgdDataStore::render_if_size(page_index_t t_index, renderers::Renderer *t_renderer, double t_scale, gvertex<double> t_target_size)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
