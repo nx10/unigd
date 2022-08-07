@@ -12,10 +12,9 @@
 #include "unigd_commons.h"
 #include "unigd_data_store.h"
 
-#include "unigd_api/client.h"
-#include "unigd_api/device.h"
-
 #include "plot_history.h"
+
+#include "unigd_external.h"
 
 namespace unigd
 {
@@ -45,7 +44,7 @@ namespace unigd
         bool m_void{true};
     };
 
-    class unigd_device : public devGeneric, public device_api
+    class unigd_device : public generic_dev<unigd_device>
     {
     public:
 
@@ -55,30 +54,30 @@ namespace unigd
 
         unigd_device(const device_params &t_params);
 
-        bool attach_client(const std::shared_ptr<graphics_client> &t_client);
-        bool get_client(std::shared_ptr<graphics_client> *t_client);
+        bool attach_client(ex::graphics_client *t_client);
+        bool get_client(ex::graphics_client **t_client);
+        bool remove_client();
 
         // Synchronous access
 
         void plt_prerender(int index, double width, double height);
         bool plt_remove(int index);
         bool plt_clear();
-        device_state plt_state();
-        device_api_query_result plt_query_all();
-        device_api_query_result plt_query_index(int index);
-        device_api_query_result plt_query_range(int offset, int limit);
-        bool plt_render(int index, double width, double height, renderers::Renderer *t_renderer, double t_scale);
+        bool plt_render(int index, double width, double height, renderers::render_target *t_renderer, double t_scale);
+        
+        // Datastore only access
+
+        ex::device_state plt_state();
+        ex::find_results plt_query_all();
+        ex::find_results plt_query_index(int index);
+        ex::find_results plt_query_range(int offset, int limit);
         int plt_index(int32_t id);
 
         // Asynchronous access
 
-        std::unique_ptr<render_data> api_render(renderer_id_t t_renderer, plot_id_t t_plot, double t_width, double t_height, double t_scale) override;
-        bool api_remove(plot_id_t id) override;
-        bool api_clear() override;
-        device_state api_state() override;
-        device_api_query_result api_query_all() override;
-        device_api_query_result api_query_index(plot_index_t index) override;
-        device_api_query_result api_query_range(plot_index_t offset, plot_index_t limit) override;
+        std::unique_ptr<ex::render_data> api_render(ex::renderer_id_t t_renderer_id, int32_t t_plot_id, double t_width, double t_height, double t_scale);
+        bool api_remove(int32_t t_id);
+        bool api_clear();
 
     protected:
         // Device callbacks
@@ -105,7 +104,7 @@ namespace unigd
         PlotHistory m_history;
         std::shared_ptr<HttpgdDataStore> m_data_store;
         
-        std::shared_ptr<graphics_client> m_client;
+        ex::graphics_client *m_client{nullptr};
 
         bool replaying{false}; // Is the device replaying
         DeviceTarget m_target;

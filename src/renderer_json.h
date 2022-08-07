@@ -6,7 +6,7 @@
 
 namespace unigd::renderers
 {
-    class RendererJSON : public Renderer, public draw_call_visitor
+    class RendererJSON : public render_target, public draw_call_visitor
     {
     public:
         void render(const Page &t_page, double t_scale) override;

@@ -8,7 +8,7 @@
 
 namespace unigd::renderers
 {
-    class RendererSVG : public Renderer, public draw_call_visitor
+    class RendererSVG : public render_target, public draw_call_visitor
     {
     public:
         explicit RendererSVG(std::experimental::optional<std::string> t_extra_css);
@@ -38,7 +38,7 @@ namespace unigd::renderers
      * - Does not use style tags or CDATA embedded CSS.
      * - Appends random UUID to document-wide (clipPath) IDs.
      */
-    class RendererSVGPortable : public Renderer, public draw_call_visitor
+    class RendererSVGPortable : public render_target, public draw_call_visitor
     {
     public:
         RendererSVGPortable();

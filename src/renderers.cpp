@@ -213,7 +213,7 @@ namespace unigd
         return false;
     }
 
-    bool find_info(const std::string &id, const renderer_info **renderer)
+    bool find_info(const std::string &id, const unigd_renderer_info **renderer)
     {
         const renderer_map_entry *renderer_str = nullptr;
         if (find(id, &renderer_str))

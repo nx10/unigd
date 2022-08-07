@@ -8,6 +8,7 @@
 #include <cpp11/function.hpp>
 #include <cpp11/list.hpp>
 #include <cpp11/strings.hpp>
+#include <memory>
 #include <svglite_utils.h>
 #include <string>
 
@@ -54,7 +55,7 @@ namespace unigd
     }
 
     unigd_device::unigd_device(const device_params &t_params)
-        : devGeneric(t_params.width, t_params.height, t_params.pointsize, t_params.bg),
+        : generic_dev(t_params.width, t_params.height, t_params.pointsize, t_params.bg),
           system_aliases(cpp11::as_cpp<cpp11::list>(t_params.aliases["system"])),
           user_aliases(cpp11::as_cpp<cpp11::list>(t_params.aliases["user"])),
           m_history(),
@@ -69,25 +70,35 @@ namespace unigd
         m_initialized = true;
     }
 
-    bool unigd_device::attach_client(const std::shared_ptr<graphics_client> &t_client)
+    bool unigd_device::attach_client(ex::graphics_client *t_client)
     {
         if (m_client)
         {
             return false;
         }
         m_client = t_client;
-        m_client->api = std::static_pointer_cast<unigd_device>(shared_from_this());
         m_client->start();
         return true;
     }
 
-    bool unigd_device::get_client(std::shared_ptr<graphics_client> *t_client)
+    bool unigd_device::get_client(ex::graphics_client **t_client)
     {
         if (!m_client)
         {
             return false;
         }
         *t_client = m_client;
+        return true;
+    }
+
+    bool unigd_device::remove_client()
+    {
+        if (!m_client)
+        {
+            return false;
+        }
+        m_client->close();
+        m_client = nullptr;
         return true;
     }
 
@@ -101,7 +112,7 @@ namespace unigd
         m_data_store->set_device_active(true);
         if (m_client)
         {
-            m_client->broadcast_state_current();
+            m_client->state_change();
         }
     }
     void unigd_device::dev_deactivate(pDevDesc dd)
@@ -112,7 +123,7 @@ namespace unigd
         m_data_store->set_device_active(false);
         if (m_client)
         {
-            m_client->broadcast_state_current();
+            m_client->state_change();
         }
     }
 
@@ -127,7 +138,9 @@ namespace unigd
         m_dc_buffer.clear();
 
         if (m_client)
-            m_client->broadcast_state_current();
+        {
+            m_client->state_change();
+        }
     }
 
     void unigd_device::dev_close(pDevDesc dd)
@@ -140,10 +153,7 @@ namespace unigd
         m_target.set_newest_index(-1);
 
         // shutdown client
-        if (m_client)
-        {
-            m_client->close();
-        }
+        remove_client();
 
         // cleanup r session data
         m_history.clear();
@@ -292,13 +302,13 @@ namespace unigd
         }
 
         put(std::make_shared<renderers::Text>(gc->col, gvertex<double>{x, y}, str, rot, hadj,
-                                       renderers::TextInfo{
-                                           weight,
-                                           feature,
-                                           fontname(gc->fontfamily, gc->fontface, system_aliases, user_aliases, font_info),
-                                           gc->cex * gc->ps,
-                                           is_italic(gc->fontface),
-                                           dev_strWidth(str, gc, dd)}));
+                                              renderers::TextInfo{
+                                                  weight,
+                                                  feature,
+                                                  fontname(gc->fontfamily, gc->fontface, system_aliases, user_aliases, font_info),
+                                                  gc->cex * gc->ps,
+                                                  is_italic(gc->fontface),
+                                                  dev_strWidth(str, gc, dd)}));
     }
     void unigd_device::dev_rect(double x0, double y0, double x1, double y1, pGEcontext gc, pDevDesc dd)
     {
@@ -368,7 +378,7 @@ namespace unigd
         if (index == -1)
             index = m_target.get_newest_index();
 
-        pDevDesc dd = devGeneric::get_active_pDevDesc();
+        pDevDesc dd = get_active_pDevDesc();
 
         debug_print("[render_page] index=%i\n", index);
 
@@ -414,7 +424,9 @@ namespace unigd
         }
 
         if (m_client)
-            m_client->broadcast_state_current();
+        {
+            m_client->state_change();
+        }
 
         return r;
     }
@@ -429,7 +441,7 @@ namespace unigd
 
         // remove from history
 
-        pDevDesc dd = devGeneric::get_active_pDevDesc();
+        pDevDesc dd = get_active_pDevDesc();
 
         debug_print("[hist_remove] index = %i\n", index);
         replaying = true;
@@ -445,12 +457,14 @@ namespace unigd
         replaying = false;
 
         if (m_client)
-            m_client->broadcast_state_current();
+        {
+            m_client->state_change();
+        }
 
         return r;
     }
 
-    bool unigd_device::plt_render(int index, double width, double height, renderers::Renderer *t_renderer, double t_scale)
+    bool unigd_device::plt_render(int index, double width, double height, renderers::render_target *t_renderer, double t_scale)
     {
         debug_println("check cached size");
         if (m_data_store->render_if_size(index, t_renderer, t_scale, {width, height}))
@@ -471,25 +485,25 @@ namespace unigd
         return m_data_store->find_index(id).value_or(-1);
     }
 
-    device_state unigd_device::plt_state()
+    ex::device_state unigd_device::plt_state()
     {
         return m_data_store->state();
     }
 
-    device_api_query_result unigd_device::plt_query_all()
+    ex::find_results unigd_device::plt_query_all()
     {
         return m_data_store->query_all();
     }
-    device_api_query_result unigd_device::plt_query_index(int index)
+    ex::find_results unigd_device::plt_query_index(int index)
     {
         return m_data_store->query_index(index);
     }
-    device_api_query_result unigd_device::plt_query_range(int offset, int limit)
+    ex::find_results unigd_device::plt_query_range(int offset, int limit)
     {
         return m_data_store->query_range(offset, limit);
     }
 
-    bool unigd_device::api_remove(plot_id_t id)
+    bool unigd_device::api_remove(int32_t id)
     {
         const auto plot_idx = plt_index(id);
         try
@@ -517,12 +531,12 @@ namespace unigd
         return false;
     }
 
-    std::unique_ptr<render_data> unigd_device::api_render(renderer_id_t t_renderer, plot_id_t t_plot, double t_width, double t_height, double t_scale)
+    std::unique_ptr<ex::render_data> unigd_device::api_render(ex::renderer_id_t t_renderer_id, int32_t t_plot_id, double t_width, double t_height, double t_scale)
     {
-        const auto plot_idx = plt_index(t_plot);
+        const auto plot_idx = plt_index(t_plot_id);
 
         const renderers::renderer_map_entry *ren;
-        auto fi_renderer = renderers::find(t_renderer, &ren);
+        auto fi_renderer = renderers::find(t_renderer_id, &ren);
         if (!fi_renderer)
         {
             return nullptr;
@@ -541,22 +555,5 @@ namespace unigd
         return std::move(renderer);
     }
 
-    device_state unigd_device::api_state()
-    {
-        return m_data_store->state();
-    }
-
-    device_api_query_result unigd_device::api_query_all()
-    {
-        return m_data_store->query_all();
-    }
-    device_api_query_result unigd_device::api_query_index(int index)
-    {
-        return m_data_store->query_index(index);
-    }
-    device_api_query_result unigd_device::api_query_range(int offset, int limit)
-    {
-        return m_data_store->query_range(offset, limit);
-    }
 
 } // namespace unigd

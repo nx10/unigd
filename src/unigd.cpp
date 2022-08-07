@@ -24,7 +24,7 @@ namespace
 {
     inline std::shared_ptr<unigd::unigd_device> validate_unigddev(int devnum)
     {
-        auto a = unigd::validate_device<unigd::unigd_device>(devnum);
+        auto a = unigd::unigd_device::from_device_number(devnum);
         if (a == nullptr)
         {
             cpp11::stop("Not a valid device number");
@@ -61,8 +61,8 @@ int unigd_ugd_(std::string bg, double width, double height,
         aliases,
         reset_par
     };
-    
-    return unigd::device_container::setup("unigd", std::make_shared<unigd::unigd_device>(dparams));
+
+    return std::make_shared<unigd::unigd_device>(dparams)->create("unigd");
 }
 
 [[cpp11::register]]
@@ -70,18 +70,18 @@ cpp11::list unigd_state_(int devnum)
 {
     auto dev = validate_unigddev(devnum);
 
-    unigd::device_state state = dev->plt_state();
+    const auto state = dev->plt_state();
 
     SEXP client_status;
-    std::shared_ptr<unigd::graphics_client> client;
+    /*std::shared_ptr<unigd::graphics_client> client;
     if (dev->get_client(&client))
     {
         client_status = cpp11::writable::strings({ client->client_status() });
     }
     else
-    {
+    {*/
         client_status = R_NilValue;
-    }
+    //}
 
     using namespace cpp11::literals;
     return cpp11::writable::list{
@@ -218,7 +218,7 @@ bool unigd_remove_id_(int devnum, std::string id)
 cpp11::writable::list unigd_id_(int devnum, int page, int limit)
 {
     auto dev = validate_unigddev(devnum);
-    unigd::device_api_query_result res;
+    unigd::ex::find_results res;
 
     if (page == -1)
     {
@@ -239,7 +239,7 @@ cpp11::writable::list unigd_id_(int devnum, int page, int limit)
 
     for (std::size_t i = 0; i < res.ids.size(); ++i)
     {
-        cpp11::writable::list p{"id"_nm = std::to_string(res.ids[i])};
+        cpp11::writable::list p{"id"_nm = res.ids[i]};
         p.attr("class") = "unigd_pid";
         plots[i] = p;
     }

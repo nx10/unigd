@@ -146,7 +146,7 @@ namespace unigd
         m_pages[index].clip(t_rect);
     }
 
-    bool HttpgdDataStore::render(page_index_t t_index, renderers::Renderer *t_renderer, double t_scale)
+    bool HttpgdDataStore::render(page_index_t t_index, renderers::render_target *t_renderer, double t_scale)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -158,7 +158,7 @@ namespace unigd
         return true;
     }
 
-    bool HttpgdDataStore::render_if_size(page_index_t t_index, renderers::Renderer *t_renderer, double t_scale, gvertex<double> t_target_size)
+    bool HttpgdDataStore::render_if_size(page_index_t t_index, renderers::render_target *t_renderer, double t_scale, gvertex<double> t_target_size)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -190,14 +190,14 @@ namespace unigd
         return true;
     }
 
-    std::experimental::optional<int> HttpgdDataStore::find_index(page_id_t t_id)
+    std::experimental::optional<page_index_t> HttpgdDataStore::find_index(page_id_t t_id)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         for (std::size_t i = 0; i != m_pages.size(); i++)
         {
             if (m_pages[i].id == t_id)
             {
-                return static_cast<int>(i);
+                return static_cast<page_index_t>(i);
             }
         }
         return std::experimental::nullopt;
@@ -207,7 +207,7 @@ namespace unigd
     {
         m_upid = incwrap(m_upid);
     }
-    device_state HttpgdDataStore::state()
+    unigd_device_state HttpgdDataStore::state()
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         return {
@@ -222,7 +222,7 @@ namespace unigd
         m_device_active = t_active;
     }
 
-    device_api_query_result HttpgdDataStore::query_all()
+    ex::find_results HttpgdDataStore::query_all()
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
 
@@ -236,7 +236,7 @@ namespace unigd
                  m_device_active},
                 res};
     }
-    device_api_query_result HttpgdDataStore::query_index(page_id_t t_index)
+    ex::find_results HttpgdDataStore::query_index(page_id_t t_index)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
 
@@ -253,7 +253,7 @@ namespace unigd
                  m_device_active},
                 {m_pages[index].id}};
     }
-    device_api_query_result HttpgdDataStore::query_range(page_id_t t_offset, page_id_t t_limit)
+    ex::find_results HttpgdDataStore::query_range(page_id_t t_offset, page_id_t t_limit)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
 

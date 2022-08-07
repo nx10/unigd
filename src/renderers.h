@@ -2,7 +2,7 @@
 #define UNIGD_RENDERERS_H
 
 #include "draw_data.h"
-#include <unigd_api/device.h>
+#include "unigd_external.h"
 #include <functional>
 #include <memory>
 #include <string>
@@ -12,27 +12,22 @@ namespace unigd
 {
     namespace renderers
     {
-        
-        class Renderer : public render_data
+        class render_target : public ex::render_data
         {
         public:
-            Renderer() = default;
-            virtual ~Renderer() = default;
-
             virtual void render(const Page &t_page, double t_scale) = 0;
-            virtual void get_data(const uint8_t **t_buf, size_t *t_size) const = 0;
         };
 
-        using renderer_gen = std::function<std::unique_ptr<Renderer> ()>;
+        using renderer_gen = std::function<std::unique_ptr<render_target> ()>;
         struct renderer_map_entry
         {
-            renderer_info info;
+            unigd_renderer_info info;
             renderer_gen generator;
         };
 
         bool find(const std::string &id, const renderer_map_entry **renderer);
         bool find_generator(const std::string &id, const renderer_gen **renderer);
-        bool find_info(const std::string &id, const renderer_info **renderer);
+        bool find_info(const std::string &id, const unigd_renderer_info **renderer);
         const std::unordered_map<std::string, renderer_map_entry> *renderers();
     } // namespace renderers
     

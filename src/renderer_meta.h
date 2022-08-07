@@ -6,7 +6,7 @@
 
 namespace unigd::renderers
 {
-    class RendererMeta : public Renderer
+    class RendererMeta : public render_target
     {
     public:
         void render(const Page &t_page, double t_scale) override;

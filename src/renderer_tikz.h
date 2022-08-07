@@ -6,7 +6,7 @@
 
 namespace unigd::renderers
 {
-    class RendererTikZ : public Renderer, public draw_call_visitor
+    class RendererTikZ : public render_target, public draw_call_visitor
     {
     public:
         void render(const Page &t_page, double t_scale) override;

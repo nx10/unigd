@@ -1,25 +1,34 @@
-// 
-// clang-format off
-
 #ifndef UNIGD_EXTERNAL_API_H
 #define UNIGD_EXTERNAL_API_H
 
-#include <unigd_api/client.h>
-#include <unigd_api/device.h>
-#include <memory>
-#include <vector>
+#ifndef R_NO_REMAP
+#define R_NO_REMAP
+#endif
 
-namespace unigd
+#include <Rinternals.h>
+#include <R_ext/Rdynload.h>
+
+#include <stdlib.h>
+#include <stdint.h>
+
+#include <unigd_api_v1.h>
+
+static inline int unigd_api_v1_create(unigd_api_v1 **api)
 {
-    bool load_api();
+    static int(*ptr_api_v1_create)(unigd_api_v1 **) = NULL;
+    if (ptr_api_v1_create == NULL) {
+        ptr_api_v1_create = (int(*)(unigd_api_v1 **)) R_GetCCallable("unigd", "api_v1_create");
+    }
+    return ptr_api_v1_create(api);
+}
 
-    int test_fun();
-    bool attach_client(int devnum, const std::shared_ptr<unigd::graphics_client>& t_client);
-    bool get_client(int devnum, std::shared_ptr<unigd::graphics_client> *t_client);
-    bool get_renderer_list(std::vector<unigd::renderer_info>* renderer);
-    bool get_renderer_info(const unigd::renderer_id_t& id, unigd::renderer_info* renderer);
-    void log(const std::string &t_message);
-
-} // namespace unigd
+static inline int unigd_api_v1_destroy(unigd_api_v1 *api)
+{
+    static int(*ptr_api_v1_destroy)(unigd_api_v1 *) = NULL;
+    if (ptr_api_v1_destroy == NULL) {
+        ptr_api_v1_destroy = (int(*)(unigd_api_v1 *)) R_GetCCallable("unigd", "api_v1_destroy");
+    }
+    return ptr_api_v1_destroy(api);
+}
 
 #endif // UNIGD_EXTERNAL_API_H

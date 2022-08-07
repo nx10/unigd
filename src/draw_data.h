@@ -51,7 +51,7 @@ namespace unigd
         }
 
         using clip_id_t = int;
-        using page_id_t = int32_t;
+        using page_id_t = uint32_t;
 
         // Data
 

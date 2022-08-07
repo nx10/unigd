@@ -12,7 +12,7 @@
 
 namespace unigd::renderers
 {
-    class RendererCairo : public Renderer
+    class RendererCairo : public render_target
     {
     public:
         void page(const Page &t_page) override;
