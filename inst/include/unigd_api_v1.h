@@ -18,6 +18,7 @@ extern "C"
     typedef char *UNIGD_RENDERER_ID;
     typedef uint32_t UNIGD_PLOT_ID;
     typedef uint32_t UNIGD_PLOT_INDEX;
+    typedef int32_t UNIGD_PLOT_RELATIVE;
 
     struct unigd_graphics_client
     {
@@ -48,7 +49,7 @@ extern "C"
     struct unigd_device_state
     {
         int upid;
-        long hsize;
+        UNIGD_PLOT_INDEX hsize;
         bool active;
     };
 

@@ -13,7 +13,7 @@ namespace unigd
 
         unigd_find_results find_results::c_repr()
         {
-            return {state, ids.size(), &ids[0]};
+            return {state, static_cast<plot_index_t>(ids.size()), &ids[0]};
         }
 
 
@@ -23,46 +23,6 @@ namespace unigd
         }
 
 
-        /*bool attach_client(int devnum, const std::shared_ptr<unigd::graphics_client>& t_client)
-        {
-            auto dev = validate_device<unigd_device>(devnum);
-            if (!dev)
-            {
-                return false;
-            }
-            return dev->attach_client(t_client);
-        }
-
-        bool get_client(int devnum, std::shared_ptr<unigd::graphics_client>* t_client)
-        {
-            auto dev = validate_device<unigd_device>(devnum);
-            if (!dev)
-            {
-                return false;
-            }
-            return dev->get_client(t_client);
-        }
-
-        bool get_renderer_list(std::vector<unigd::renderer_info> *renderer)
-        {
-            const auto renderer_map = unigd::renderers::renderers();
-            renderer->reserve(renderer_map->size());
-            for (auto& map_entry: *renderer_map) {
-                renderer->push_back(map_entry.second.info);
-            }
-            return true;
-        }
-
-        bool get_renderer_info(const unigd::renderer_id_t& id, unigd::renderer_info* renderer)
-        {
-            const unigd::renderer_info *found;
-            if (unigd::renderers::find_info(id, &found))
-            {
-                *renderer = *found;
-                return true;
-            }
-            return false;
-        }*/
 
         void api_log(const char *t_message)
         {
@@ -94,6 +54,18 @@ namespace unigd
             return ugd->device->plt_state();
         }
 
+        bool api_plots_clear(UNIGD_HANDLE ugd_handle)
+        {
+            const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
+            return ugd->device->api_clear();
+        }
+
+        bool api_plots_remove(UNIGD_HANDLE ugd_handle, UNIGD_PLOT_ID id)
+        {
+            const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
+            return ugd->device->api_remove(id);
+        }
+
         int api_v1_create(unigd_api_v1 **api_)
         {
             auto api = new unigd_api_v1();
@@ -102,6 +74,8 @@ namespace unigd
             api->device_attach = api_device_attach;
             api->device_destroy = api_device_destroy;
             api->device_state = api_device_state;
+            api->device_plots_clear = api_plots_clear;
+            api->device_plots_remove = api_plots_remove;
 
             *api_ = api;
 

@@ -13,6 +13,7 @@ namespace unigd
     namespace ex
     {
         using plot_index_t = UNIGD_PLOT_INDEX;
+        using plot_relative_t = UNIGD_PLOT_RELATIVE;
         using plot_id_t = UNIGD_PLOT_ID;
         using renderer_id_t = UNIGD_RENDERER_ID;
 

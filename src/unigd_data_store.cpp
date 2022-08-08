@@ -8,17 +8,17 @@
 
 namespace unigd
 {
-    inline bool HttpgdDataStore::m_valid_index(page_index_t t_index)
+    inline bool HttpgdDataStore::m_valid_index(ex::plot_relative_t t_index)
     {
-        auto psize = m_pages.size();
-        return (psize > 0 && (t_index >= -1 && t_index < static_cast<int>(psize)));
+        const auto psize = static_cast<ex::plot_relative_t>(m_pages.size());
+        return (psize > 0 && (t_index >= -psize && t_index < psize));
     }
-    inline std::size_t HttpgdDataStore::m_index_to_pos(page_index_t t_index)
+    inline std::size_t HttpgdDataStore::m_index_to_pos(ex::plot_relative_t t_index)
     {
-        return (t_index == -1 ? (m_pages.size() - 1) : t_index);
+        return (t_index < 0 ? (m_pages.size() + t_index) : t_index);
     }
 
-    page_index_t HttpgdDataStore::append(gvertex<double> t_size)
+    ex::plot_index_t HttpgdDataStore::append(gvertex<double> t_size)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         m_pages.emplace_back(m_id_counter, t_size);
@@ -27,7 +27,7 @@ namespace unigd
 
         return m_pages.size() - 1;
     }
-    void HttpgdDataStore::add_dc(page_index_t t_index, std::shared_ptr<renderers::DrawCall> t_dc, bool t_silent)
+    void HttpgdDataStore::add_dc(ex::plot_relative_t t_index, std::shared_ptr<renderers::DrawCall> t_dc, bool t_silent)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -42,7 +42,7 @@ namespace unigd
         }
     }
 
-    void HttpgdDataStore::add_dc(page_index_t t_index, const std::vector<std::shared_ptr<renderers::DrawCall>> &t_dcs, bool t_silent)
+    void HttpgdDataStore::add_dc(ex::plot_relative_t t_index, const std::vector<std::shared_ptr<renderers::DrawCall>> &t_dcs, bool t_silent)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -57,7 +57,7 @@ namespace unigd
             m_inc_upid();
         }
     }
-    void HttpgdDataStore::clear(page_index_t t_index, bool t_silent)
+    void HttpgdDataStore::clear(ex::plot_relative_t t_index, bool t_silent)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -71,7 +71,7 @@ namespace unigd
             m_inc_upid();
         }
     }
-    bool HttpgdDataStore::remove(page_index_t t_index, bool t_silent)
+    bool HttpgdDataStore::remove(ex::plot_relative_t t_index, bool t_silent)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
 
@@ -104,7 +104,7 @@ namespace unigd
         m_inc_upid();
         return true;
     }
-    void HttpgdDataStore::fill(page_index_t t_index, color_t t_fill)
+    void HttpgdDataStore::fill(ex::plot_relative_t t_index, color_t t_fill)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -114,7 +114,7 @@ namespace unigd
         auto index = m_index_to_pos(t_index);
         m_pages[index].fill = t_fill;
     }
-    void HttpgdDataStore::resize(page_index_t t_index, gvertex<double> t_size)
+    void HttpgdDataStore::resize(ex::plot_relative_t t_index, gvertex<double> t_size)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -125,7 +125,7 @@ namespace unigd
         m_pages[index].size = t_size;
         m_pages[index].clear();
     }
-    unigd::gvertex<double> HttpgdDataStore::size(page_index_t t_index)
+    unigd::gvertex<double> HttpgdDataStore::size(ex::plot_relative_t t_index)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -135,7 +135,7 @@ namespace unigd
         auto index = m_index_to_pos(t_index);
         return m_pages[index].size;
     }
-    void HttpgdDataStore::clip(page_index_t t_index, grect<double> t_rect)
+    void HttpgdDataStore::clip(ex::plot_relative_t t_index, grect<double> t_rect)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -146,7 +146,7 @@ namespace unigd
         m_pages[index].clip(t_rect);
     }
 
-    bool HttpgdDataStore::render(page_index_t t_index, renderers::render_target *t_renderer, double t_scale)
+    bool HttpgdDataStore::render(ex::plot_relative_t t_index, renderers::render_target *t_renderer, double t_scale)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -158,7 +158,7 @@ namespace unigd
         return true;
     }
 
-    bool HttpgdDataStore::render_if_size(page_index_t t_index, renderers::render_target *t_renderer, double t_scale, gvertex<double> t_target_size)
+    bool HttpgdDataStore::render_if_size(ex::plot_relative_t t_index, renderers::render_target *t_renderer, double t_scale, gvertex<double> t_target_size)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         if (!m_valid_index(t_index))
@@ -190,14 +190,14 @@ namespace unigd
         return true;
     }
 
-    std::experimental::optional<page_index_t> HttpgdDataStore::find_index(page_id_t t_id)
+    std::experimental::optional<ex::plot_index_t> HttpgdDataStore::find_index(ex::plot_id_t t_id)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         for (std::size_t i = 0; i != m_pages.size(); i++)
         {
             if (m_pages[i].id == t_id)
             {
-                return static_cast<page_index_t>(i);
+                return static_cast<ex::plot_index_t>(i);
             }
         }
         return std::experimental::nullopt;
@@ -212,7 +212,7 @@ namespace unigd
         const std::lock_guard<std::mutex> lock(m_store_mutex);
         return {
             m_upid,
-            m_pages.size(),
+            static_cast<ex::plot_index_t>(m_pages.size()),
             m_device_active};
     }
 
@@ -226,41 +226,41 @@ namespace unigd
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
 
-        std::vector<page_id_t> res(m_pages.size());
+        std::vector<ex::plot_id_t> res(m_pages.size());
         for (std::size_t i = 0; i != m_pages.size(); i++)
         {
             res[i] = m_pages[i].id;
         }
         return {{m_upid,
-                 m_pages.size(),
+                 static_cast<ex::plot_index_t>(m_pages.size()),
                  m_device_active},
                 res};
     }
-    ex::find_results HttpgdDataStore::query_index(page_id_t t_index)
+    ex::find_results HttpgdDataStore::query_index(ex::plot_relative_t t_index)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
 
         if (!m_valid_index(t_index))
         {
             return {{m_upid,
-                     m_pages.size(),
+                     static_cast<ex::plot_index_t>(m_pages.size()),
                      m_device_active},
                     {}};
         }
         auto index = m_index_to_pos(t_index);
         return {{m_upid,
-                 m_pages.size(),
+                 static_cast<ex::plot_index_t>(m_pages.size()),
                  m_device_active},
                 {m_pages[index].id}};
     }
-    ex::find_results HttpgdDataStore::query_range(page_id_t t_offset, page_id_t t_limit)
+    ex::find_results HttpgdDataStore::query_range(ex::plot_relative_t t_offset, ex::plot_id_t t_limit)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
 
         if (!m_valid_index(t_offset))
         {
             return {{m_upid,
-                     m_pages.size(),
+                     static_cast<ex::plot_index_t>(m_pages.size()),
                      m_device_active},
                     {}};
         }
@@ -271,13 +271,13 @@ namespace unigd
         }
         auto end = std::min(m_pages.size(), index + static_cast<std::size_t>(t_limit));
 
-        std::vector<page_id_t> res(end - index);
+        std::vector<ex::plot_id_t> res(end - index);
         for (std::size_t i = index; i != end; i++)
         {
             res[i - index] = m_pages[i].id;
         }
         return {{m_upid,
-                 m_pages.size(),
+                 static_cast<ex::plot_index_t>(m_pages.size()),
                  m_device_active},
                 res};
     }
