@@ -15,7 +15,7 @@ extern "C"
     typedef void *UNIGD_RENDERERS_HANDLE;
     typedef void *UNIGD_RENDERERS_ENTRY_HANDLE;
     typedef void *UNIGD_FIND_HANDLE;
-    typedef char *UNIGD_RENDERER_ID;
+    typedef const char *UNIGD_RENDERER_ID;
     typedef uint32_t UNIGD_PLOT_ID;
     typedef uint32_t UNIGD_PLOT_INDEX;
     typedef int32_t UNIGD_PLOT_RELATIVE;
@@ -32,11 +32,11 @@ extern "C"
     struct unigd_renderer_info
     {
         UNIGD_RENDERER_ID id;
-        char *mime;
-        char *fileext;
-        char *name;
-        char *type;
-        char *description;
+        const char *mime;
+        const char *fileext;
+        const char *name;
+        const char *type;
+        const char *description;
         bool text;
     };
 
@@ -62,8 +62,8 @@ extern "C"
 
     struct unigd_render_access
     {
-        char *buffer;
-        unsigned long size;
+        const uint8_t *buffer;
+        uint64_t size;
     };
 
     struct unigd_find_results
@@ -115,10 +115,10 @@ extern "C"
         (UNIGD_HANDLE, unigd_find_results *results);
         // Plot ID lookup.
         UNIGD_FIND_HANDLE(*device_plots_find_index)
-        (UNIGD_HANDLE, UNIGD_PLOT_INDEX index, unigd_find_results *results);
+        (UNIGD_HANDLE, UNIGD_PLOT_RELATIVE index, unigd_find_results *results);
         // Plot ID lookup.
         UNIGD_FIND_HANDLE(*device_plots_find_range)
-        (UNIGD_HANDLE, UNIGD_PLOT_INDEX offset, UNIGD_PLOT_INDEX limit, unigd_find_results *results);
+        (UNIGD_HANDLE, UNIGD_PLOT_RELATIVE offset, UNIGD_PLOT_INDEX limit, unigd_find_results *results);
 
         // Free plot ID lookup memory.
         void (*device_plots_find_destroy)(UNIGD_FIND_HANDLE);

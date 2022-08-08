@@ -16,18 +16,16 @@ namespace unigd
             return {state, static_cast<plot_index_t>(ids.size()), &ids[0]};
         }
 
-
         int api_test_fun()
         {
             return 7;
         }
 
-
-
         void api_log(const char *t_message)
         {
             std::string msg(t_message);
-            async::r_thread([=]() { Rprintf("unigd client: %s\n", msg.c_str()); });
+            async::r_thread([=]()
+                            { Rprintf("unigd client: %s\n", msg.c_str()); });
         }
 
         UNIGD_HANDLE api_device_attach(int devnum, unigd_graphics_client *client)
@@ -66,19 +64,82 @@ namespace unigd
             return ugd->device->api_remove(id);
         }
 
+        UNIGD_RENDER_HANDLE api_render_create(UNIGD_HANDLE ugd_handle, UNIGD_RENDERER_ID renderer_id, UNIGD_PLOT_ID plot_id, unigd_render_args render_args, unigd_render_access *render_access)
+        {
+            const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
+            auto handle = ugd->device->api_render(renderer_id, plot_id, render_args.width, render_args.height, render_args.scale).release();
+            handle->get_data(&render_access->buffer, &render_access->size);
+            return handle;
+        }
+
+        void api_render_destroy(UNIGD_RENDER_HANDLE handle)
+        {
+            delete static_cast<unigd::ex::render_data *>(handle);
+        }
+
+        UNIGD_FIND_HANDLE api_plots_find(UNIGD_HANDLE ugd_handle, unigd_find_results *results)
+        {
+            const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
+
+            auto *re = new find_results{};
+            *re = ugd->device->plt_query_all();
+            *results = re->c_repr();
+            return re;
+        }
+
+        UNIGD_FIND_HANDLE api_plots_find_index(UNIGD_HANDLE ugd_handle, UNIGD_PLOT_RELATIVE index, unigd_find_results *results)
+        {
+            const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
+
+            auto *re = new find_results{};
+            *re = ugd->device->plt_query_index(index);
+            *results = re->c_repr();
+            return re;
+        }
+
+        UNIGD_FIND_HANDLE api_plots_find_range(UNIGD_HANDLE ugd_handle, UNIGD_PLOT_RELATIVE offset, UNIGD_PLOT_INDEX limit, unigd_find_results *results)
+        {
+            const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
+
+            auto *re = new find_results{};
+            *re = ugd->device->plt_query_range(offset, limit);
+            *results = re->c_repr();
+            return re;
+        }
+
+        void api_plots_find_destroy(UNIGD_FIND_HANDLE handle)
+        {
+            delete static_cast<unigd::ex::find_results *>(handle);
+        }
+
         int api_v1_create(unigd_api_v1 **api_)
         {
             auto api = new unigd_api_v1();
-            //api->test_fun = test_fun;
+
             api->log = api_log;
+
             api->device_attach = api_device_attach;
             api->device_destroy = api_device_destroy;
+
             api->device_state = api_device_state;
+
             api->device_plots_clear = api_plots_clear;
             api->device_plots_remove = api_plots_remove;
 
-            *api_ = api;
+            api->device_render_create = api_render_create;
+            api->device_render_destroy = api_render_destroy;
 
+            api->device_plots_find = api_plots_find;
+            api->device_plots_find_index = api_plots_find_index;
+            api->device_plots_find_range = api_plots_find_range;
+            api->device_plots_find_destroy = api_plots_find_destroy;
+
+            api->renderers = 0;
+            api->renderers_destroy = 0;
+            api->renderers_find = 0;
+            api->renderers_find_destroy = 0;
+
+            *api_ = api;
             return 0;
         }
 
@@ -86,16 +147,13 @@ namespace unigd
         {
             delete api_;
 
-          return 0;
+            return 0;
         }
-
 
     } // namespace ex
 } // namespace unigd
 
-
-[[cpp11::init]]
-void export_api(DllInfo* dll)
+[[cpp11::init]] void export_api(DllInfo *dll)
 {
     R_RegisterCCallable("unigd", "api_v1_create", reinterpret_cast<DL_FUNC>(unigd::ex::api_v1_create));
     R_RegisterCCallable("unigd", "api_v1_destroy", reinterpret_cast<DL_FUNC>(unigd::ex::api_v1_destroy));
