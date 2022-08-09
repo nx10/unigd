@@ -173,20 +173,20 @@ SEXP unigd_render_(int devnum, int page, double width, double height, double zoo
         zoom = 1;
     }
 
-    const unigd::renderers::renderer_map_entry *ren;
+    unigd::renderers::renderer_map_entry ren;
     auto fi_renderer = unigd::renderers::find(renderer_id, &ren);
     if (!fi_renderer)
     {
         cpp11::stop("Not a valid string renderer ID.");
     }
-    auto renderer = ren->generator();
+    auto renderer = ren.generator();
     dev->plt_render(page, width / zoom, height / zoom, renderer.get(), zoom);
 
     const uint8_t *buf;
     size_t buf_size;
     renderer->get_data(&buf, &buf_size);
 
-    if (ren->info.text) {
+    if (ren.info.text) {
         return cpp11::writable::strings({ cpp11::r_string(std::string(buf, buf+buf_size)) });
     } else {
         return cpp11::writable::raws(buf, buf+buf_size);

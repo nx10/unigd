@@ -42,8 +42,8 @@ extern "C"
 
     struct unigd_renderers_list
     {
-        unigd_renderer_info *entries;
-        int size;
+        const unigd_renderer_info *entries;
+        uint64_t size;
     };
 
     struct unigd_device_state
@@ -140,7 +140,7 @@ extern "C"
         (UNIGD_RENDERER_ID, unigd_renderer_info *renderer);
 
         // Free memory of renderer lookup.
-        void (*renderers_find_destroy)(UNIGD_RENDERER_ID);
+        void (*renderers_find_destroy)(UNIGD_RENDERERS_ENTRY_HANDLE);
     };
 
 #ifdef __cplusplus

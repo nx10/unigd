@@ -191,34 +191,34 @@ namespace unigd
 #endif
     };
 
-    bool find(const std::string &id, const renderer_map_entry **renderer)
+    bool find(const std::string &id, renderer_map_entry *renderer)
     {
         const auto it = renderer_map.find(id);
         if (it != renderer_map.end())
         {
-            *renderer = &it->second;
+            *renderer = it->second;
             return true;
         }
         return false;
     }
 
-    bool find_generator(const std::string &id, const renderer_gen **renderer)
+    bool find_generator(const std::string &id, renderer_gen *renderer)
     {
-        const renderer_map_entry *renderer_str = nullptr;
+        renderer_map_entry renderer_str;
         if (find(id, &renderer_str))
         {
-            *renderer = &renderer_str->generator;
+            *renderer = renderer_str.generator;
             return true;
         }
         return false;
     }
 
-    bool find_info(const std::string &id, const unigd_renderer_info **renderer)
+    bool find_info(const std::string &id, unigd_renderer_info *renderer)
     {
-        const renderer_map_entry *renderer_str = nullptr;
+        renderer_map_entry renderer_str;
         if (find(id, &renderer_str))
         {
-            *renderer = &renderer_str->info;
+            *renderer = renderer_str.info;
             return true;
         }
         return false;

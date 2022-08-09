@@ -25,9 +25,9 @@ namespace unigd
             renderer_gen generator;
         };
 
-        bool find(const std::string &id, const renderer_map_entry **renderer);
-        bool find_generator(const std::string &id, const renderer_gen **renderer);
-        bool find_info(const std::string &id, const unigd_renderer_info **renderer);
+        bool find(const std::string &id, renderer_map_entry *renderer);
+        bool find_generator(const std::string &id, renderer_gen *renderer);
+        bool find_info(const std::string &id, unigd_renderer_info *renderer);
         const std::unordered_map<std::string, renderer_map_entry> *renderers();
     } // namespace renderers
     

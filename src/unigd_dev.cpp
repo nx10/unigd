@@ -538,14 +538,14 @@ namespace unigd
     {
         const auto plot_idx = plt_index(t_plot_id);
 
-        const renderers::renderer_map_entry *ren;
+        renderers::renderer_map_entry ren;
         auto fi_renderer = renderers::find(t_renderer_id, &ren);
         if (!fi_renderer)
         {
             return nullptr;
         }
 
-        auto renderer = ren->generator();
+        auto renderer = ren.generator();
         if (!m_data_store->render_if_size(plot_idx, renderer.get(), t_scale, {t_width, t_height}))
         {
             if (!async::r_thread([&]()

@@ -55,7 +55,7 @@ namespace unigd
                 return nullptr;
             }
 
-            if (!client->client_id(client_data) == client_id) {
+            if (client->client_id(client_data) != client_id) {
                 return nullptr;
             }
 
@@ -133,6 +133,40 @@ namespace unigd
             delete static_cast<unigd::ex::find_results *>(handle);
         }
 
+        UNIGD_RENDERERS_ENTRY_HANDLE api_renderers_find(UNIGD_RENDERER_ID id, unigd_renderer_info *renderer)
+        {
+            if (!renderers::find_info(id, renderer))
+            {
+                return nullptr;
+            }
+            static int ok_return = 1;
+            return static_cast<void *>(&ok_return);
+        }
+
+        void api_renderers_find_destroy(UNIGD_RENDERERS_ENTRY_HANDLE handle) {
+            // Placeholder in case a renderer lookup ever needs to alloc (e.g. for dynamic renderer adding/removing)
+        }
+
+        UNIGD_RENDERERS_HANDLE api_renderers(unigd_renderers_list *renderer) {
+            const auto rs = renderers::renderers();
+
+            auto *re = new std::vector<unigd_renderer_info>;
+
+            re->reserve(rs->size());
+
+            for (auto& it: *rs) {
+                re->emplace_back(it.second.info);
+            }
+
+            *renderer = { &((*re)[0]), re->size() };
+
+            return re;
+        }
+
+        void api_renderers_destroy(UNIGD_RENDERERS_HANDLE handle) {
+            delete static_cast<std::vector<unigd_renderer_info> *>(handle);
+        }
+
         int api_v1_create(unigd_api_v1 **api_)
         {
             auto api = new unigd_api_v1();
@@ -156,10 +190,10 @@ namespace unigd
             api->device_plots_find_range = api_plots_find_range;
             api->device_plots_find_destroy = api_plots_find_destroy;
 
-            api->renderers = 0;
-            api->renderers_destroy = 0;
-            api->renderers_find = 0;
-            api->renderers_find_destroy = 0;
+            api->renderers = api_renderers;
+            api->renderers_destroy = api_renderers_destroy;
+            api->renderers_find = api_renderers_find;
+            api->renderers_find_destroy = api_renderers_find_destroy;
 
             *api_ = api;
             return 0;
