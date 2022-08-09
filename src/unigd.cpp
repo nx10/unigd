@@ -137,7 +137,7 @@ cpp11::data_frame unigd_renderers_()
         i++;
     }
 
-    cpp11::writable::data_frame res({
+    return cpp11::writable::data_frame({
                 "id"_nm = ren_id,
                 "mime"_nm = ren_mime,
                 "ext"_nm = ren_ext,
@@ -146,7 +146,6 @@ cpp11::data_frame unigd_renderers_()
                 "text"_nm = ren_text,
                 "descr"_nm = ren_descr
     });
-    return res;
 }
 
 

@@ -128,7 +128,7 @@ namespace unigd
             virtual void visit(const Raster *t_raster) = 0;
         };
 
-        struct DrawCall
+        class DrawCall
         {
         public:
             virtual ~DrawCall() = default;
