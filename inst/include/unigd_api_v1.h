@@ -22,10 +22,10 @@ extern "C"
 
     struct unigd_graphics_client
     {
-        void (*start)();
-        void (*close)();
-        void (*state_change)();
-        int (*client_id)();
+        void (*start)(void *);
+        void (*close)(void *);
+        void (*state_change)(void *);
+        int (*client_id)(void *);
         // int (client_status)(char *);
     };
 
@@ -85,7 +85,10 @@ extern "C"
 
         // Attach a client to the unigd device.
         UNIGD_HANDLE(*device_attach)
-        (int, unigd_graphics_client *);
+        (int, unigd_graphics_client *, void *);
+
+        // Get client.
+        void *(*device_get)(int devnum, int client_id);
 
         // Destroy device handle.
         void (*device_destroy)(UNIGD_HANDLE);

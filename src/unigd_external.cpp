@@ -28,19 +28,40 @@ namespace unigd
                             { Rprintf("unigd client: %s\n", msg.c_str()); });
         }
 
-        UNIGD_HANDLE api_device_attach(int devnum, unigd_graphics_client *client)
+        UNIGD_HANDLE api_device_attach(int devnum, unigd_graphics_client *client, void *client_data)
         {
             auto dev = unigd_device::from_device_number(devnum);
             if (!dev)
             {
                 return nullptr;
             }
-            if (dev->attach_client(client))
+            if (dev->attach_client(client, client_data))
             {
                 return new unigd_handle_t{dev};
             }
             return nullptr;
         }
+
+        void *api_device_get(int devnum, int client_id)
+        {
+            auto dev = unigd_device::from_device_number(devnum);
+            if (!dev)
+            {
+                return nullptr;
+            }
+            graphics_client *client;
+            void *client_data;
+            if (!dev->get_client(&client, &client_data)) {
+                return nullptr;
+            }
+
+            if (!client->client_id(client_data) == client_id) {
+                return nullptr;
+            }
+
+            return client_data;
+        }
+
         void api_device_destroy(UNIGD_HANDLE handle)
         {
             delete static_cast<unigd_handle_t *>(handle);
@@ -119,6 +140,7 @@ namespace unigd
             api->log = api_log;
 
             api->device_attach = api_device_attach;
+            api->device_get = api_device_get;
             api->device_destroy = api_device_destroy;
 
             api->device_state = api_device_state;

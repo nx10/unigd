@@ -70,24 +70,26 @@ namespace unigd
         m_initialized = true;
     }
 
-    bool unigd_device::attach_client(ex::graphics_client *t_client)
+    bool unigd_device::attach_client(ex::graphics_client *t_client, void *t_client_data)
     {
         if (m_client)
         {
             return false;
         }
         m_client = t_client;
-        m_client->start();
+        m_client_data = t_client_data;
+        m_client->start(m_client_data);
         return true;
     }
 
-    bool unigd_device::get_client(ex::graphics_client **t_client)
+    bool unigd_device::get_client(ex::graphics_client **t_client, void **t_client_data)
     {
         if (!m_client)
         {
             return false;
         }
         *t_client = m_client;
+        *t_client_data = m_client_data;
         return true;
     }
 
@@ -97,8 +99,9 @@ namespace unigd
         {
             return false;
         }
-        m_client->close();
+        m_client->close(m_client_data);
         m_client = nullptr;
+        m_client_data = nullptr;
         return true;
     }
 
@@ -112,7 +115,7 @@ namespace unigd
         m_data_store->set_device_active(true);
         if (m_client)
         {
-            m_client->state_change();
+            m_client->state_change(m_client_data);
         }
     }
     void unigd_device::dev_deactivate(pDevDesc dd)
@@ -123,7 +126,7 @@ namespace unigd
         m_data_store->set_device_active(false);
         if (m_client)
         {
-            m_client->state_change();
+            m_client->state_change(m_client_data);
         }
     }
 
@@ -139,7 +142,7 @@ namespace unigd
 
         if (m_client)
         {
-            m_client->state_change();
+            m_client->state_change(m_client_data);
         }
     }
 
@@ -425,7 +428,7 @@ namespace unigd
 
         if (m_client)
         {
-            m_client->state_change();
+            m_client->state_change(m_client_data);
         }
 
         return r;
@@ -458,7 +461,7 @@ namespace unigd
 
         if (m_client)
         {
-            m_client->state_change();
+            m_client->state_change(m_client_data);
         }
 
         return r;
