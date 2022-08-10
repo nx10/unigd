@@ -4,7 +4,7 @@ PKG_CPPFLAGS = @cflags@ -Ilib -I../inst/include -DFMT_HEADER_ONLY
 
 #PKG_CXXFLAGS=$(C_VISIBILITY)
 
-PKG_LIBS = @libs@ -lpng -lz -ltiff -ltiffxx -ljpeg
+PKG_LIBS = @libs@ -lpng -lz
 
 all: clean
 
