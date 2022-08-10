@@ -141,53 +141,92 @@ namespace unigd
 #ifndef UNIGD_NO_CAIRO
       ,
       {"ps",{
-        {"ps",
-        "application/postscript",
-        ".ps",
-        "PS",
-        "plot",
-        "PostScript (PS)."},
+        {
+          "ps",
+          "application/postscript",
+          ".ps",
+          "PS",
+          "plot",
+          "PostScript (PS).",
+          false
+        },
         []() { return std::make_unique<renderers::RendererCairoPs>(); },
       }},
-      {"eps",{
-        {"eps",
-        "application/postscript",
-        ".eps",
-        "EPS",
-        "plot",
-        "Encapsulated PostScript (EPS)."},
+      {
+        "eps",{
+        {
+          "eps",
+          "application/postscript",
+          ".eps",
+          "EPS",
+          "plot",
+          "Encapsulated PostScript (EPS).",
+          false
+        },
         []() { return std::make_unique<renderers::RendererCairoEps>(); }
       }},
       
-      {"png",{
-        {"png",
-        "image/png",
-        ".png",
-        "PNG",
-        "plot",
-        "Portable Network Graphics (PNG)."},
+      {
+        "png",{
+        {
+          "png",
+          "image/png",
+          ".png",
+          "PNG",
+          "plot",
+          "Portable Network Graphics (PNG).",
+          false
+        },
         []() { return std::make_unique<renderers::RendererCairoPng>(); }
       }},
-      
-      {"pdf",{
-        {"pdf",
-        "application/pdf",
-        ".pdf",
-        "PDF",
-        "plot",
-        "Adobe Portable Document Format (PDF)."},
-        []() { return std::make_unique<renderers::RendererCairoPdf>(); }
+
+      {
+        "png-base64",{
+        {
+          "png-base64",
+          "text/plain",
+          ".txt",
+          "Base64 PNG",
+          "plot",
+          "Base64 encoded Portable Network Graphics (PNG).",
+          true
+        },
+        []() { return std::make_unique<renderers::RendererCairoPngBase64>(); }
       }},
       
-      {"tiff",{
-        {"tiff",
-        "image/tiff",
-        ".tiff",
-        "TIFF",
-        "plot",
-        "Tagged Image File Format (TIFF)."},
+      {
+        "pdf",{
+        {
+          "pdf",
+          "application/pdf",
+          ".pdf",
+          "PDF",
+          "plot",
+          "Adobe Portable Document Format (PDF).",
+          false
+        },
+        []() { return std::make_unique<renderers::RendererCairoPdf>(); }
+      }},
+
+
+#if 0
+      
+      {
+        "tiff",{
+        {
+          "tiff",
+          "image/tiff",
+          ".tiff",
+          "TIFF",
+          "plot",
+          "Tagged Image File Format (TIFF).",
+          true
+        },
         []() { return std::make_unique<renderers::RendererCairoTiff>(); }
       }}
+
+#endif
+
 #endif
     };
 

@@ -1,89 +1,99 @@
 #ifndef RENDERER_CAIRO_H
 #define RENDERER_CAIRO_H
 
-#define UNIGD_NO_CAIRO
 #ifndef UNIGD_NO_CAIRO
 
 #include "draw_data.h"
 
+#include "renderers.h"
 #include <cairo.h>
 #include <fmt/format.h>
 #include <vector>
 
 namespace unigd::renderers
 {
-    class RendererCairo : public render_target
+    class RendererCairo : public draw_call_visitor
     {
     public:
-        void page(const Page &t_page) override;
-        void rect(const Rect &t_rect) override;
-        void text(const Text &t_text) override;
-        void circle(const Circle &t_circle) override;
-        void line(const Line &t_line) override;
-        void polyline(const Polyline &t_polyline) override;
-        void polygon(const Polygon &t_polygon) override;
-        void path(const Path &t_path) override;
-        void raster(const Raster &t_raster) override;
+        void visit(const Rect *t_rect) override;
+        void visit(const Text *t_text) override;
+        void visit(const Circle *t_circle) override;
+        void visit(const Line *t_line) override;
+        void visit(const Polyline *t_polyline) override;
+        void visit(const Polygon *t_polygon) override;
+        void visit(const Path *t_path) override;
+        void visit(const Raster *t_raster) override;
+
+        void render_page(const Page *t_page);
 
     protected:
         cairo_surface_t *surface = nullptr;
         cairo_t *cr = nullptr;
     };
 
-    class RendererCairoPng : public BinaryRenderingTarget, public RendererCairo
+    class RendererCairoPng : public render_target, public RendererCairo
     {
     public:
         void render(const Page &t_page, double t_scale) override;
-        [[nodiscard]] 
-        std::vector<unsigned char> get_binary() const override;
+        void get_data(const uint8_t **t_buf, size_t *t_size) const override;
+        
+    private:
+        std::vector<unsigned char> m_render_data{};
+    };
+
+    class RendererCairoPngBase64 : public render_target, public RendererCairo
+    {
+    public:
+        void render(const Page &t_page, double t_scale) override;
+        void get_data(const uint8_t **t_buf, size_t *t_size) const override;
+        
+    private:
+        std::string m_buf;
+    };
+    
+    class RendererCairoPdf : public render_target, public RendererCairo
+    {
+    public:
+        void render(const Page &t_page, double t_scale) override;
+        void get_data(const uint8_t **t_buf, size_t *t_size) const override;
         
     private:
         std::vector<unsigned char> m_render_data{};
     };
     
-    class RendererCairoPdf : public BinaryRenderingTarget, public RendererCairo
+    class RendererCairoPs : public render_target, public RendererCairo
     {
     public:
         void render(const Page &t_page, double t_scale) override;
-        [[nodiscard]] 
-        std::vector<unsigned char> get_binary() const override;
-        
-    private:
-        std::vector<unsigned char> m_render_data{};
-    };
-    
-    class RendererCairoPs : public StringRenderingTarget, public RendererCairo
-    {
-    public:
-        void render(const Page &t_page, double t_scale) override;
-        [[nodiscard]] 
-        std::string get_string() const override;
+        void get_data(const uint8_t **t_buf, size_t *t_size) const override;
         
     private:
         fmt::memory_buffer m_os;
     };
     
-    class RendererCairoEps : public StringRenderingTarget, public RendererCairo
+    class RendererCairoEps : public render_target, public RendererCairo
     {
     public:
         void render(const Page &t_page, double t_scale) override;
-        [[nodiscard]] 
-        std::string get_string() const override;
+        void get_data(const uint8_t **t_buf, size_t *t_size) const override;
         
     private:
         fmt::memory_buffer m_os;
     };
 
-    class RendererCairoTiff : public BinaryRenderingTarget, public RendererCairo
+#if 0
+
+    class RendererCairoTiff : public render_target, public RendererCairo
     {
     public:
         void render(const Page &t_page, double t_scale) override;
-        [[nodiscard]] 
-        std::vector<unsigned char> get_binary() const override;
+        void get_data(const uint8_t **t_buf, size_t *t_size) const override;
         
     private:
         std::vector<unsigned char> m_render_data{};
     };
+
+#endif
 
 } // namespace unigd::renderers
 

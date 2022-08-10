@@ -5,6 +5,7 @@
 
 namespace unigd
 {
+    std::string base64_encode(const std::uint8_t *buffer, size_t size);
     std::string raster_base64(const renderers::Raster &t_raster);
 
 } // namespace unigd

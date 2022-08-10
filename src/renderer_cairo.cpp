@@ -7,7 +7,11 @@
 //#include <cairo-svg.h>
 #include <cairo-ps.h>
 
+#include "base_64.h" // for RendererCairoPngBase64
+
+#if 0
 #include <tiffio.hxx>
+#endif
 
 // Implementation based on grDevices::cairo
 // https://github.com/wch/r-source/blob/trunk/src/library/grDevices/src/cairo/cairoFns.c
@@ -85,28 +89,27 @@ namespace unigd::renderers
         }
     }
 
-    void RendererCairo::page(const Page &t_page)
+    void RendererCairo::render_page(const Page *t_page)
     {
-
-
-        if (!color::transparent(t_page.fill))
+        
+        if (!color::transparent(t_page->fill))
         {
             cairo_new_path(cr);
-            cairo_rectangle(cr, 0, 0, t_page.size.x, t_page.size.y);
-            set_color(cr, t_page.fill);
+            cairo_rectangle(cr, 0, 0, t_page->size.x, t_page->size.y);
+            set_color(cr, t_page->fill);
             cairo_fill(cr);
         }
 
-        const auto &first_clip = t_page.cps.front();
+        const auto &first_clip = t_page->cps.front();
         cairo_new_path(cr);
         cairo_rectangle(cr, first_clip.rect.x, first_clip.rect.y, first_clip.rect.width, first_clip.rect.height);
         cairo_clip(cr);
         auto last_clip_id = first_clip.id;
-        for (const auto &dc : t_page.dcs)
+        for (const auto &dc : t_page->dcs)
         {
             if (dc->clip_id != last_clip_id)
             {
-                const auto &next_clip = *std::find_if(t_page.cps.begin(), t_page.cps.end(), [&](const Clip &clip) {
+                const auto &next_clip = *std::find_if(t_page->cps.begin(), t_page->cps.end(), [&](const Clip &clip) {
                     return clip.id == dc->clip_id;
                 });
 
@@ -117,114 +120,114 @@ namespace unigd::renderers
 
                 last_clip_id = next_clip.id;
             }
-            dc->render(this);
+            dc->visit(this);
         }
     }
 
 
-    void RendererCairo::rect(const Rect &t_rect)
+    void RendererCairo::visit(const Rect *t_rect)
     {
         cairo_new_path(cr);
 
-        cairo_rectangle(cr, t_rect.rect.x, t_rect.rect.y, t_rect.rect.width, t_rect.rect.height);
+        cairo_rectangle(cr, t_rect->rect.x, t_rect->rect.y, t_rect->rect.width, t_rect->rect.height);
 
-        if (!color::transparent(t_rect.fill))
+        if (!color::transparent(t_rect->fill))
         {
             //const auto aa = cairo_get_antialias(cr);
             //cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE);
-            set_color(cr, t_rect.fill);
+            set_color(cr, t_rect->fill);
             cairo_fill_preserve(cr);
             //cairo_set_antialias(cr, aa);
         }
-        if (!color::transparent(t_rect.line.col) && t_rect.line.lty != LineInfo::LTY::BLANK)
+        if (!color::transparent(t_rect->line.col) && t_rect->line.lty != LineInfo::LTY::BLANK)
         {
-            set_linetype(cr, t_rect.line);
-            set_color(cr, t_rect.line.col);
+            set_linetype(cr, t_rect->line);
+            set_color(cr, t_rect->line.col);
             cairo_stroke(cr);
         }
     }
 
-    void RendererCairo::text(const Text &t_text)
+    void RendererCairo::visit(const Text *t_text)
     {
-        if (color::transparent(t_text.col))
+        if (color::transparent(t_text->col))
         {
             return;
         }
         cairo_save(cr);
 
         cairo_select_font_face(cr,
-                               t_text.text.font_family.c_str(),
-                               t_text.text.italic ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL,
-                               (t_text.text.weight >= 700) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
-        cairo_set_font_size(cr, t_text.text.fontsize);
+                               t_text->text.font_family.c_str(),
+                               t_text->text.italic ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL,
+                               (t_text->text.weight >= 700) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
+        cairo_set_font_size(cr, t_text->text.fontsize);
 
-        cairo_move_to(cr, t_text.pos.x, t_text.pos.y);
-        if (t_text.hadj != 0.0 || t_text.rot != 0.0)
+        cairo_move_to(cr, t_text->pos.x, t_text->pos.y);
+        if (t_text->hadj != 0.0 || t_text->rot != 0.0)
         {
             cairo_text_extents_t te;
-            cairo_text_extents(cr, t_text.str.c_str(), &te);
-            if (t_text.rot != 0.0)
+            cairo_text_extents(cr, t_text->str.c_str(), &te);
+            if (t_text->rot != 0.0)
             {
-                cairo_rotate(cr, -t_text.rot / 180.0 * MATH_PI);
+                cairo_rotate(cr, -t_text->rot / 180.0 * MATH_PI);
             }
-            if (t_text.hadj != 0.0)
+            if (t_text->hadj != 0.0)
             {
-                cairo_rel_move_to(cr, -te.x_advance * t_text.hadj, 0);
+                cairo_rel_move_to(cr, -te.x_advance * t_text->hadj, 0);
             }
         }
-        set_color(cr, t_text.col);
-        cairo_show_text(cr, t_text.str.c_str());
+        set_color(cr, t_text->col);
+        cairo_show_text(cr, t_text->str.c_str());
 
         cairo_restore(cr);
     }
 
-    void RendererCairo::circle(const Circle &t_circle)
+    void RendererCairo::visit(const Circle *t_circle)
     {
         cairo_new_path(cr);
-        cairo_arc(cr, t_circle.pos.x, t_circle.pos.y, (t_circle.radius > 0.5 ? t_circle.radius : 0.5), 0.0, 2 * MATH_PI);
+        cairo_arc(cr, t_circle->pos.x, t_circle->pos.y, (t_circle->radius > 0.5 ? t_circle->radius : 0.5), 0.0, 2 * MATH_PI);
 
-        if (!color::transparent(t_circle.fill))
+        if (!color::transparent(t_circle->fill))
         {
-            set_color(cr, t_circle.fill);
+            set_color(cr, t_circle->fill);
             cairo_fill_preserve(cr);
         }
-        if (!color::transparent(t_circle.line.col) && t_circle.line.lty != LineInfo::LTY::BLANK)
+        if (!color::transparent(t_circle->line.col) && t_circle->line.lty != LineInfo::LTY::BLANK)
         {
-            set_linetype(cr, t_circle.line);
-            set_color(cr, t_circle.line.col);
+            set_linetype(cr, t_circle->line);
+            set_color(cr, t_circle->line.col);
             cairo_stroke(cr);
         }
     }
 
-    void RendererCairo::line(const Line &t_line)
+    void RendererCairo::visit(const Line *t_line)
     {
-        if (color::transparent(t_line.line.col))
+        if (color::transparent(t_line->line.col))
         {
             return;
         }
         cairo_new_path(cr);
 
-        set_color(cr, t_line.line.col);
-        set_linetype(cr, t_line.line);
-        cairo_move_to(cr, t_line.orig.x, t_line.orig.y);
-        cairo_line_to(cr, t_line.dest.x, t_line.dest.y);
+        set_color(cr, t_line->line.col);
+        set_linetype(cr, t_line->line);
+        cairo_move_to(cr, t_line->orig.x, t_line->orig.y);
+        cairo_line_to(cr, t_line->dest.x, t_line->dest.y);
         cairo_stroke(cr);
     }
 
-    void RendererCairo::polyline(const Polyline &t_polyline)
+    void RendererCairo::visit(const Polyline *t_polyline)
     {
-        if (color::transparent(t_polyline.line.col))
+        if (color::transparent(t_polyline->line.col))
         {
             return;
         }
         cairo_new_path(cr);
 
-        set_color(cr, t_polyline.line.col);
-        set_linetype(cr, t_polyline.line);
+        set_color(cr, t_polyline->line.col);
+        set_linetype(cr, t_polyline->line);
 
-        for (auto it = t_polyline.points.begin(); it != t_polyline.points.end(); ++it)
+        for (auto it = t_polyline->points.begin(); it != t_polyline->points.end(); ++it)
         {
-            if (it == t_polyline.points.begin())
+            if (it == t_polyline->points.begin())
             {
                 cairo_move_to(cr, it->x, it->y);
             }
@@ -236,12 +239,12 @@ namespace unigd::renderers
         cairo_stroke(cr);
     }
 
-    void RendererCairo::polygon(const Polygon &t_polygon)
+    void RendererCairo::visit(const Polygon *t_polygon)
     {
         cairo_new_path(cr);
-        for (auto it = t_polygon.points.begin(); it != t_polygon.points.end(); ++it)
+        for (auto it = t_polygon->points.begin(); it != t_polygon->points.end(); ++it)
         {
-            if (it == t_polygon.points.begin())
+            if (it == t_polygon->points.begin())
             {
                 cairo_move_to(cr, it->x, it->y);
             }
@@ -252,26 +255,26 @@ namespace unigd::renderers
         }
         cairo_close_path(cr);
 
-        if (!color::transparent(t_polygon.fill))
+        if (!color::transparent(t_polygon->fill))
         {
-            set_color(cr, t_polygon.fill);
+            set_color(cr, t_polygon->fill);
             cairo_fill_preserve(cr);
         }
-        if (!color::transparent(t_polygon.line.col) && t_polygon.line.lty != LineInfo::LTY::BLANK)
+        if (!color::transparent(t_polygon->line.col) && t_polygon->line.lty != LineInfo::LTY::BLANK)
         {
-            set_linetype(cr, t_polygon.line);
-            set_color(cr, t_polygon.line.col);
+            set_linetype(cr, t_polygon->line);
+            set_color(cr, t_polygon->line.col);
             cairo_stroke(cr);
         }
     }
 
-    void RendererCairo::path(const Path &t_path)
+    void RendererCairo::visit(const Path *t_path)
     {
         cairo_new_path(cr);
 
-        auto it_poly = t_path.nper.begin();
+        auto it_poly = t_path->nper.begin();
         std::size_t left = 0;
-        for (auto it = t_path.points.begin(); it != t_path.points.end(); ++it)
+        for (auto it = t_path->points.begin(); it != t_path->points.end(); ++it)
         {
             if (left == 0)
             {
@@ -290,56 +293,56 @@ namespace unigd::renderers
             }
         }
 
-        if (!color::transparent(t_path.fill))
+        if (!color::transparent(t_path->fill))
         {
-            set_color(cr, t_path.fill);
+            set_color(cr, t_path->fill);
             cairo_fill_preserve(cr);
         }
-        if (!color::transparent(t_path.line.col) && t_path.line.lty != LineInfo::LTY::BLANK)
+        if (!color::transparent(t_path->line.col) && t_path->line.lty != LineInfo::LTY::BLANK)
         {
-            set_linetype(cr, t_path.line);
-            set_color(cr, t_path.line.col);
+            set_linetype(cr, t_path->line);
+            set_color(cr, t_path->line.col);
             cairo_stroke(cr);
         }
     }
 
 
-    void RendererCairo::raster(const Raster &t_raster)
+    void RendererCairo::visit(const Raster *t_raster)
     {
         cairo_save(cr);
-        cairo_translate(cr, t_raster.rect.x, t_raster.rect.y);
-        cairo_rotate(cr, -t_raster.rot*MATH_PI/180);
-        cairo_scale(cr, t_raster.rect.width/t_raster.wh.x, t_raster.rect.height/t_raster.wh.y);
+        cairo_translate(cr, t_raster->rect.x, t_raster->rect.y);
+        cairo_rotate(cr, -t_raster->rot*MATH_PI/180);
+        cairo_scale(cr, t_raster->rect.width/t_raster->wh.x, t_raster->rect.height/t_raster->wh.y);
 
-        std::vector<unsigned char> imageData(t_raster.raster.size() * 4);
+        std::vector<unsigned char> imageData(t_raster->raster.size() * 4);
 
         // The R ABGR needs to be converted to a Cairo ARGB 
         // AND values need to by premultiplied by alpha 
-        for (size_t i = 0; i < t_raster.raster.size(); ++i)
+        for (size_t i = 0; i < t_raster->raster.size(); ++i)
         {
-            const color_t alpha = color::alpha(t_raster.raster[i]);
+            const color_t alpha = color::alpha(t_raster->raster[i]);
             imageData[i * 4 + 3] = alpha;
             if (alpha < color::byte_mask)
             {
-                imageData[i * 4 + 2] = color::red(t_raster.raster[i]) * alpha / color::byte_mask;
-                imageData[i * 4 + 1] = color::green(t_raster.raster[i]) * alpha / color::byte_mask;
-                imageData[i * 4 + 0] = color::blue(t_raster.raster[i]) * alpha / color::byte_mask;
+                imageData[i * 4 + 2] = color::red(t_raster->raster[i]) * alpha / color::byte_mask;
+                imageData[i * 4 + 1] = color::green(t_raster->raster[i]) * alpha / color::byte_mask;
+                imageData[i * 4 + 0] = color::blue(t_raster->raster[i]) * alpha / color::byte_mask;
             }
             else
             {
-                imageData[i * 4 + 2] = color::red(t_raster.raster[i]);
-                imageData[i * 4 + 1] = color::green(t_raster.raster[i]);
-                imageData[i * 4 + 0] = color::blue(t_raster.raster[i]);
+                imageData[i * 4 + 2] = color::red(t_raster->raster[i]);
+                imageData[i * 4 + 1] = color::green(t_raster->raster[i]);
+                imageData[i * 4 + 0] = color::blue(t_raster->raster[i]);
             }
         }
         cairo_surface_t *image = cairo_image_surface_create_for_data(imageData.data(),
                                                     CAIRO_FORMAT_ARGB32,
-                                                    t_raster.wh.x, t_raster.wh.y,
-                                                    4 * t_raster.wh.x);
+                                                    t_raster->wh.x, t_raster->wh.y,
+                                                    4 * t_raster->wh.x);
         
 
         cairo_set_source_surface(cr, image, 0, 0);
-        if (t_raster.interpolate)
+        if (t_raster->interpolate)
         {
             cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_BILINEAR);
             cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_PAD);
@@ -350,7 +353,7 @@ namespace unigd::renderers
         }
 
         cairo_new_path(cr);
-        cairo_rectangle(cr, 0, 0, t_raster.wh.x, t_raster.wh.y);
+        cairo_rectangle(cr, 0, 0, t_raster->wh.x, t_raster->wh.y);
         cairo_clip(cr);
         cairo_paint(cr); 
 
@@ -384,7 +387,7 @@ namespace unigd::renderers
         
         cairo_scale(cr, t_scale, t_scale);
 
-        page(t_page);
+        render_page(&t_page);
 
         cairo_surface_write_to_png_stream(surface, cairowrite_ucvec, &m_render_data);
 
@@ -392,9 +395,35 @@ namespace unigd::renderers
         cairo_surface_destroy(surface);
     }
     
-    std::vector<unsigned char> RendererCairoPng::get_binary() const 
+    void RendererCairoPng::get_data(const uint8_t **t_buf, size_t *t_size) const
     {
-        return m_render_data;
+        *t_buf = &m_render_data[0];
+        *t_size = m_render_data.size();
+    }
+
+    void RendererCairoPngBase64::render(const Page &t_page, double t_scale) 
+    {
+        surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, t_page.size.x * t_scale, t_page.size.y * t_scale);
+
+        cr = cairo_create(surface);
+        
+        cairo_scale(cr, t_scale, t_scale);
+
+        render_page(&t_page);
+
+        std::vector<unsigned char> png_buf;
+        cairo_surface_write_to_png_stream(surface, cairowrite_ucvec, &png_buf);
+        m_buf = base64_encode(png_buf.data(), png_buf.size());
+        m_buf.insert(0, "data:image/png;base64,"); // potentially very expensive
+
+        cairo_destroy(cr);
+        cairo_surface_destroy(surface);
+    }
+    
+    void RendererCairoPngBase64::get_data(const uint8_t **t_buf, size_t *t_size) const
+    {
+        *t_buf = reinterpret_cast<const unsigned char*>(m_buf.data());
+        *t_size = m_buf.size();
     }
     
     void RendererCairoPdf::render(const Page &t_page, double t_scale) 
@@ -405,15 +434,16 @@ namespace unigd::renderers
 
         cairo_scale(cr, t_scale, t_scale);
 
-        page(t_page);
+        render_page(&t_page);
 
         cairo_destroy(cr);
         cairo_surface_destroy(surface);
     }
     
-    std::vector<unsigned char> RendererCairoPdf::get_binary() const 
+    void RendererCairoPdf::get_data(const uint8_t **t_buf, size_t *t_size) const
     {
-        return m_render_data;
+        *t_buf = &m_render_data[0];
+        *t_size = m_render_data.size();
     }
     
     void RendererCairoPs::render(const Page &t_page, double t_scale) 
@@ -424,15 +454,16 @@ namespace unigd::renderers
         
         cairo_scale(cr, t_scale, t_scale);
 
-        page(t_page);
+        render_page(&t_page);
 
         cairo_destroy(cr);
         cairo_surface_destroy(surface);
     }
     
-    std::string RendererCairoPs::get_string() const 
+    void RendererCairoPs::get_data(const uint8_t **t_buf, size_t *t_size) const
     {
-        return fmt::to_string(m_os);
+        *t_buf = reinterpret_cast<const uint8_t *>(m_os.begin());
+        *t_size = m_os.size();
     }
     
     void RendererCairoEps::render(const Page &t_page, double t_scale) 
@@ -444,17 +475,21 @@ namespace unigd::renderers
         
         cairo_scale(cr, t_scale, t_scale);
 
-        page(t_page);
+        render_page(&t_page);
 
         cairo_destroy(cr);
         cairo_surface_destroy(surface);
     }
     
-    std::string RendererCairoEps::get_string() const 
-    {
-        return fmt::to_string(m_os);
-    }
     
+    void RendererCairoEps::get_data(const uint8_t **t_buf, size_t *t_size) const
+    {
+        *t_buf = reinterpret_cast<const uint8_t *>(m_os.begin());
+        *t_size = m_os.size();
+    }
+
+#if 0
+
     // see: https://research.cs.wisc.edu/graphics/Courses/638-f1999/libtiff_tutorial.htm
     void RendererCairoTiff::render(const Page &t_page, double t_scale)
     {
@@ -468,7 +503,7 @@ namespace unigd::renderers
 
         cr = cairo_create(surface);
         cairo_scale(cr, t_scale, t_scale);
-        page(t_page);
+        render_page(&t_page);
 
         std::ostringstream tiff_ostream;
         TIFF* tiff = TIFFStreamOpen("memory", &tiff_ostream); // filename is ignored
@@ -509,12 +544,14 @@ namespace unigd::renderers
         const auto out = tiff_ostream.str();
         m_render_data.assign(out.begin(), out.end());
     }
-    
-    std::vector<unsigned char> RendererCairoTiff::get_binary() const 
+
+    void RendererCairoTiff::get_data(const uint8_t **t_buf, size_t *t_size) const
     {
-        return m_render_data;
+        *t_buf = &m_render_data[0];
+        *t_size = m_render_data.size();
     }
-    
+
+#endif
 
 } // namespace unigd::renderers
 

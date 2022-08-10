@@ -10,7 +10,7 @@ namespace unigd
 {
     const static char encode_lookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     const static char pad_character = '=';
-    inline std::string base64_encode(const std::uint8_t *buffer, size_t size)
+    std::string base64_encode(const std::uint8_t *buffer, size_t size)
     {
         std::string encoded_string;
         encoded_string.reserve(((size / 3) + (size % 3 > 0)) * 4);

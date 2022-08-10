@@ -12,6 +12,8 @@ namespace unigd
 {
     namespace renderers
     {
+        // regex for refactoring: ([Rr]ect|[Tt]ext|[Cc]ircle|[Ll]ine|[Pp]olyline|[Pp]olygon|[Pp]ath|[Rr]aster)
+
         class render_target : public ex::render_data
         {
         public:

@@ -176,7 +176,7 @@ SEXP unigd_render_(int devnum, int page, double width, double height, double zoo
     auto fi_renderer = unigd::renderers::find(renderer_id, &ren);
     if (!fi_renderer)
     {
-        cpp11::stop("Not a valid string renderer ID.");
+        cpp11::stop("Not a valid renderer ID.");
     }
     auto renderer = ren.generator();
     dev->plt_render(page, width / zoom, height / zoom, renderer.get(), zoom);
