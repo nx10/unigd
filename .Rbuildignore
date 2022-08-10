@@ -7,3 +7,6 @@
 ^cmake-build-debug$
 ^windows$
 ^codecov\.yml$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

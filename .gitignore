@@ -8,3 +8,4 @@
 CMakeLists.txt
 cmake-build-debug
 windows
+docs
