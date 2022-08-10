@@ -6,3 +6,4 @@
 ^CMakeLists.txt$
 ^cmake-build-debug$
 ^windows$
+^codecov\.yml$
