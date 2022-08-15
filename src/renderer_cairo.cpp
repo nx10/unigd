@@ -9,7 +9,7 @@
 
 #include "base_64.h" // for RendererCairoPngBase64
 
-#if 0
+#ifndef UNIGD_NO_TIFF
 #include <tiffio.hxx>
 #endif
 
@@ -488,7 +488,7 @@ namespace unigd::renderers
         *t_size = m_os.size();
     }
 
-#if 0
+#ifndef UNIGD_NO_TIFF
 
     // see: https://research.cs.wisc.edu/graphics/Courses/638-f1999/libtiff_tutorial.htm
     void RendererCairoTiff::render(const Page &t_page, double t_scale)

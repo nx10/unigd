@@ -12,7 +12,8 @@ PKG_CPPFLAGS = -Ilib -I../inst/include -I${RWINLIB_HARFBUZZ}/include \
 	-DFMT_HEADER_ONLY
 
 PKG_LIBS = -L${RWINLIB_HARFBUZZ}/lib${R_ARCH}${CRT} -lpng -lz \
-	-L${RWINLIB_CAIRO}/lib${R_ARCH}${CRT} -lcairo -lfreetype -lpixman-1 -lharfbuzz -lbz2 -liconv -lgdi32
+	-L${RWINLIB_CAIRO}/lib${R_ARCH}${CRT} -lcairo -lfreetype -lpixman-1 -lharfbuzz -lbz2 -liconv -lgdi32 \
+	-ltiff -ltiffxx -ljpeg -lzstd -lwebp -llzma
 
 all: winlibs
 

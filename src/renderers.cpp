@@ -209,8 +209,7 @@ namespace unigd
       }},
 
 
-#if 0
-      
+#ifndef UNIGD_NO_TIFF
       {
         "tiff",{
         {
@@ -220,11 +219,10 @@ namespace unigd
           "TIFF",
           "plot",
           "Tagged Image File Format (TIFF).",
-          true
+          false
         },
         []() { return std::make_unique<renderers::RendererCairoTiff>(); }
       }}
-
 #endif
 
 #endif
@@ -266,107 +264,6 @@ namespace unigd
     const std::unordered_map<std::string, renderer_map_entry> *renderers() {
       return &renderer_map;
     }
-
-/*
-    const RendererManager RendererManager::generate_default() 
-    {
-        RendererManager manager;
-
-        manager.add({
-          "svg",
-          "image/svg+xml",
-          ".svg",
-          "SVG",
-          "plot",
-          []() { return std::make_unique<renderers::RendererSVG>(std::experimental::nullopt); },
-          "Scalable Vector Graphics (SVG)."
-        });
-        
-        manager.add(BinaryRendererInfo{
-          "svgz",
-          "image/svg+xml",
-          ".svgz",
-          "SVGZ",
-          "plot",
-          []() { return std::make_unique<renderers::RendererSVGZ>(std::experimental::nullopt); },
-          "Compressed Scalable Vector Graphics (SVGZ)."
-        });
-        
-        manager.add({
-          "svgp",
-          "image/svg+xml",
-          ".svg",
-          "Portable SVG",
-          "plot",
-          []() { return std::make_unique<renderers::RendererSVGPortable>(); },
-          "Version of the SVG renderer that produces portable SVGs."
-        });
-        
-        manager.add(BinaryRendererInfo{
-          "svgzp",
-          "image/svg+xml",
-          ".svgz",
-          "Portable SVGZ",
-          "plot",
-          []() { return std::make_unique<renderers::RendererSVGZPortable>(); },
-          "Version of the SVG renderer that produces portable SVGZs."
-        });
-        
-#ifndef UNIGD_NO_CAIRO
-        
-        manager.add({
-          "png",
-          "image/png",
-          ".png",
-          "PNG",
-          "plot",
-          []() { return std::make_unique<renderers::RendererCairoPng>(); },
-          "Portable Network Graphics (PNG)."
-        });
-        
-        manager.add({
-          "pdf",
-          "application/pdf",
-          ".pdf",
-          "PDF",
-          "plot",
-          []() { return std::make_unique<renderers::RendererCairoPdf>(); },
-          "Adobe Portable Document Format (PDF)."
-        });
-        
-        manager.add({
-          "ps",
-          "application/postscript",
-          ".ps",
-          "PS",
-          "plot",
-          []() { return std::make_unique<renderers::RendererCairoPs>(); },
-          "PostScript (PS)."
-        });
-
-        manager.add({
-          "eps",
-          "application/postscript",
-          ".eps",
-          "EPS",
-          "plot",
-          []() { return std::make_unique<renderers::RendererCairoEps>(); },
-          "Encapsulated PostScript (EPS)."
-        });
-        
-        manager.add({
-          "tiff",
-          "image/tiff",
-          ".tiff",
-          "TIFF",
-          "plot",
-          []() { return std::make_unique<renderers::RendererCairoTiff>(); },
-          "Tagged Image File Format (TIFF)."
-        });
-        
-#endif
-        */
-
 
     } // namespace renderers
 } // namespace unigd

@@ -81,7 +81,7 @@ namespace unigd::renderers
         fmt::memory_buffer m_os;
     };
 
-#if 0
+#ifndef UNIGD_NO_TIFF
 
     class RendererCairoTiff : public render_target, public RendererCairo
     {
