@@ -28,21 +28,27 @@ namespace unigd
                             { Rprintf("unigd client: %s\n", msg.c_str()); });
         }
 
-        UNIGD_HANDLE api_device_attach(int devnum, unigd_graphics_client *client, void *client_data)
+        UNIGD_CLIENT_ID api_register_client_id()
+        {
+            static UNIGD_CLIENT_ID client_id_counter = 0;
+            return client_id_counter++; // todo: handle overflow
+        }
+
+        UNIGD_HANDLE api_device_attach(int devnum, unigd_graphics_client *client, UNIGD_CLIENT_ID client_id, void *client_data)
         {
             auto dev = unigd_device::from_device_number(devnum);
             if (!dev)
             {
                 return nullptr;
             }
-            if (dev->attach_client(client, client_data))
+            if (dev->attach_client(client, client_id, client_data))
             {
                 return new unigd_handle_t{dev};
             }
             return nullptr;
         }
 
-        void *api_device_get(int devnum, int client_id)
+        void *api_device_get(int devnum, UNIGD_CLIENT_ID client_id)
         {
             auto dev = unigd_device::from_device_number(devnum);
             if (!dev)
@@ -51,11 +57,7 @@ namespace unigd
             }
             graphics_client *client;
             void *client_data;
-            if (!dev->get_client(&client, &client_data)) {
-                return nullptr;
-            }
-
-            if (client->client_id(client_data) != client_id) {
+            if (!dev->get_client(&client, client_id, &client_data)) {
                 return nullptr;
             }
 
@@ -174,6 +176,8 @@ namespace unigd
             auto api = new unigd_api_v1();
 
             api->log = api_log;
+
+            api->register_client_id = api_register_client_id;
 
             api->device_attach = api_device_attach;
             api->device_get = api_device_get;

@@ -7,5 +7,6 @@
 .idea
 CMakeLists.txt
 cmake-build-debug
+compile_commands.json
 windows
 docs

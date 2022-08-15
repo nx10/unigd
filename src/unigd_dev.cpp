@@ -70,21 +70,22 @@ namespace unigd
         m_initialized = true;
     }
 
-    bool unigd_device::attach_client(ex::graphics_client *t_client, void *t_client_data)
+    bool unigd_device::attach_client(ex::graphics_client *t_client, UNIGD_CLIENT_ID t_client_id, void *t_client_data)
     {
         if (m_client)
         {
             return false;
         }
         m_client = t_client;
+        m_client_id = t_client_id;
         m_client_data = t_client_data;
         m_client->start(m_client_data);
         return true;
     }
 
-    bool unigd_device::get_client(ex::graphics_client **t_client, void **t_client_data)
+    bool unigd_device::get_client(ex::graphics_client **t_client, UNIGD_CLIENT_ID t_client_id, void **t_client_data)
     {
-        if (!m_client)
+        if (!m_client || (m_client_id != t_client_id))
         {
             return false;
         }

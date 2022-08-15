@@ -19,13 +19,14 @@ extern "C"
     typedef uint32_t UNIGD_PLOT_ID;
     typedef uint32_t UNIGD_PLOT_INDEX;
     typedef int32_t UNIGD_PLOT_RELATIVE;
+    typedef uint32_t UNIGD_CLIENT_ID;
 
     struct unigd_graphics_client
     {
         void (*start)(void *);
         void (*close)(void *);
         void (*state_change)(void *);
-        int (*client_id)(void *);
+        //int (*client_id)(void *);
         // int (client_status)(char *);
     };
 
@@ -82,13 +83,16 @@ extern "C"
         void (*log)(const char *t_message);
 
         // DEVICE
+        
+        // Get a new unused client ID.
+        UNIGD_CLIENT_ID (*register_client_id)();
 
         // Attach a client to the unigd device.
         UNIGD_HANDLE(*device_attach)
-        (int, unigd_graphics_client *, void *);
+        (int devnum, unigd_graphics_client *client, UNIGD_CLIENT_ID client_id, void *);
 
         // Get client.
-        void *(*device_get)(int devnum, int client_id);
+        void *(*device_get)(int devnum, UNIGD_CLIENT_ID client_id);
 
         // Destroy device handle.
         void (*device_destroy)(UNIGD_HANDLE);

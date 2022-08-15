@@ -54,8 +54,8 @@ namespace unigd
 
         unigd_device(const device_params &t_params);
 
-        bool attach_client(ex::graphics_client *t_client, void *t_client_data);
-        bool get_client(ex::graphics_client **t_client, void **t_client_data);
+        bool attach_client(ex::graphics_client *t_client, UNIGD_CLIENT_ID t_client_id, void *t_client_data);
+        bool get_client(ex::graphics_client **t_client, UNIGD_CLIENT_ID t_client_id, void **t_client_data);
         bool remove_client();
 
         // Synchronous access
@@ -105,6 +105,7 @@ namespace unigd
         std::shared_ptr<HttpgdDataStore> m_data_store;
         
         ex::graphics_client *m_client{nullptr};
+        UNIGD_CLIENT_ID m_client_id = 0;
         void *m_client_data{nullptr};
 
         bool replaying{false}; // Is the device replaying
