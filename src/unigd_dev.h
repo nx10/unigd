@@ -56,6 +56,7 @@ namespace unigd
 
         bool attach_client(ex::graphics_client *t_client, UNIGD_CLIENT_ID t_client_id, void *t_client_data);
         bool get_client(ex::graphics_client **t_client, UNIGD_CLIENT_ID t_client_id, void **t_client_data);
+        bool get_client_anonymous(ex::graphics_client **t_client, void **t_client_data);
         bool remove_client();
 
         // Synchronous access

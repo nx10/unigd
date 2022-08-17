@@ -94,6 +94,13 @@ namespace unigd
         return true;
     }
 
+    bool unigd_device::get_client_anonymous(ex::graphics_client **t_client, void **t_client_data)
+    {
+        *t_client = m_client;
+        *t_client_data = m_client_data;
+        return m_client != nullptr;
+    }
+
     bool unigd_device::remove_client()
     {
         if (!m_client)

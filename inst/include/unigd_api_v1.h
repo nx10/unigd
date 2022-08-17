@@ -26,8 +26,7 @@ extern "C"
         void (*start)(void *);
         void (*close)(void *);
         void (*state_change)(void *);
-        //int (*client_id)(void *);
-        // int (client_status)(char *);
+        const char *(*info)(void *);
     };
 
     struct unigd_renderer_info
