@@ -102,7 +102,7 @@ PKG_LIBTIFF_LIBS="-ltiff -ljpeg -lz"
 # Use pkg-config if available
 if [ $(command -v pkg-config) ]; then
   PKG_LIBTIFF_CFLAGS=$(pkg-config --cflags --silence-errors $PKG_LIBTIFF_CONFIG_NAME)
-  PKG_LIBTIFF_LIBS="$(pkg-config --libs $PKG_LIBTIFF_CONFIG_NAME)-ltiffxx "
+  PKG_LIBTIFF_LIBS="$(pkg-config --libs $PKG_LIBTIFF_CONFIG_NAME) -ltiffxx "
 fi
 
 echo "Using PKG_LIBTIFF_CFLAGS=$PKG_LIBTIFF_CFLAGS"
