@@ -71,24 +71,36 @@ This function will only work after starting a device with <code><a href="ugd.htm
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">ugd_renderers</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        id             mime   ext          name type  text</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   svgzp    image/svg+xml .svgz Portable SVGZ plot FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    svgz    image/svg+xml .svgz          SVGZ plot FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    meta application/json .json          Meta data  TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    tikz       text/plain  .tex          TikZ plot  TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    json application/json .json          JSON plot  TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 strings       text/plain  .txt       Strings data  TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7    svgp    image/svg+xml  .svg  Portable SVG plot  TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8     svg    image/svg+xml  .svg           SVG plot  TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                       descr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Version of the SVG renderer that produces portable SVGZs.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2               Compressed Scalable Vector Graphics (SVGZ).</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                                    Plot meta information.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                                          LaTeX TikZ code.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                      Plot data serialized to JSON format.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                        List of strings contained in plot.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  Version of the SVG renderer that produces portable SVGs.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8                           Scalable Vector Graphics (SVG).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            id                   mime   ext          name type  text</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        tiff             image/tiff .tiff          TIFF plot FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  png-base64             text/plain  .txt    Base64 PNG plot  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3         png              image/png  .png           PNG plot FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4         eps application/postscript  .eps           EPS plot FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5       svgzp          image/svg+xml .svgz Portable SVGZ plot FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6          ps application/postscript   .ps            PS plot FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7        meta       application/json .json          Meta data  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8     strings             text/plain  .txt       Strings data  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9         pdf        application/pdf  .pdf           PDF plot FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10       tikz             text/plain  .tex          TikZ plot  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11       json       application/json .json          JSON plot  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12       svgp          image/svg+xml  .svg  Portable SVG plot  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13       svgz          image/svg+xml .svgz          SVGZ plot FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14        svg          image/svg+xml  .svg           SVG plot  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                        descr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                           Tagged Image File Format (TIFF).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2            Base64 encoded Portable Network Graphics (PNG).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                           Portable Network Graphics (PNG).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                             Encapsulated PostScript (EPS).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  Version of the SVG renderer that produces portable SVGZs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                                           PostScript (PS).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7                                     Plot meta information.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8                         List of strings contained in plot.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9                      Adobe Portable Document Format (PDF).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10                                          LaTeX TikZ code.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11                      Plot data serialized to JSON format.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12  Version of the SVG renderer that produces portable SVGs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13               Compressed Scalable Vector Graphics (SVGZ).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14                           Scalable Vector Graphics (SVG).</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
