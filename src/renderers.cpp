@@ -148,7 +148,7 @@ namespace unigd
           "PS",
           "plot",
           "PostScript (PS).",
-          false
+          true
         },
         []() { return std::make_unique<renderers::RendererCairoPs>(); },
       }},
@@ -161,7 +161,7 @@ namespace unigd
           "EPS",
           "plot",
           "Encapsulated PostScript (EPS).",
-          false
+          true
         },
         []() { return std::make_unique<renderers::RendererCairoEps>(); }
       }},
