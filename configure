@@ -14,7 +14,7 @@ PKG_RPM_NAME="cairo-devel"
 PKG_CSW_NAME="libcairo_dev"
 PKG_BREW_NAME="cairo"
 PKG_LIBS="-lcairo -lfreetype"
-PKG_TEST_FILE="src/tests/sysdeps.c"
+PKG_TEST_FILE="src/sysdep_tests/sysdep_cairo.c"
 
 # Prefer static linking on MacOS
 if [ `uname` = "Darwin" ]; then
@@ -91,8 +91,54 @@ if [ $? -ne 0 ]; then
   PKG_LIBS=""
 fi
 
+# Library settings
+PKG_LIBTIFF_CONFIG_NAME="libtiff-4"
+PKG_LIBTIFF_DEB_NAME="libtiff-dev"
+PKG_LIBTIFF_RPM_NAME="libtiff-devel"
+PKG_LIBTIFF_BREW_NAME="libtiff"
+PKG_LIBTIFF_TEST_HEADER="<tiffio.hxx>"
+PKG_LIBTIFF_LIBS="-ltiff -ljpeg -lz"
+
+# Use pkg-config if available
+if [ $(command -v pkg-config) ]; then
+  PKG_LIBTIFF_CFLAGS=$(pkg-config --cflags --silence-errors $PKG_LIBTIFF_CONFIG_NAME)
+  PKG_LIBTIFF_LIBS="$(pkg-config --libs $PKG_LIBTIFF_CONFIG_NAME) -ltiffxx "
+fi
+
+echo "Using PKG_LIBTIFF_CFLAGS=$PKG_LIBTIFF_CFLAGS"
+echo "Using PKG_LIBTIFF_LIBS=$PKG_LIBTIFF_LIBS"
+
+# Find compiler
+CXX=`${R_HOME}/bin/R CMD config CXX`
+CXXFLAGS=`${R_HOME}/bin/R CMD config CXXFLAGS`
+CPPFLAGS=`${R_HOME}/bin/R CMD config CPPFLAGS`
+
+# Test configuration
+echo "#include $PKG_LIBTIFF_TEST_HEADER" | ${CXX} -E ${CPPFLAGS} ${PKG_LIBTIFF_CFLAGS} ${CXXFLAGS} -xc++ - >/dev/null 2>&1
+
+# Customize the error
+if [ $? -ne 0 ]; then
+  echo "------------------------------[ WARNING ]---------------------------"
+  echo "Info: Configuration failed to find $PKG_LIBTIFF_CONFIG_NAME system library."
+  echo "httpgd is fully functional without $PKG_LIBTIFF_CONFIG_NAME, but some plot file formats"
+  echo "will not be available."
+  echo "If you want to install $PKG_LIBTIFF_CONFIG_NAME see below error for troubleshooting."
+  echo "------------------------- ANTICONF ERROR ---------------------------"
+  echo "Configuration failed because $PKG_LIBTIFF_CONFIG_NAME was not found. Try installing:"
+  echo " * deb: $PKG_LIBTIFF_DEB_NAME (Debian, Ubuntu, etc)"
+  echo " * rpm: $PKG_LIBTIFF_RPM_NAME (Fedora, EPEL)"
+  echo " * brew: $PKG_LIBTIFF_BREW_NAME (OSX)"
+  echo "If $PKG_LIBTIFF_CONFIG_NAME is already installed, check that 'pkg-config' is in your"
+  echo "PATH and PKG_CONFIG_PATH contains a $PKG_LIBTIFF_CONFIG_NAME.pc file. If pkg-config"
+  echo "is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:"
+  echo "R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'"
+  echo "--------------------------------------------------------------------"
+  PKG_LIBTIFF_CFLAGS="-DUNIGD_NO_TIFF"
+  PKG_LIBTIFF_LIBS=""
+fi
+
 # Write to Makevars
-sed -e "s|@cflags@|$PKG_CFLAGS|" -e "s|@libs@|$PKG_LIBS|" src/Makevars.in > src/Makevars
+sed -e "s|@cflags@|$PKG_CFLAGS $PKG_LIBTIFF_CFLAGS|" -e "s|@libs@|$PKG_LIBS $PKG_LIBTIFF_LIBS|" src/Makevars.in > src/Makevars
 
 # Success
 exit 0
