@@ -91,9 +91,14 @@ namespace unigd
         {
             const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
             auto handle = ugd->device->api_render(renderer_id, plot_id, render_args.width, render_args.height, render_args.scale).release();
-            size_t buf_size;
-            handle->get_data(&render_access->buffer, &buf_size);
-            render_access->size = buf_size;
+            if (handle) {
+                size_t buf_size;
+                handle->get_data(&render_access->buffer, &buf_size);
+                render_access->size = buf_size;
+            } else {
+                render_access->buffer = nullptr;
+                render_access->size = 0;
+            }
             return handle;
         }
 
