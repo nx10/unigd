@@ -220,7 +220,11 @@ namespace unigd
     } // namespace ex
 } // namespace unigd
 
-[[cpp11::init]] void export_api(DllInfo *dll)
+// There is a bug in cpp11 / decor where pointer types are not detected when the asterisk is right-aligned
+// see: https://github.com/r-lib/decor/pull/11
+// clang-format off
+[[cpp11::init]] void export_api(DllInfo* dll)
+// clang-format on
 {
     R_RegisterCCallable("unigd", "api_v1_create", reinterpret_cast<DL_FUNC>(unigd::ex::api_v1_create));
     R_RegisterCCallable("unigd", "api_v1_destroy", reinterpret_cast<DL_FUNC>(unigd::ex::api_v1_destroy));
