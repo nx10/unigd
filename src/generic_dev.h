@@ -3,6 +3,8 @@
 
 #define R_NO_REMAP
 #include <cpp11/R.hpp>
+#include <cpp11/list.hpp>
+#include <cpp11/integers.hpp>
 #include <R_ext/GraphicsEngine.h>
 #include <memory>
 
@@ -158,6 +160,14 @@ namespace unigd
         virtual void dev_releaseClipPath(SEXP ref, pDevDesc dd) {}
         virtual SEXP dev_setMask(SEXP path, SEXP ref, pDevDesc dd) { return R_NilValue; }
         virtual void dev_releaseMask(SEXP ref, pDevDesc dd) {}
+        
+        // R_GE_version >= 15
+        virtual SEXP dev_defineGroup(SEXP source, int op, SEXP destination, pDevDesc dd) { return R_NilValue; }
+        virtual void dev_useGroup(SEXP ref, SEXP trans, pDevDesc dd) {}
+        virtual void dev_releaseGroup(SEXP ref, pDevDesc dd) {}
+        virtual void dev_stroke(SEXP path, const pGEcontext gc, pDevDesc dd) {}
+        virtual void dev_fill(SEXP path, int rule, const pGEcontext gc, pDevDesc dd) {}
+        virtual void dev_fillStroke(SEXP path, int rule, const pGEcontext gc, pDevDesc dd) {}
 
         // GRAPHICS DEVICE FEATURE FLAGS
 
@@ -247,12 +257,33 @@ namespace unigd
             { from_dd(dd)->dev_releaseMask(ref, dd); };
 #endif
 #if R_GE_version >= 15
-            dd->defineGroup = nullptr;
-            dd->useGroup = nullptr;
-            dd->releaseGroup = nullptr;
-            dd->stroke = nullptr;
-            dd->fill = nullptr;
-            dd->fillStroke = nullptr;
+            dd->defineGroup = [](SEXP source, int op, SEXP destination, pDevDesc dd)
+            { return from_dd(dd)->dev_defineGroup(source, op, destination, dd); };
+            dd->useGroup = [](SEXP ref, SEXP trans, pDevDesc dd)
+            { return from_dd(dd)->dev_useGroup(ref, trans, dd); };
+            dd->releaseGroup = [](SEXP ref, pDevDesc dd)
+            { return from_dd(dd)->dev_releaseGroup(ref, dd); };
+            dd->stroke = [](SEXP path, pGEcontext gc, pDevDesc dd)
+            { return from_dd(dd)->dev_stroke(path, gc, dd); };
+            dd->fill = [](SEXP path, int rule, pGEcontext gc, pDevDesc dd)
+            { return from_dd(dd)->dev_fill(path, rule, gc, dd); };
+            dd->fillStroke = [](SEXP path, int rule, pGEcontext gc, pDevDesc dd)
+            { return from_dd(dd)->dev_fillStroke(path, rule, gc, dd); };
+
+            // From "SEXP devcap(SEXP args)" in "grDevices/src/devices.c" it seems
+            // that this function may be used to set some entries to the capability list.
+            // Must return a list of the correct length and only integers.
+            // ugd(); dev.capabilities()
+            dd->capabilities = [](SEXP t_cap) { 
+                auto cap = cpp11::writable::list(t_cap);
+                cap[R_GE_capability_patterns] = cpp11::writable::integers({0});
+                cap[R_GE_capability_clippingPaths] = cpp11::writable::integers({0});
+                cap[R_GE_capability_masks] = cpp11::writable::integers({0});
+                cap[R_GE_capability_compositing] = cpp11::writable::integers({0});
+                cap[R_GE_capability_transformations] = cpp11::writable::integers({0});
+                cap[R_GE_capability_paths] = cpp11::writable::integers({0});
+                return cpp11::as_sexp(cap); 
+            };
 #endif
 
             if (m_df_cap)
