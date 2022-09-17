@@ -69,9 +69,7 @@ namespace unigd
         // Datastore only access
 
         ex::device_state plt_state();
-        ex::find_results plt_query_all();
-        ex::find_results plt_query_index(int index);
-        ex::find_results plt_query_range(int offset, int limit);
+        ex::find_results plt_query(int offset, int limit);
         int plt_index(int32_t id);
 
         // Asynchronous access

@@ -501,17 +501,9 @@ namespace unigd
         return m_data_store->state();
     }
 
-    ex::find_results unigd_device::plt_query_all()
+    ex::find_results unigd_device::plt_query(int offset, int limit)
     {
-        return m_data_store->query_all();
-    }
-    ex::find_results unigd_device::plt_query_index(int index)
-    {
-        return m_data_store->query_index(index);
-    }
-    ex::find_results unigd_device::plt_query_range(int offset, int limit)
-    {
-        return m_data_store->query_range(offset, limit);
+        return m_data_store->query(offset, limit);
     }
 
     bool unigd_device::api_remove(int32_t id)

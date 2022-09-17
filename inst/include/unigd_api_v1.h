@@ -118,12 +118,6 @@ extern "C"
 
         // Plot ID lookup.
         UNIGD_FIND_HANDLE(*device_plots_find)
-        (UNIGD_HANDLE, unigd_find_results *results);
-        // Plot ID lookup.
-        UNIGD_FIND_HANDLE(*device_plots_find_index)
-        (UNIGD_HANDLE, UNIGD_PLOT_RELATIVE index, unigd_find_results *results);
-        // Plot ID lookup.
-        UNIGD_FIND_HANDLE(*device_plots_find_range)
         (UNIGD_HANDLE, UNIGD_PLOT_RELATIVE offset, UNIGD_PLOT_INDEX limit, unigd_find_results *results);
 
         // Free plot ID lookup memory.

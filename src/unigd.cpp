@@ -222,12 +222,11 @@ cpp11::writable::list unigd_id_(int devnum, int page, int limit)
 
     if (page == -1)
     {
-        res = dev->plt_query_index(page);
+        limit = 1;
     }
-    else
-    {
-        res = dev->plt_query_range(page, limit);
-    }
+    
+    res = dev->plt_query(page, limit);
+    
 
     using namespace cpp11::literals;
     cpp11::writable::list state{

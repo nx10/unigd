@@ -222,38 +222,7 @@ namespace unigd
         m_device_active = t_active;
     }
 
-    ex::find_results HttpgdDataStore::query_all()
-    {
-        const std::lock_guard<std::mutex> lock(m_store_mutex);
-
-        std::vector<ex::plot_id_t> res(m_pages.size());
-        for (std::size_t i = 0; i != m_pages.size(); i++)
-        {
-            res[i] = m_pages[i].id;
-        }
-        return {{m_upid,
-                 static_cast<ex::plot_index_t>(m_pages.size()),
-                 m_device_active},
-                res};
-    }
-    ex::find_results HttpgdDataStore::query_index(ex::plot_relative_t t_index)
-    {
-        const std::lock_guard<std::mutex> lock(m_store_mutex);
-
-        if (!m_valid_index(t_index))
-        {
-            return {{m_upid,
-                     static_cast<ex::plot_index_t>(m_pages.size()),
-                     m_device_active},
-                    {}};
-        }
-        auto index = m_index_to_pos(t_index);
-        return {{m_upid,
-                 static_cast<ex::plot_index_t>(m_pages.size()),
-                 m_device_active},
-                {m_pages[index].id}};
-    }
-    ex::find_results HttpgdDataStore::query_range(ex::plot_relative_t t_offset, ex::plot_id_t t_limit)
+    ex::find_results HttpgdDataStore::query(ex::plot_relative_t t_offset, ex::plot_id_t t_limit)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);
 
@@ -265,7 +234,7 @@ namespace unigd
                     {}};
         }
         auto index = m_index_to_pos(t_offset);
-        if (t_limit < 0)
+        if (t_limit <= 0)
         {
             t_limit = m_pages.size();
         }

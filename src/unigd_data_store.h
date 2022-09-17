@@ -38,9 +38,7 @@ namespace unigd
         ex::device_state state();
         void set_device_active(bool t_active);
 
-        ex::find_results query_all();
-        ex::find_results query_index(ex::plot_relative_t t_index);
-        ex::find_results query_range(ex::plot_relative_t t_offset, ex::plot_index_t t_limit);
+        ex::find_results query(ex::plot_relative_t t_offset, ex::plot_index_t t_limit);
 
         void extra_css(std::experimental::optional<std::string> t_extra_css);
 

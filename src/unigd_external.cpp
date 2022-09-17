@@ -107,32 +107,12 @@ namespace unigd
             delete static_cast<unigd::ex::render_data *>(handle);
         }
 
-        UNIGD_FIND_HANDLE api_plots_find(UNIGD_HANDLE ugd_handle, unigd_find_results *results)
+        UNIGD_FIND_HANDLE api_plots_find(UNIGD_HANDLE ugd_handle, UNIGD_PLOT_RELATIVE offset, UNIGD_PLOT_INDEX limit, unigd_find_results *results)
         {
             const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
 
             auto *re = new find_results{};
-            *re = ugd->device->plt_query_all();
-            *results = re->c_repr();
-            return re;
-        }
-
-        UNIGD_FIND_HANDLE api_plots_find_index(UNIGD_HANDLE ugd_handle, UNIGD_PLOT_RELATIVE index, unigd_find_results *results)
-        {
-            const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
-
-            auto *re = new find_results{};
-            *re = ugd->device->plt_query_index(index);
-            *results = re->c_repr();
-            return re;
-        }
-
-        UNIGD_FIND_HANDLE api_plots_find_range(UNIGD_HANDLE ugd_handle, UNIGD_PLOT_RELATIVE offset, UNIGD_PLOT_INDEX limit, unigd_find_results *results)
-        {
-            const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
-
-            auto *re = new find_results{};
-            *re = ugd->device->plt_query_range(offset, limit);
+            *re = ugd->device->plt_query(offset, limit);
             *results = re->c_repr();
             return re;
         }
@@ -197,8 +177,6 @@ namespace unigd
             api->device_render_destroy = api_render_destroy;
 
             api->device_plots_find = api_plots_find;
-            api->device_plots_find_index = api_plots_find_index;
-            api->device_plots_find_range = api_plots_find_range;
             api->device_plots_find_destroy = api_plots_find_destroy;
 
             api->renderers = api_renderers;
