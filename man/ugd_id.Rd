@@ -11,7 +11,7 @@ ugd_id(index = 0, limit = 1, which = dev.cur(), state = FALSE)
 selected.}
 
 \item{limit}{Limit the number of returned IDs. If this is set to a
-value > 1 the returned type is a list if IDs.}
+value > 1 the returned type is a list if IDs. Set to \code{0} for all.}
 
 \item{which}{Which device (ID).}
 

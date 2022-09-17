@@ -34,10 +34,10 @@ extern "C" SEXP _unigd_unigd_renderers_() {
   END_CPP11
 }
 // unigd.cpp
-int unigd_plot_find_(int devnum, std::string plot_id);
+int unigd_plot_find_(int devnum, int plot_id);
 extern "C" SEXP _unigd_unigd_plot_find_(SEXP devnum, SEXP plot_id) {
   BEGIN_CPP11
-    return cpp11::as_sexp(unigd_plot_find_(cpp11::as_cpp<cpp11::decay_t<int>>(devnum), cpp11::as_cpp<cpp11::decay_t<std::string>>(plot_id)));
+    return cpp11::as_sexp(unigd_plot_find_(cpp11::as_cpp<cpp11::decay_t<int>>(devnum), cpp11::as_cpp<cpp11::decay_t<int>>(plot_id)));
   END_CPP11
 }
 // unigd.cpp
@@ -55,10 +55,10 @@ extern "C" SEXP _unigd_unigd_remove_(SEXP devnum, SEXP page) {
   END_CPP11
 }
 // unigd.cpp
-bool unigd_remove_id_(int devnum, std::string id);
-extern "C" SEXP _unigd_unigd_remove_id_(SEXP devnum, SEXP id) {
+bool unigd_remove_id_(int devnum, int plot_id);
+extern "C" SEXP _unigd_unigd_remove_id_(SEXP devnum, SEXP plot_id) {
   BEGIN_CPP11
-    return cpp11::as_sexp(unigd_remove_id_(cpp11::as_cpp<cpp11::decay_t<int>>(devnum), cpp11::as_cpp<cpp11::decay_t<std::string>>(id)));
+    return cpp11::as_sexp(unigd_remove_id_(cpp11::as_cpp<cpp11::decay_t<int>>(devnum), cpp11::as_cpp<cpp11::decay_t<int>>(plot_id)));
   END_CPP11
 }
 // unigd.cpp

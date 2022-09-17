@@ -19,6 +19,7 @@ namespace unigd
     {
     public:
         std::experimental::optional<ex::plot_index_t> find_index(ex::plot_id_t t_id);
+        std::experimental::optional<ex::plot_relative_t> normalize_index(ex::plot_relative_t t_index);
 
         bool render(ex::plot_relative_t t_index, renderers::render_target *t_renderer, double t_scale);
         bool render_if_size(ex::plot_relative_t t_index, renderers::render_target *t_renderer, double t_scale, gvertex<double> t_target_size);

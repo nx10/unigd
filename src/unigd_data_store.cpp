@@ -18,6 +18,16 @@ namespace unigd
         return (t_index < 0 ? (m_pages.size() + t_index) : t_index);
     }
 
+    std::experimental::optional<ex::plot_relative_t> HttpgdDataStore::normalize_index(ex::plot_relative_t t_index)
+    {
+        const std::lock_guard<std::mutex> lock(m_store_mutex);
+        if (!m_valid_index(t_index))
+        {
+            return std::experimental::nullopt;
+        }
+        return m_index_to_pos(t_index);
+    }
+
     ex::plot_index_t HttpgdDataStore::append(gvertex<double> t_size)
     {
         const std::lock_guard<std::mutex> lock(m_store_mutex);

@@ -477,18 +477,24 @@ namespace unigd
 
     bool unigd_device::plt_render(int index, double width, double height, renderers::render_target *t_renderer, double t_scale)
     {
+        const auto index_norm = m_data_store->normalize_index(index);
+
+        if (!index_norm.has_value()) {
+            return false;
+        }
+
         debug_println("check cached size");
-        if (m_data_store->render_if_size(index, t_renderer, t_scale, {width, height}))
+        if (m_data_store->render_if_size(*index_norm, t_renderer, t_scale, {width, height}))
         {
             return true;
         }
         else
         {
             debug_println("graphics engine rerender");
-            plt_prerender(index, width, height);
+            plt_prerender(*index_norm, width, height);
         }
         debug_println("render");
-        return m_data_store->render(index, t_renderer, t_scale);
+        return m_data_store->render(*index_norm, t_renderer, t_scale);
     }
 
     int unigd_device::plt_index(int32_t id)

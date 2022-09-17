@@ -7,6 +7,7 @@
 #include <cpp11/as.hpp>
 #include <cpp11/raws.hpp>
 
+#include <algorithm> // std::max
 #include <vector>
 #include <string>
 #include <memory>
@@ -30,17 +31,6 @@ namespace
             cpp11::stop("Not a valid device number");
         }
         return a;
-    }
-
-    inline long validate_plotid(const std::string &id)
-    {
-        try {
-            return std::stol(id);
-        }
-        catch (const std::exception &e){
-            cpp11::stop("Not a valid plot ID.");
-        }
-        return -1;
     }
 
 } // namespace unigd
@@ -151,11 +141,10 @@ cpp11::data_frame unigd_renderers_()
 
 
 [[cpp11::register]]
-int unigd_plot_find_(int devnum, std::string plot_id)
+int unigd_plot_find_(int devnum, int plot_id)
 {
-    long pid = validate_plotid(plot_id);
     auto dev = validate_unigddev(devnum);
-    auto page = dev->plt_index(pid);
+    auto page = dev->plt_index(plot_id);
     if (page == -1)
     {
         cpp11::stop("Not a valid plot ID.");
@@ -180,7 +169,10 @@ SEXP unigd_render_(int devnum, int page, double width, double height, double zoo
         cpp11::stop("Not a valid renderer ID.");
     }
     auto renderer = ren.generator();
-    dev->plt_render(page, width / zoom, height / zoom, renderer.get(), zoom);
+    if (!dev->plt_render(page, width / zoom, height / zoom, renderer.get(), zoom))
+    {
+        cpp11::stop("Plot does not exist.");
+    }
 
     const uint8_t *buf;
     size_t buf_size;
@@ -201,11 +193,10 @@ bool unigd_remove_(int devnum, int page)
 }
 
 [[cpp11::register]]
-bool unigd_remove_id_(int devnum, std::string id)
+bool unigd_remove_id_(int devnum, int plot_id)
 {
-    long pid = validate_plotid(id);
     auto dev = validate_unigddev(devnum);
-    auto page = dev->plt_index(pid);
+    auto page = dev->plt_index(plot_id);
     if (page == -1)
     {
         cpp11::stop("Not a valid plot ID.");
@@ -220,10 +211,7 @@ cpp11::writable::list unigd_id_(int devnum, int page, int limit)
     auto dev = validate_unigddev(devnum);
     unigd::ex::find_results res;
 
-    if (page == -1)
-    {
-        limit = 1;
-    }
+    limit = std::max(limit, 0);
     
     res = dev->plt_query(page, limit);
     

@@ -28,8 +28,8 @@ unigd_remove_ <- function(devnum, page) {
   .Call(`_unigd_unigd_remove_`, devnum, page)
 }
 
-unigd_remove_id_ <- function(devnum, id) {
-  .Call(`_unigd_unigd_remove_id_`, devnum, id)
+unigd_remove_id_ <- function(devnum, plot_id) {
+  .Call(`_unigd_unigd_remove_id_`, devnum, plot_id)
 }
 
 unigd_id_ <- function(devnum, page, limit) {

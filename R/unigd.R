@@ -55,7 +55,7 @@ ugd <-
            system_fonts = getOption("unigd.system_fonts", list()),
            user_fonts = getOption("unigd.user_fonts", list()),
            reset_par = getOption("unigd.reset_par", FALSE)) {
-    
+
     aliases <- validate_aliases(system_fonts, user_fonts)
 
     invisible(unigd_ugd_(
@@ -145,7 +145,7 @@ ugd_info <- function(which = dev.cur()) {
 #' @export
 #'
 #' @examples
-#' 
+#'
 #' ugd_renderers()
 #'
 ugd_renderers <- function() {
@@ -162,7 +162,7 @@ ugd_renderers <- function() {
 #' @param index Plot index. If this is set to `0`, the last page will be
 #'   selected.
 #' @param limit Limit the number of returned IDs. If this is set to a
-#'  value > 1 the returned type is a list if IDs.
+#'  value > 1 the returned type is a list if IDs. Set to `0` for all.
 #' @param which Which device (ID).
 #' @param state Include the current device state in the returned result
 #'  (see also: [ugd_state()]).
@@ -192,25 +192,30 @@ ugd_renderers <- function() {
 #' }
 ugd_id <- function(index = 0, limit = 1, which = dev.cur(), state = FALSE) {
   stop_if_not_unigd_device(which)
-  if (limit == 0 || is.infinite(limit)) {
-    limit <- -1
+  if (is.infinite(limit)) {
+    limit <- 0
   }
   res <- unigd_id_(which, index - 1, limit)
   if (state) {
     return(res)
   }
-  if (limit == 1) {
+  if (limit == 1 && length(res$plots) > 0) {
     return(res$plots[[1]])
   }
   return(res$plots)
 }
 
-page_id_to_index <- function(page) {
+page_id_to_index <- function(page, which) {
   if (inherits(page, "unigd_pid")) {
-    page <- unigd_plot_find_(which, page$id)
+    print(page)
+    print(which)
+    page <- unigd_plot_find_(which, page$id) + 1
   }
   page
 }
+
+#' @export
+print.unigd_pid <- function(x, ...) cat(x$id)
 
 #' Render unigd plot and return it.
 #'
@@ -229,7 +234,7 @@ page_id_to_index <- function(page) {
 #' @param as Renderer.
 #' @param which Which device (ID).
 #'
-#' @return Rendered plot. Text renderers return strings, binary renderers 
+#' @return Rendered plot. Text renderers return strings, binary renderers
 #'   return byte arrays.
 #'
 #' @importFrom grDevices dev.cur
@@ -251,7 +256,7 @@ ugd_render <- function(page = 0,
                      as = "svg",
                      which = dev.cur()) {
   stop_if_not_unigd_device(which)
-  page <- page_id_to_index(page)
+  page <- page_id_to_index(page, which)
   unigd_render_(which, page - 1, width, height, zoom, as)
 }
 
@@ -271,7 +276,7 @@ ugd_render <- function(page = 0,
 #'   will be selected.
 #' @param zoom Zoom level. (For example: `2` corresponds to 200%, `0.5` would
 #'   be 50%.)
-#' @param as Renderer. When set to `"auto"` renderer is inferred from the file 
+#' @param as Renderer. When set to `"auto"` renderer is inferred from the file
 #'   extension.
 #' @param which Which device (ID).
 #'
@@ -298,7 +303,7 @@ ugd_save <- function(file,
                      as = "auto",
                      which = dev.cur()) {
   stop_if_not_unigd_device(which)
-  page <- page_id_to_index(page)
+  page <- page_id_to_index(page, which)
   if (as == "auto") {
     as <- tolower(tools::file_ext(file))
     if (!(as %in% ugd_renderers()$id)) {
@@ -430,7 +435,7 @@ ugd_close <- function(which = dev.cur(), all = FALSE) {
 #' @param as Renderer.
 #' @param ... Additional parameters passed to `ugd(...)`
 #'
-#' @return Rendered plot. Text renderers return strings, binary renderers 
+#' @return Rendered plot. Text renderers return strings, binary renderers
 #'   return byte arrays.
 #' @export
 #'
