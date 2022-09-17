@@ -38,6 +38,12 @@
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="articles/a00_installation.html">Installation</a>
+  </div>
+</li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="search.json" id="search-input" placeholder="Search for" autocomplete="off">
@@ -62,37 +68,64 @@
 <code>unigd</code><a class="anchor" aria-label="anchor" href="#unigd"></a>
 </h1></div>
 <!-- badges: start -->
-<p>A unified R graphics backend. Render R graphics fast and easy to any file format.</p>
+<p>A unified R graphics backend. Render R graphics fast and easy to many common file formats.</p>
 <p>This package provides a thread-safe interface to power interactive graphics clients such as <a href="https://github.com/nx10/httpgd" class="external-link"><code>httpgd</code></a>.</p>
 <div class="section level2">
-<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+<h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nx10/unigd" class="external-link">unigd</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/ugd.html">ugd</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Start a unigd device</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fl">1</span>, main<span class="op">=</span><span class="st">"Anything"</span><span class="op">)</span> <span class="co"># Plot something</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/ugd_save.html">ugd_save</a></span><span class="op">(</span><span class="st">"my_plot.svg"</span><span class="op">)</span> <span class="co"># Save a SVG...</span></span>
-<span><span class="fu"><a href="reference/ugd_save.html">ugd_save</a></span><span class="op">(</span><span class="st">"my_plot.png"</span><span class="op">)</span> <span class="co"># ...and a PNG.</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="reference/ugd_render.html">ugd_render</a></span><span class="op">(</span>as<span class="op">=</span><span class="st">"svg"</span><span class="op">)</span><span class="op">)</span> <span class="co"># Or print the SVG (without ever creating a file)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Close the device</span></span></code></pre></div>
-<p>Helper functions make your code concise:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/ugd_save_inline.html">ugd_save_inline</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fl">1</span>, main<span class="op">=</span><span class="st">"Anything"</span><span class="op">)</span></span>
-<span><span class="op">}</span>, <span class="st">"my_plot.png"</span><span class="op">)</span></span></code></pre></div>
+<ul>
+<li>Fast plotting</li>
+<li>Plot resizing and history</li>
+<li>Render to various image formats (SVG, PNG, PDF, EPS, …)</li>
+<li>In-memory access to rendered graphics</li>
+<li>Platform independent</li>
+<li>Stateless thread-safe C client API for package developers</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of unigd from GitHub with:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p>You can install the development version of <code>unigd</code> from GitHub with:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"nx10/unigd"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+</h2>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nx10/unigd" class="external-link">unigd</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/ugd.html">ugd</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Start a unigd device</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fl">1</span>, main <span class="op">=</span> <span class="st">"Anything"</span><span class="op">)</span> <span class="co"># Plot something</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/ugd_save.html">ugd_save</a></span><span class="op">(</span><span class="st">"my_plot.svg"</span><span class="op">)</span> <span class="co"># Save a SVG...</span></span>
+<span><span class="fu"><a href="reference/ugd_save.html">ugd_save</a></span><span class="op">(</span><span class="st">"my_plot.png"</span><span class="op">)</span> <span class="co"># ...and a PNG.</span></span>
+<span></span>
+<span><span class="va">my_svg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ugd_render.html">ugd_render</a></span><span class="op">(</span>as <span class="op">=</span> <span class="st">"svg"</span><span class="op">)</span> <span class="co"># Or render the SVG...</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">my_svg</span><span class="op">)</span> <span class="co"># ...without ever creating a file.</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Close the device</span></span></code></pre></div>
+<p>Alternatively let the <code>ugd_*_inline()</code> helper functions can handle starting and closing of the device:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/ugd_save_inline.html">ugd_save_inline</a></span><span class="op">(</span><span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fl">1</span>, main <span class="op">=</span> <span class="st">"Anything"</span><span class="op">)</span></span>
+<span><span class="op">}</span>, file <span class="op">=</span> <span class="st">"my_plot.png"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="contributions-welcome">Contributions welcome!<a class="anchor" aria-label="anchor" href="#contributions-welcome"></a>
+</h2>
+<p><code>unigd</code> is mostly written in C++, but contributions to the tests (in R) or the documentatation are also always welcome!</p>
+</div>
+<div class="section level2">
+<h2 id="about--license">About &amp; License<a class="anchor" aria-label="anchor" href="#about--license"></a>
+</h2>
+<p>Depends on <code>cpp11</code> and <code>systemfonts</code>.</p>
+<p>Much of the font handling and SVG rendering code is modified code from the excellent <a href="https://github.com/r-lib/svglite" class="external-link"><code>svglite</code></a> package.</p>
+<p>This project is licensed GPL v2.0.</p>
+<p>It includes parts of <a href="https://github.com/r-lib/svglite" class="external-link"><code>svglite</code></a> (GPL ≥ 2) and <a href="https://github.com/fmtlib/fmt" class="external-link"><code>fmt</code></a> (MIT).</p>
+<p>Full copies of the license agreements used by these components are included in <a href="https://github.com/nx10/unigd/tree/master/inst/licenses" class="external-link"><code>./inst/licenses</code></a>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
