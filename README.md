@@ -27,6 +27,8 @@ You can install the development version of `unigd` from GitHub with:
 remotes::install_github("nx10/unigd")
 ```
 
+See [system requirements](https://nx10.github.io/unigd/articles/a00_installation.html#system-requirements) for troubleshooting.
+
 ## Quick start
 
 ```R
@@ -45,7 +47,7 @@ cat(my_svg) # ...without ever creating a file.
 dev.off() # Close the device
 ```
 
-Alternatively let the `ugd_*_inline()` helper functions can handle starting and closing of the device:
+Alternatively let the `ugd_*_inline()` helper functions handle starting and closing of the device:
 
 ```R
 ugd_save_inline({
