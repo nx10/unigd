@@ -1,4 +1,5 @@
-# `unigd`
+# `unigd` <img src="man/figures/logo.png" align="right" width="25%"/>
+
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/nx10/unigd/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nx10/unigd/actions/workflows/R-CMD-check.yaml)
