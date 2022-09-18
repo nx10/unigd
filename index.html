@@ -105,28 +105,9 @@
 <p>See <a href="https://nx10.github.io/unigd/articles/a00_installation.html#system-requirements">system requirements</a> for troubleshooting.</p>
 </div>
 <div class="section level2">
-<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+<h2 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nx10/unigd" class="external-link">unigd</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/ugd.html">ugd</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Start a unigd device</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fl">1</span>, main <span class="op">=</span> <span class="st">"Anything"</span><span class="op">)</span> <span class="co"># Plot something</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/ugd_save.html">ugd_save</a></span><span class="op">(</span><span class="st">"my_plot.svg"</span><span class="op">)</span> <span class="co"># Save a SVG...</span></span>
-<span><span class="fu"><a href="reference/ugd_save.html">ugd_save</a></span><span class="op">(</span><span class="st">"my_plot.png"</span><span class="op">)</span> <span class="co"># ...and a PNG.</span></span>
-<span></span>
-<span><span class="va">my_svg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ugd_render.html">ugd_render</a></span><span class="op">(</span>as <span class="op">=</span> <span class="st">"svg"</span><span class="op">)</span> <span class="co"># Or render the SVG...</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">my_svg</span><span class="op">)</span> <span class="co"># ...without ever creating a file.</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Close the device</span></span></code></pre></div>
-<p>Alternatively let the <code>ugd_*_inline()</code> helper functions handle starting and closing of the device:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/ugd_save_inline.html">ugd_save_inline</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fl">1</span>, main <span class="op">=</span> <span class="st">"Anything"</span><span class="op">)</span></span>
-<span><span class="op">}</span>, file <span class="op">=</span> <span class="st">"my_plot.png"</span><span class="op">)</span></span></code></pre></div>
-<p>See <a href="https://nx10.github.io/unigd/articles/b00_guide.html">the startup guide</a> for more details.</p>
+<p>See <a href="https://nx10.github.io/unigd/articles/b00_guide.html">the guide</a> for more details.</p>
 </div>
 <div class="section level2">
 <h2 id="contributions-welcome">Contributions welcome!<a class="anchor" aria-label="anchor" href="#contributions-welcome"></a>
