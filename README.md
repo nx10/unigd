@@ -30,33 +30,9 @@ remotes::install_github("nx10/unigd")
 
 See [system requirements](https://nx10.github.io/unigd/articles/a00_installation.html#system-requirements) for troubleshooting.
 
-## Quick start
+## Getting started
 
-```R
-library(unigd)
-
-ugd() # Start a unigd device
-
-plot(1, main = "Anything") # Plot something
-
-ugd_save("my_plot.svg") # Save a SVG...
-ugd_save("my_plot.png") # ...and a PNG.
-
-my_svg <- ugd_render(as = "svg") # Or render the SVG...
-cat(my_svg) # ...without ever creating a file.
-
-dev.off() # Close the device
-```
-
-Alternatively let the `ugd_*_inline()` helper functions handle starting and closing of the device:
-
-```R
-ugd_save_inline({
-    plot(1, main = "Anything")
-}, file = "my_plot.png")
-```
-
-See [the startup guide](https://nx10.github.io/unigd/articles/b00_guide.html) for more details.
+See [the guide](https://nx10.github.io/unigd/articles/b00_guide.html) for more details.
 
 ## Contributions welcome!
 
