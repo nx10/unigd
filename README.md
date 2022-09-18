@@ -56,6 +56,7 @@ ugd_save_inline({
 }, file = "my_plot.png")
 ```
 
+See [the startup guide](https://nx10.github.io/unigd/articles/b00_guide.html) for more details.
 
 ## Contributions welcome!
 
