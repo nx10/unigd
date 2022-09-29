@@ -4,6 +4,7 @@
 
 #include "unigd_external.h"
 #include "unigd_dev.h"
+#include "unigd_version.h"
 
 namespace unigd
 {
@@ -26,6 +27,11 @@ namespace unigd
             std::string msg(t_message);
             async::r_thread([=]()
                             { Rprintf("unigd client: %s\n", msg.c_str()); });
+        }
+
+        const char *api_info()
+        {
+            return "unigd " UNIGD_VERSION;
         }
 
         UNIGD_CLIENT_ID api_register_client_id()
@@ -161,6 +167,7 @@ namespace unigd
             auto api = new unigd_api_v1();
 
             api->log = api_log;
+            api->info = api_info;
 
             api->register_client_id = api_register_client_id;
 

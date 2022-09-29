@@ -81,6 +81,9 @@ extern "C"
         // Send a log message to R (thread safe).
         void (*log)(const char *t_message);
 
+        // Info about unigd installation.
+        const char *(*info)();
+
         // DEVICE
         
         // Get a new unused client ID.

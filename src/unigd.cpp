@@ -90,8 +90,7 @@ cpp11::list unigd_info_(int devnum)
     using namespace cpp11::literals;
     return cpp11::writable::list{
         "version"_nm = cpp11::writable::list{
-        "unigd"_nm = UNIGD_VERSION,
-        "cairo"_nm = UNIGD_VERSION_CAIRO
+        "unigd"_nm = UNIGD_VERSION
         }
     };
 }
