@@ -528,7 +528,10 @@ void RendererCairoTiff::render(const Page &t_page, double t_scale)
   TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
   TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
 
-  TIFFSetField(tiff, TIFFTAG_COMPRESSION, COMPRESSION_DEFLATE);
+  // Used to be COMPRESSION_DEFLATE but:
+  // TIFFWriteDirectorySec: Warning, Creating TIFF with legacy Deflate codec identifier,
+  // COMPRESSION_ADOBE_DEFLATE is more widely supported.
+  TIFFSetField(tiff, TIFFTAG_COMPRESSION, COMPRESSION_ADOBE_DEFLATE);
   const uint16_t extras[] = {EXTRASAMPLE_ASSOCALPHA};
   TIFFSetField(tiff, TIFFTAG_EXTRASAMPLES, EXTRASAMPLE_ASSOCALPHA, extras);
   TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tiff, width * argb_size));
