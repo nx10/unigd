@@ -3,6 +3,8 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/nx10/unigd/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nx10/unigd/actions/workflows/R-CMD-check.yaml)
+[![CRAN](https://www.r-pkg.org/badges/version/unigd)](https://CRAN.R-project.org/package=unigd)
+![downloads](https://cranlogs.r-pkg.org/badges/grand-total/unigd)
 [![Codecov test coverage](https://codecov.io/gh/nx10/unigd/branch/master/graph/badge.svg)](https://app.codecov.io/gh/nx10/unigd?branch=master)
 <!-- badges: end -->
 
