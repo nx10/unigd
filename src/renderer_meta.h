@@ -1,24 +1,29 @@
-#ifndef RENDERER_META_H
-#define RENDERER_META_H
+#ifndef __UNIGD_RENDERER_META_H__
+#define __UNIGD_RENDERER_META_H__
 
-#include "renderers.h"
 #include <fmt/format.h>
 
-namespace unigd::renderers
-{
-    class RendererMeta : public render_target
-    {
-    public:
-        void render(const Page &t_page, double t_scale) override;
-        void get_data(const uint8_t **t_buf, size_t *t_size) const override;
+#include "renderers.h"
 
-        // Renderer
-        void page(const Page &t_page);
-    
-    private:
-        fmt::memory_buffer os;
-        double m_scale;
-    };
-    
-} // namespace unigd::renderers
-#endif // RENDERER_META_H
+namespace unigd
+{
+namespace renderers
+{
+class RendererMeta : public render_target
+{
+ public:
+  void render(const Page &t_page, double t_scale) override;
+  void get_data(const uint8_t **t_buf, size_t *t_size) const override;
+
+  // Renderer
+  void page(const Page &t_page);
+
+ private:
+  fmt::memory_buffer os;
+  double m_scale;
+};
+
+}  // namespace renderers
+}  // namespace unigd
+
+#endif /* __UNIGD_RENDERER_META_H__ */

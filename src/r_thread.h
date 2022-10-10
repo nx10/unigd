@@ -1,33 +1,31 @@
-#ifndef SERVICETHREAD_H
-#define SERVICETHREAD_H
+#ifndef __UNIGD_R_THREAD_H__
+#define __UNIGD_R_THREAD_H__
 
-#include <thread>
 #include <future>
+#include <thread>
 
 #include "async_utils.h"
 
 namespace unigd
 {
-    namespace async
-    {
-        void ipc_open();
-        void ipc_close();
+namespace async
+{
+void ipc_open();
+void ipc_close();
 
-        void r_thread_impl(function_wrapper &&f);
+void r_thread_impl(function_wrapper &&f);
 
-        template <typename FunctionType>
-        std::future<typename std::result_of<FunctionType()>::type>
-        r_thread(FunctionType f)
-        {
-            typedef typename std::result_of<FunctionType()>::type
-                result_type;
-            std::packaged_task<result_type()> task(std::move(f));
-            std::future<result_type> res(task.get_future());
-            r_thread_impl(std::move(task));
-            return res;
-        }
+template <typename FunctionType>
+std::future<typename std::result_of<FunctionType()>::type> r_thread(FunctionType f)
+{
+  typedef typename std::result_of<FunctionType()>::type result_type;
+  std::packaged_task<result_type()> task(std::move(f));
+  std::future<result_type> res(task.get_future());
+  r_thread_impl(std::move(task));
+  return res;
+}
 
-    } // namespace async
-} // namespace unigd
+}  // namespace async
+}  // namespace unigd
 
-#endif // SERVICETHREAD_H
+#endif /* __UNIGD_R_THREAD_H__ */

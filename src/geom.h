@@ -1,45 +1,40 @@
-#ifndef UNIGD_GEOM_H
-#define UNIGD_GEOM_H
+#ifndef __UNIGD_GEOM_H__
+#define __UNIGD_GEOM_H__
 
 #include <algorithm>
 #include <cmath>
 
-namespace unigd {
-    
-    using color_t = int;
+namespace unigd
+{
 
-    template <class T>
-    struct gvertex
-    {
-        T x, y;
-    };
-    
-    template <class T>
-    struct grect
-    {
-        T x, y, width, height;
-    };
+using color_t = int;
 
-    template <class T>
-    grect<T> normalize_rect(T x0, T y0, T x1, T y1)
-    {
-        return {
-            std::min(x0, x1),
-            std::min(y0, y1),
-            std::fabs(x0 - x1),
-            std::fabs(y0 - y1)
-        };
-    }
+template <class T>
+struct gvertex
+{
+  T x, y;
+};
 
-    template <class T>
-    bool rect_equals(const grect<T> &r0, const grect<T> &r1, T eps)
-    {
-        return (std::fabs(r0.x - r1.x) < eps) &&
-               (std::fabs(r0.y - r1.y) < eps) &&
-               (std::fabs(r0.width - r1.width) < eps) &&
-               (std::fabs(r0.height - r1.height) < eps);
-    }
+template <class T>
+struct grect
+{
+  T x, y, width, height;
+};
 
-} // namespace unigd
+template <class T>
+grect<T> normalize_rect(T x0, T y0, T x1, T y1)
+{
+  return {std::min(x0, x1), std::min(y0, y1), std::fabs(x0 - x1), std::fabs(y0 - y1)};
+}
 
-#endif
+template <class T>
+bool rect_equals(const grect<T> &r0, const grect<T> &r1, T eps)
+{
+  return (std::fabs(r0.x - r1.x) < eps) && (std::fabs(r0.y - r1.y) < eps) &&
+         (std::fabs(r0.width - r1.width) < eps) &&
+         (std::fabs(r0.height - r1.height) < eps);
+}
+
+}  // namespace unigd
+
+#endif /* __UNIGD_GEOM_H__ */
