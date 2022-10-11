@@ -12,3 +12,4 @@
 ^pkgdown$
 ^\.covrignore$
 ^.clang-format$
+^valgrind.dockerfile$
