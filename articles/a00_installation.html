@@ -96,28 +96,38 @@ install.packages("unigd")
 
 Or get the latest development version from GitHub:
 -->
-<p>You can install the development version of <code>unigd</code> from GitHub with:</p>
+<p>You can install the development version of <code>unigd</code> from
+GitHub with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"nx10/unigd"</span><span class="op">)</span></span></code></pre></div>
-<p>See <a href="#System-requirements">system requirements</a> for troubleshooting.</p>
+<p>See <a href="#System-requirements">system requirements</a> for
+troubleshooting.</p>
 <div class="section level2">
 <h2 id="system-requirements">System requirements<a class="anchor" aria-label="anchor" href="#system-requirements"></a>
 </h2>
-<p><code>libpng</code> and X11 are <strong>required</strong> on unix like systems (e.g. Linux, macOS). <code>Cairo</code> is optional on unix like systems to enable PNG, PDF, EPS and PS renderers. <code>libtiff</code> is required on unix like systems to enable TIFF renderers.</p>
+<p><code>libpng</code> and X11 are <strong>required</strong> on unix
+like systems (e.g. Linux, macOS). <code>Cairo</code> is optional on unix
+like systems to enable PNG, PDF, EPS and PS renderers.
+<code>libtiff</code> is required on unix like systems to enable TIFF
+renderers.</p>
 <div class="section level3">
 <h3 id="macos">macOS<a class="anchor" aria-label="anchor" href="#macos"></a>
 </h3>
 <p>If <code>libpng</code> is missing install it via:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install libpng</span></code></pre></div>
-<p>If <code>X11</code> is missing the error message will include the text:</p>
+<p>If <code>X11</code> is missing the error message will include the
+text:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">unable</span> to load shared object [...] systemfonts/libs/systemfonts.so [...]</span></code></pre></div>
-<p>Install <a href="https://www.xquartz.org/" class="external-link"><code>XQuartz</code></a>. (see: <a href="https://github.com/r-lib/systemfonts/issues/17" class="external-link uri">https://github.com/r-lib/systemfonts/issues/17</a>)</p>
+<p>Install <a href="https://www.xquartz.org/" class="external-link"><code>XQuartz</code></a>.
+(see: <a href="https://github.com/r-lib/systemfonts/issues/17" class="external-link uri">https://github.com/r-lib/systemfonts/issues/17</a>)</p>
 </div>
 <div class="section level3">
 <h3 id="linux">Linux<a class="anchor" aria-label="anchor" href="#linux"></a>
 </h3>
-<p>For source installation on Linux, the fontconfig freetype2 library is required to install the <a href="https://github.com/r-lib/systemfonts" class="external-link">systemfonts</a> package, which is a dependency of <code>unigd</code>.</p>
+<p>For source installation on Linux, the fontconfig freetype2 library is
+required to install the <a href="https://github.com/r-lib/systemfonts" class="external-link">systemfonts</a> package, which is a
+dependency of <code>unigd</code>.</p>
 <div class="section level4">
 <h4 id="debian-ubuntu-etc-">Debian, Ubuntu, etc.<a class="anchor" aria-label="anchor" href="#debian-ubuntu-etc-"></a>
 </h4>

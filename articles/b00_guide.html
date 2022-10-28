@@ -88,11 +88,15 @@
 
     
     
-<p>The following guide walks through the basic features of <code>unigd</code> and compares them with the plot rendering methods in base R.</p>
+<p>The following guide walks through the basic features of
+<code>unigd</code> and compares them with the plot rendering methods in
+base R.</p>
 <div class="section level2">
 <h2 id="plot-rendering-in-base-r">Plot rendering in base R<a class="anchor" aria-label="anchor" href="#plot-rendering-in-base-r"></a>
 </h2>
-<p>Rendering a plot in base R is done by (1) starting a graphics device, (2) calling some plot functions and subsequently (3) closing the device:</p>
+<p>Rendering a plot in base R is done by (1) starting a graphics device,
+(2) calling some plot functions and subsequently (3) closing the
+device:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">temp</span> <span class="op">&lt;-</span> <span class="va">airquality</span><span class="op">$</span><span class="va">Temp</span>                         <span class="co"># Fetch some data</span></span>
 <span></span>
@@ -101,28 +105,35 @@
 <span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span>                                       <span class="co"># (3) Close the device</span></span></code></pre></div>
 <p>Note that this has some unfortunate contstraints:</p>
 <ul>
-<li>Rendering information must be specified <em>before</em> the plot is created
+<li>Rendering information must be specified <em>before</em> the plot is
+created
 <ul>
-<li>File format (<code><a href="https://rdrr.io/r/grDevices/png.html" class="external-link">png()</a></code>, <code><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf()</a></code>, <code><a href="https://rdrr.io/r/grDevices/cairo.html" class="external-link">svg()</a></code>, …)</li>
+<li>File format (<code><a href="https://rdrr.io/r/grDevices/png.html" class="external-link">png()</a></code>, <code><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf()</a></code>,
+<code><a href="https://rdrr.io/r/grDevices/cairo.html" class="external-link">svg()</a></code>, …)</li>
 <li>Filepath (i.e.: <code>file="my_plot1.png"</code>)</li>
 <li>Dimensions (i.e.: <code>width=600, height=400</code>)</li>
 </ul>
 </li>
-<li>There is no way (without re-running the plotting code) to render the plot…
+<li>There is no way (without re-running the plotting code) to render the
+plot…
 <ul>
 <li>…in multiple formats.</li>
 <li>…in multiple dimensions.</li>
 </ul>
 </li>
-<li>No easy way to access the plotting data without writing to a file first.</li>
-<li>Closing the device with <code><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off()</a></code> must be called every time.</li>
+<li>No easy way to access the plotting data without writing to a file
+first.</li>
+<li>Closing the device with <code><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off()</a></code> must be called every
+time.</li>
 </ul>
-<p><code>unigd</code> solves these issues by employing a different graphics device architecture.</p>
+<p><code>unigd</code> solves these issues by employing a different
+graphics device architecture.</p>
 </div>
 <div class="section level2">
 <h2 id="plot-rendering-with-unigd">Plot rendering with <code>unigd</code><a class="anchor" aria-label="anchor" href="#plot-rendering-with-unigd"></a>
 </h2>
-<p>Let’s see how the same render can be created using <code>unigd</code>:</p>
+<p>Let’s see how the same render can be created using
+<code>unigd</code>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nx10/unigd" class="external-link">unigd</a></span><span class="op">)</span></span>
 <span><span class="va">temp</span> <span class="op">&lt;-</span> <span class="va">airquality</span><span class="op">$</span><span class="va">Temp</span>                              <span class="co"># Fetch some data</span></span>
@@ -131,14 +142,19 @@
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">temp</span>, col<span class="op">=</span><span class="st">"darkblue"</span><span class="op">)</span>                           <span class="co"># (2) Plot a histogram</span></span>
 <span><span class="fu"><a href="../reference/ugd_save.html">ugd_save</a></span><span class="op">(</span>file<span class="op">=</span><span class="st">"my_plot1.png"</span>, width<span class="op">=</span><span class="fl">600</span>, height<span class="op">=</span><span class="fl">400</span><span class="op">)</span> <span class="co"># Render 600*400 PNG file</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span>                                            <span class="co"># (3) Close the device</span></span></code></pre></div>
-<p>Notice how rendering is an explicit instruction <em>after</em> plotting when using unigd. This way we can also render the same plot to multiple formats and/or dimensions:</p>
+<p>Notice how rendering is an explicit instruction <em>after</em>
+plotting when using unigd. This way we can also render the same plot to
+multiple formats and/or dimensions:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ...</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">temp</span>, col<span class="op">=</span><span class="st">"darkblue"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/ugd_save.html">ugd_save</a></span><span class="op">(</span>file<span class="op">=</span><span class="st">"my_plot1.png"</span>, width<span class="op">=</span><span class="fl">600</span>, height<span class="op">=</span><span class="fl">400</span><span class="op">)</span> <span class="co"># Render 600*400 PNG file</span></span>
 <span><span class="fu"><a href="../reference/ugd_save.html">ugd_save</a></span><span class="op">(</span>file<span class="op">=</span><span class="st">"my_plot2.pdf"</span>, width<span class="op">=</span><span class="fl">300</span>, height<span class="op">=</span><span class="fl">300</span><span class="op">)</span> <span class="co"># Render 300*300 PDF file</span></span>
 <span><span class="co"># ...</span></span></code></pre></div>
-<p>Starting and closing a device can be cumbersome, especially if the plotting code aborts after an error and leaves the device open. For this reason <code>unigd</code> comes with a set of functions called <code>ugd_*_inline</code>:</p>
+<p>Starting and closing a device can be cumbersome, especially if the
+plotting code aborts after an error and leaves the device open. For this
+reason <code>unigd</code> comes with a set of functions called
+<code>ugd_*_inline</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nx10/unigd" class="external-link">unigd</a></span><span class="op">)</span></span>
 <span><span class="va">temp</span> <span class="op">&lt;-</span> <span class="va">airquality</span><span class="op">$</span><span class="va">Temp</span> <span class="co"># Fetch some data</span></span>
@@ -146,15 +162,25 @@
 <span><span class="fu"><a href="../reference/ugd_save_inline.html">ugd_save_inline</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">temp</span>, col<span class="op">=</span><span class="st">"darkblue"</span><span class="op">)</span></span>
 <span><span class="op">}</span>, file<span class="op">=</span><span class="st">"my_plot1.png"</span>, width<span class="op">=</span><span class="fl">600</span>, height<span class="op">=</span><span class="fl">400</span><span class="op">)</span></span></code></pre></div>
-<p>Plotting this way keeps you from having to create and close a device manually. Depending on your personal preference this may also be considered as more ‘readable’ code.</p>
-<p>You can obtain the full list of included renderers with <code><a href="../reference/ugd_renderers.html">ugd_renderers()</a></code>. (It’s growing with every <code>unigd</code> update!)</p>
-<p>The next section will illustrate how to access the render data directly without having to create a file.</p>
+<p>Plotting this way keeps you from having to create and close a device
+manually. Depending on your personal preference this may also be
+considered as more ‘readable’ code.</p>
+<p>You can obtain the full list of included renderers with
+<code><a href="../reference/ugd_renderers.html">ugd_renderers()</a></code>. (It’s growing with every
+<code>unigd</code> update!)</p>
+<p>The next section will illustrate how to access the render data
+directly without having to create a file.</p>
 </div>
 <div class="section level2">
 <h2 id="in-memory-render-access">In-memory render access<a class="anchor" aria-label="anchor" href="#in-memory-render-access"></a>
 </h2>
-<p>For some applications, you might want to access the rendered data directly. Example use-cases for this might be report generation, web services or interactive applications. While you can most likely think of work-arounds for this issue, this <code>unigd</code> feature will certainly lower code complexity and increase performance.</p>
-<p>Rendering in-memory is done by simply calling <code>ugd_save(...)</code> instead of <code>ugd_render(...)</code>:</p>
+<p>For some applications, you might want to access the rendered data
+directly. Example use-cases for this might be report generation, web
+services or interactive applications. While you can most likely think of
+work-arounds for this issue, this <code>unigd</code> feature will
+certainly lower code complexity and increase performance.</p>
+<p>Rendering in-memory is done by simply calling
+<code>ugd_save(...)</code> instead of <code>ugd_render(...)</code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">temp</span> <span class="op">&lt;-</span> <span class="va">airquality</span><span class="op">$</span><span class="va">Temp</span></span>
 <span></span>
@@ -177,11 +203,17 @@
 <div class="section level2">
 <h2 id="more-unigd-features">More <code>unigd</code> features<a class="anchor" aria-label="anchor" href="#more-unigd-features"></a>
 </h2>
-<p><code>unigd</code> offers a number of features which go beyond the base R graphics devices.</p>
+<p><code>unigd</code> offers a number of features which go beyond the
+base R graphics devices.</p>
 <div class="section level3">
 <h3 id="zoom">Zoom<a class="anchor" aria-label="anchor" href="#zoom"></a>
 </h3>
-<p>All rendering function in <code>unigd</code> offer a <code>zoom</code> parameter. This parameter can be used to increase (or decrease) the size of objects inside a plot (independently of plot dimensions). For example <code>zoom=2</code> will increase the size of all objects to 200%, <code>zoom=0.5</code> will decrease them to 50%.</p>
+<p>All rendering function in <code>unigd</code> offer a
+<code>zoom</code> parameter. This parameter can be used to increase (or
+decrease) the size of objects inside a plot (independently of plot
+dimensions). For example <code>zoom=2</code> will increase the size of
+all objects to 200%, <code>zoom=0.5</code> will decrease them to
+50%.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_svg_1_0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ugd_render_inline.html">ugd_render_inline</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">temp</span>, col<span class="op">=</span><span class="st">"darkblue"</span>, main <span class="op">=</span> <span class="st">"Zoom 1.0"</span><span class="op">)</span></span>
@@ -202,7 +234,11 @@
 <div class="section level3">
 <h3 id="paging-by-index">Paging (by index)<a class="anchor" aria-label="anchor" href="#paging-by-index"></a>
 </h3>
-<p>The <code>page</code> parameter lets you select which plot should from the history should be rendered. By default this is set to <code>0</code> which will use the last created plot. Set this to any number ≥ 1 to select a plot by it’s index (oldest first). Use numbers ≤ 0 to select plots newest-first:</p>
+<p>The <code>page</code> parameter lets you select which plot should
+from the history should be rendered. By default this is set to
+<code>0</code> which will use the last created plot. Set this to any
+number ≥ 1 to select a plot by it’s index (oldest first). Use numbers ≤
+0 to select plots newest-first:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ugd.html">ugd</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> <span class="op">{</span></span>
@@ -221,13 +257,17 @@
 <span><span class="fu"><a href="../reference/ugd_remove.html">ugd_remove</a></span><span class="op">(</span>page <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="co"># Remove second-to-last</span></span>
 <span><span class="fu"><a href="../reference/ugd_clear.html">ugd_clear</a></span><span class="op">(</span><span class="op">)</span>           <span class="co"># Remove all</span></span>
 <span><span class="co"># ...</span></span></code></pre></div>
-<p>Instead of keeping track of the plot index, which might change when plots are added and removed, static plot IDs can be obtained.</p>
+<p>Instead of keeping track of the plot index, which might change when
+plots are added and removed, static plot IDs can be obtained.</p>
 </div>
 <div class="section level3">
 <h3 id="plot-ids">Plot IDs<a class="anchor" aria-label="anchor" href="#plot-ids"></a>
 </h3>
-<p>If you want to render a plot at a later point without having to keep track of its index, you can obtain its ID at any point after it’s creation.</p>
-<p>The following example extensively demonstrates how this can be used:</p>
+<p>If you want to render a plot at a later point without having to keep
+track of its index, you can obtain its ID at any point after it’s
+creation.</p>
+<p>The following example extensively demonstrates how this can be
+used:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ugd.html">ugd</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -252,12 +292,16 @@
 <span><span class="fu"><a href="../reference/ugd_save.html">ugd_save</a></span><span class="op">(</span>file<span class="op">=</span><span class="st">"plot_3.png"</span>, page <span class="op">=</span> <span class="va">first_again</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span> </span></code></pre></div>
-<p>Note that a typical use-case would be much simpler, and just be getting the last ID after each plot by calling <code><a href="../reference/ugd_id.html">ugd_id()</a></code> subsequently.</p>
+<p>Note that a typical use-case would be much simpler, and just be
+getting the last ID after each plot by calling <code><a href="../reference/ugd_id.html">ugd_id()</a></code>
+subsequently.</p>
 </div>
 <div class="section level3">
 <h3 id="special-renderers">(Special) renderers<a class="anchor" aria-label="anchor" href="#special-renderers"></a>
 </h3>
-<p><code>unigd</code> also ships with a number of ‘special’ renderers. This guide will not go into too much detail about this topic but here are some noteworthy mentions:</p>
+<p><code>unigd</code> also ships with a number of ‘special’ renderers.
+This guide will not go into too much detail about this topic but here
+are some noteworthy mentions:</p>
 <ul>
 <li>
 <code>"strings"</code>-renderer
@@ -271,7 +315,8 @@
 <code>"meta"</code>-renderer
 <ul>
 <li>Meta information about the plot</li>
-<li>Guaranteed to have a render time of O(1) regardless of number of objects</li>
+<li>Guaranteed to have a render time of O(1) regardless of number of
+objects</li>
 <li>Includes complexity (number of draw calls and clipping planes)</li>
 <li>JSON format</li>
 </ul>
@@ -279,7 +324,8 @@
 <li>
 <code>"json"</code>-renderer
 <ul>
-<li>Contains <em>all</em> information <code>unigd</code> has about one plot</li>
+<li>Contains <em>all</em> information <code>unigd</code> has about one
+plot</li>
 <li>JSON format</li>
 </ul>
 </li>
@@ -289,17 +335,26 @@
 <div class="section level2">
 <h2 id="performance-considerations">Performance considerations<a class="anchor" aria-label="anchor" href="#performance-considerations"></a>
 </h2>
-<p>While <code>unigd</code> aims to provide the best performance in any case, there are some considerations you can make when optimizing graphics rendering.</p>
+<p>While <code>unigd</code> aims to provide the best performance in any
+case, there are some considerations you can make when optimizing
+graphics rendering.</p>
 <blockquote>
-<p>At this point it should be mentioned that for most user applications readability should be prioritized over performance and, unless graphics rendering is bottlenecking your R script, you can most likely ignore this section in good conscience.</p>
+<p>At this point it should be mentioned that for most user applications
+readability should be prioritized over performance and, unless graphics
+rendering is bottlenecking your R script, you can most likely ignore
+this section in good conscience.</p>
 </blockquote>
-<p>When optimizing rendering code, it is fundamental to understand in what cases <code>unigd</code> needs to call into the R graphics engine to let a plot be re-drawn:</p>
-<p>Rendering is done after drawing. The last drawn dimensions of a plot are cached. We can derive a few simple rules from this:</p>
+<p>When optimizing rendering code, it is fundamental to understand in
+what cases <code>unigd</code> needs to call into the R graphics engine
+to let a plot be re-drawn:</p>
+<p>Rendering is done after drawing. The last drawn dimensions of a plot
+are cached. We can derive a few simple rules from this:</p>
 <ul>
 <li>Rendering the same plot in different formats: Fast.</li>
 <li>Rendering the same plot in different dimensions: Slow(er).</li>
 </ul>
-<p>This means ordering the rendering calls will result in faster execution:</p>
+<p>This means ordering the rendering calls will result in faster
+execution:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># SLOWER:</span></span>
 <span><span class="fu"><a href="../reference/ugd_save.html">ugd_save</a></span><span class="op">(</span>file<span class="op">=</span><span class="st">"my_plot1.png"</span>, width<span class="op">=</span><span class="fl">600</span>, height<span class="op">=</span><span class="fl">400</span><span class="op">)</span></span>
@@ -310,7 +365,9 @@
 <span><span class="fu"><a href="../reference/ugd_save.html">ugd_save</a></span><span class="op">(</span>file<span class="op">=</span><span class="st">"my_plot1.png"</span>, width<span class="op">=</span><span class="fl">600</span>, height<span class="op">=</span><span class="fl">400</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/ugd_save.html">ugd_save</a></span><span class="op">(</span>file<span class="op">=</span><span class="st">"my_plot3.pdf"</span>, width<span class="op">=</span><span class="fl">600</span>, height<span class="op">=</span><span class="fl">400</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/ugd_save.html">ugd_save</a></span><span class="op">(</span>file<span class="op">=</span><span class="st">"my_plot2.pdf"</span>, width<span class="op">=</span><span class="fl">300</span>, height<span class="op">=</span><span class="fl">300</span><span class="op">)</span> <span class="co"># re-draw 1</span></span></code></pre></div>
-<p>And, while <code>unigd</code> gives you the <em>choice</em> of specifying your render dimension <em>after</em> plotting, you can hint them at device creation time to achieve the best performance:</p>
+<p>And, while <code>unigd</code> gives you the <em>choice</em> of
+specifying your render dimension <em>after</em> plotting, you can hint
+them at device creation time to achieve the best performance:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># SLOWER:</span></span>
 <span><span class="fu"><a href="../reference/ugd.html">ugd</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># default dimensions: 720 * 576</span></span>
@@ -321,11 +378,15 @@
 <span><span class="fu"><a href="../reference/ugd.html">ugd</a></span><span class="op">(</span>width<span class="op">=</span><span class="fl">300</span>, height<span class="op">=</span><span class="fl">300</span><span class="op">)</span></span>
 <span><span class="co"># ...</span></span>
 <span><span class="fu"><a href="../reference/ugd_save.html">ugd_save</a></span><span class="op">(</span>file<span class="op">=</span><span class="st">"my_plot1.png"</span>, width<span class="op">=</span><span class="fl">300</span>, height<span class="op">=</span><span class="fl">300</span><span class="op">)</span></span></code></pre></div>
-<p>If the dimensions are omitted when calling rendering functions, the last known dimensions will be used and rendering is guaranteed to be fast:</p>
+<p>If the dimensions are omitted when calling rendering functions, the
+last known dimensions will be used and rendering is guaranteed to be
+fast:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ugd_save.html">ugd_save</a></span><span class="op">(</span>file<span class="op">=</span><span class="st">"my_plot1.png"</span><span class="op">)</span></span></code></pre></div>
-<p>Any use of <code>ugd_*_inline</code> functions is also guaranteed to be fast.</p>
-<p>Note that width and height also interact with the <code>zoom</code> parameter. (i.e.: Cached width = width / zoom).</p>
+<p>Any use of <code>ugd_*_inline</code> functions is also guaranteed to
+be fast.</p>
+<p>Note that width and height also interact with the <code>zoom</code>
+parameter. (i.e.: Cached width = width / zoom).</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
