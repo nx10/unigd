@@ -23,7 +23,7 @@ inline std::size_t HttpgdDataStore::m_index_to_pos(ex::plot_relative_t t_index)
 std::experimental::optional<ex::plot_relative_t> HttpgdDataStore::normalize_index(
     ex::plot_relative_t t_index)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::shared_lock<std::shared_timed_mutex> r_lock(m_store_mutex, std::defer_lock);
   if (!m_valid_index(t_index))
   {
     return std::experimental::nullopt;
@@ -33,7 +33,7 @@ std::experimental::optional<ex::plot_relative_t> HttpgdDataStore::normalize_inde
 
 ex::plot_index_t HttpgdDataStore::append(gvertex<double> t_size)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
   m_pages.emplace_back(m_id_counter, t_size);
 
   m_id_counter = incwrap(m_id_counter);
@@ -43,7 +43,7 @@ ex::plot_index_t HttpgdDataStore::append(gvertex<double> t_size)
 void HttpgdDataStore::add_dc(ex::plot_relative_t t_index,
                              std::shared_ptr<renderers::DrawCall> t_dc, bool t_silent)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
   if (!m_valid_index(t_index))
   {
     return;
@@ -60,7 +60,7 @@ void HttpgdDataStore::add_dc(
     ex::plot_relative_t t_index,
     const std::vector<std::shared_ptr<renderers::DrawCall>> &t_dcs, bool t_silent)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
   if (!m_valid_index(t_index))
   {
     return;
@@ -75,7 +75,7 @@ void HttpgdDataStore::add_dc(
 }
 void HttpgdDataStore::clear(ex::plot_relative_t t_index, bool t_silent)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
   if (!m_valid_index(t_index))
   {
     return;
@@ -89,7 +89,7 @@ void HttpgdDataStore::clear(ex::plot_relative_t t_index, bool t_silent)
 }
 bool HttpgdDataStore::remove(ex::plot_relative_t t_index, bool t_silent)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
 
   if (!m_valid_index(t_index))
   {
@@ -106,7 +106,7 @@ bool HttpgdDataStore::remove(ex::plot_relative_t t_index, bool t_silent)
 }
 bool HttpgdDataStore::remove_all()
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
 
   if (m_pages.empty())
   {
@@ -122,7 +122,7 @@ bool HttpgdDataStore::remove_all()
 }
 void HttpgdDataStore::fill(ex::plot_relative_t t_index, color_t t_fill)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
   if (!m_valid_index(t_index))
   {
     return;
@@ -132,7 +132,7 @@ void HttpgdDataStore::fill(ex::plot_relative_t t_index, color_t t_fill)
 }
 void HttpgdDataStore::resize(ex::plot_relative_t t_index, gvertex<double> t_size)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
   if (!m_valid_index(t_index))
   {
     return;
@@ -143,7 +143,7 @@ void HttpgdDataStore::resize(ex::plot_relative_t t_index, gvertex<double> t_size
 }
 unigd::gvertex<double> HttpgdDataStore::size(ex::plot_relative_t t_index)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::shared_lock<std::shared_timed_mutex> r_lock(m_store_mutex, std::defer_lock);
   if (!m_valid_index(t_index))
   {
     return {10, 10};
@@ -153,7 +153,7 @@ unigd::gvertex<double> HttpgdDataStore::size(ex::plot_relative_t t_index)
 }
 void HttpgdDataStore::clip(ex::plot_relative_t t_index, grect<double> t_rect)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
   if (!m_valid_index(t_index))
   {
     return;
@@ -165,7 +165,7 @@ void HttpgdDataStore::clip(ex::plot_relative_t t_index, grect<double> t_rect)
 bool HttpgdDataStore::render(ex::plot_relative_t t_index,
                              renderers::render_target *t_renderer, double t_scale)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
   if (!m_valid_index(t_index))
   {
     return false;
@@ -179,7 +179,7 @@ bool HttpgdDataStore::render_if_size(ex::plot_relative_t t_index,
                                      renderers::render_target *t_renderer, double t_scale,
                                      gvertex<double> t_target_size)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::shared_lock<std::shared_timed_mutex> r_lock(m_store_mutex, std::defer_lock);
   if (!m_valid_index(t_index))
   {
     return false;
@@ -212,7 +212,7 @@ bool HttpgdDataStore::render_if_size(ex::plot_relative_t t_index,
 std::experimental::optional<ex::plot_index_t> HttpgdDataStore::find_index(
     ex::plot_id_t t_id)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::shared_lock<std::shared_timed_mutex> r_lock(m_store_mutex, std::defer_lock);
   for (std::size_t i = 0; i != m_pages.size(); i++)
   {
     if (m_pages[i].id == t_id)
@@ -226,20 +226,20 @@ std::experimental::optional<ex::plot_index_t> HttpgdDataStore::find_index(
 void HttpgdDataStore::m_inc_upid() { m_upid = incwrap(m_upid); }
 unigd_device_state HttpgdDataStore::state()
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::shared_lock<std::shared_timed_mutex> r_lock(m_store_mutex, std::defer_lock);
   return {m_upid, static_cast<ex::plot_index_t>(m_pages.size()), m_device_active};
 }
 
 void HttpgdDataStore::set_device_active(bool t_active)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
   m_device_active = t_active;
 }
 
 ex::find_results HttpgdDataStore::query(ex::plot_relative_t t_offset,
                                         ex::plot_id_t t_limit)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::shared_lock<std::shared_timed_mutex> r_lock(m_store_mutex, std::defer_lock);
 
   if (!m_valid_index(t_offset))
   {
@@ -262,7 +262,7 @@ ex::find_results HttpgdDataStore::query(ex::plot_relative_t t_offset,
 
 void HttpgdDataStore::extra_css(std::experimental::optional<std::string> t_extra_css)
 {
-  const std::lock_guard<std::mutex> lock(m_store_mutex);
+  const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
   m_extra_css = t_extra_css;
 }
 

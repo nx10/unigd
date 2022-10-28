@@ -7,6 +7,7 @@
 #include <compat/optional.hpp>
 #include <functional>
 #include <mutex>
+#include <shared_mutex>
 #include <string>
 #include <vector>
 
@@ -51,7 +52,7 @@ class HttpgdDataStore
   void extra_css(std::experimental::optional<std::string> t_extra_css);
 
  private:
-  std::mutex m_store_mutex;
+  std::shared_timed_mutex m_store_mutex;
 
   ex::plot_id_t m_id_counter = 0;
   std::vector<renderers::Page> m_pages;
