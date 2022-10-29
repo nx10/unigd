@@ -255,10 +255,10 @@ class Page
   Page(const Page &) = delete;
   Page &operator=(Page &) = delete;
   Page &operator=(const Page &) = delete;
-  
+
   Page(Page &&) = default;
   Page &operator=(Page &&) = default;
-  
+
   void put(std::unique_ptr<DrawCall> &&t_dc);
   void put(std::vector<std::unique_ptr<DrawCall>> &&t_dcs);
   void clear();

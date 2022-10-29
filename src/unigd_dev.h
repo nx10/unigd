@@ -8,9 +8,9 @@
 #include <mutex>
 
 #include "generic_dev.h"
+#include "page_store.h"
 #include "plot_history.h"
 #include "unigd_commons.h"
-#include "unigd_data_store.h"
 #include "unigd_external.h"
 
 namespace unigd
@@ -47,13 +47,13 @@ class unigd_device : public generic_dev<unigd_device>
   // Font handling
   cpp11::list system_aliases;
   cpp11::list user_aliases;
-  
+
   unigd_device(const device_params &t_params);
 
   unigd_device(const unigd_device &) = delete;
   unigd_device &operator=(unigd_device &) = delete;
   unigd_device &operator=(const unigd_device &) = delete;
-  
+
   unigd_device(unigd_device &&) = delete;
   unigd_device &operator=(unigd_device &&) = delete;
 
@@ -117,7 +117,7 @@ class unigd_device : public generic_dev<unigd_device>
 
  private:
   PlotHistory m_history;
-  std::shared_ptr<HttpgdDataStore> m_data_store;
+  std::shared_ptr<page_store> m_data_store;
 
   ex::graphics_client *m_client{nullptr};
   UNIGD_CLIENT_ID m_client_id = 0;

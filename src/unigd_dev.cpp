@@ -53,7 +53,7 @@ unigd_device::unigd_device(const device_params &t_params)
 {
   m_df_displaylist = true;
 
-  m_data_store = std::make_shared<HttpgdDataStore>();
+  m_data_store = std::make_shared<page_store>();
 
   m_reset_par = t_params.reset_par ? r_graphics_par_get() : cpp11::list();
 
@@ -136,7 +136,8 @@ void unigd_device::dev_mode(int mode, pDevDesc dd)
 
   // flush buffer
   m_data_store->add_dc(m_target.get_index(), std::move(m_dc_buffer), replaying);
-  m_dc_buffer = std::vector<std::unique_ptr<unigd::renderers::DrawCall>>(); // reinitialize
+  m_dc_buffer =
+      std::vector<std::unique_ptr<unigd::renderers::DrawCall>>();  // reinitialize
 
   if (m_client)
   {

@@ -1,5 +1,5 @@
-#ifndef __UNIGD_UNIGD_DATA_STORE_H__
-#define __UNIGD_UNIGD_DATA_STORE_H__
+#ifndef __UNIGD_PAGE_STORE_H__
+#define __UNIGD_PAGE_STORE_H__
 
 #include <stdint.h>
 
@@ -17,17 +17,17 @@
 
 namespace unigd
 {
-class HttpgdDataStore
+class page_store
 {
  public:
-  HttpgdDataStore() = default;
+  page_store() = default;
 
-  HttpgdDataStore(const HttpgdDataStore &) = delete;
-  HttpgdDataStore &operator=(HttpgdDataStore &) = delete;
-  HttpgdDataStore &operator=(const HttpgdDataStore &) = delete;
-  
-  HttpgdDataStore(HttpgdDataStore &&) = delete;
-  HttpgdDataStore &operator=(HttpgdDataStore &&) = delete;
+  page_store(const page_store &) = delete;
+  page_store &operator=(page_store &) = delete;
+  page_store &operator=(const page_store &) = delete;
+
+  page_store(page_store &&) = delete;
+  page_store &operator=(page_store &&) = delete;
 
   std::experimental::optional<ex::plot_index_t> find_index(ex::plot_id_t t_id);
   std::experimental::optional<ex::plot_relative_t> normalize_index(
@@ -77,4 +77,4 @@ class HttpgdDataStore
 
 }  // namespace unigd
 
-#endif /* __UNIGD_UNIGD_DATA_STORE_H__ */
+#endif /* __UNIGD_PAGE_STORE_H__ */
