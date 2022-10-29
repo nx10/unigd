@@ -1,5 +1,7 @@
 #include "draw_data.h"
 
+#include <iterator>
+
 namespace unigd
 {
 namespace renderers
@@ -58,22 +60,23 @@ void Path::visit(draw_call_visitor *t_visitor) const { t_visitor->visit(this); }
 
 void Raster::visit(draw_call_visitor *t_visitor) const { t_visitor->visit(this); }
 
-Page::Page(page_id_t t_id, gvertex<double> t_size) : id(t_id), size(t_size)
+Page::Page(page_id_t t_id, gvertex<double> t_size) : id(t_id), size(t_size), dcs(), cps()
 {
   clip({0, 0, size.x, size.y});
 }
-void Page::put(std::shared_ptr<DrawCall> t_dc)
+void Page::put(std::unique_ptr<DrawCall> &&t_dc)
 {
-  dcs.emplace_back(t_dc);
   t_dc->clip_id = cps.back().id;
+  dcs.emplace_back(std::move(t_dc));
 }
-void Page::put(const std::vector<std::shared_ptr<DrawCall>> t_dcs)
+void Page::put(std::vector<std::unique_ptr<DrawCall>> &&t_dcs)
 {
-  for (auto cp : t_dcs)
+  for (auto &cp : t_dcs)
   {
     cp->clip_id = cps.back().id;
   }
-  dcs.insert(dcs.end(), t_dcs.begin(), t_dcs.end());
+  dcs.insert(dcs.end(), std::make_move_iterator(t_dcs.begin()),
+             std::make_move_iterator(t_dcs.end()));
 }
 void Page::clear()
 {

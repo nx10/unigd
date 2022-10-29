@@ -47,8 +47,15 @@ class unigd_device : public generic_dev<unigd_device>
   // Font handling
   cpp11::list system_aliases;
   cpp11::list user_aliases;
-
+  
   unigd_device(const device_params &t_params);
+
+  unigd_device(const unigd_device &) = delete;
+  unigd_device &operator=(unigd_device &) = delete;
+  unigd_device &operator=(const unigd_device &) = delete;
+  
+  unigd_device(unigd_device &&) = delete;
+  unigd_device &operator=(unigd_device &&) = delete;
 
   bool attach_client(ex::graphics_client *t_client, UNIGD_CLIENT_ID t_client_id,
                      void *t_client_data);
@@ -121,7 +128,7 @@ class unigd_device : public generic_dev<unigd_device>
 
   bool m_initialized{false};
 
-  void put(std::shared_ptr<renderers::DrawCall> dc);
+  void put(std::unique_ptr<renderers::DrawCall> &&t_dc);
 
   // set device size
   void resize_device_to_page(pDevDesc dd);
@@ -129,7 +136,7 @@ class unigd_device : public generic_dev<unigd_device>
   // graphical parameters for reseting
   cpp11::list m_reset_par;
 
-  std::vector<std::shared_ptr<unigd::renderers::DrawCall>> m_dc_buffer{};
+  std::vector<std::unique_ptr<unigd::renderers::DrawCall>> m_dc_buffer{};
 };
 
 }  // namespace unigd

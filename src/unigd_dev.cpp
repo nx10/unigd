@@ -135,8 +135,8 @@ void unigd_device::dev_mode(int mode, pDevDesc dd)
   if (m_target.is_void() || mode == 1) return;
 
   // flush buffer
-  m_data_store->add_dc(m_target.get_index(), m_dc_buffer, replaying);
-  m_dc_buffer.clear();
+  m_data_store->add_dc(m_target.get_index(), std::move(m_dc_buffer), replaying);
+  m_dc_buffer = std::vector<std::unique_ptr<unigd::renderers::DrawCall>>(); // reinitialize
 
   if (m_client)
   {
@@ -279,7 +279,7 @@ inline color_t gc_fill(pGEcontext gc) { return gc->fill; }
 void unigd_device::dev_line(double x1, double y1, double x2, double y2, pGEcontext gc,
                             pDevDesc dd)
 {
-  put(std::make_shared<renderers::Line>(gc_lineinfo(gc), gvertex<double>{x1, y1},
+  put(std::make_unique<renderers::Line>(gc_lineinfo(gc), gvertex<double>{x1, y1},
                                         gvertex<double>{x2, y2}));
 }
 void unigd_device::dev_text(double x, double y, const char *str, double rot, double hadj,
@@ -302,7 +302,7 @@ void unigd_device::dev_text(double x, double y, const char *str, double rot, dou
     feature += (i == font_info.n_features - 1 ? ";" : ",");
   }
 
-  put(std::make_shared<renderers::Text>(
+  put(std::make_unique<renderers::Text>(
       gc->col, gvertex<double>{x, y}, str, rot, hadj,
       renderers::TextInfo{
           weight, feature,
@@ -312,12 +312,12 @@ void unigd_device::dev_text(double x, double y, const char *str, double rot, dou
 void unigd_device::dev_rect(double x0, double y0, double x1, double y1, pGEcontext gc,
                             pDevDesc dd)
 {
-  put(std::make_shared<renderers::Rect>(gc_lineinfo(gc), gc_fill(gc),
+  put(std::make_unique<renderers::Rect>(gc_lineinfo(gc), gc_fill(gc),
                                         normalize_rect(x0, y0, x1, y1)));
 }
 void unigd_device::dev_circle(double x, double y, double r, pGEcontext gc, pDevDesc dd)
 {
-  put(std::make_shared<renderers::Circle>(gc_lineinfo(gc), gc_fill(gc),
+  put(std::make_unique<renderers::Circle>(gc_lineinfo(gc), gc_fill(gc),
                                           gvertex<double>{x, y}, r));
 }
 void unigd_device::dev_polygon(int n, double *x, double *y, pGEcontext gc, pDevDesc dd)
@@ -327,7 +327,7 @@ void unigd_device::dev_polygon(int n, double *x, double *y, pGEcontext gc, pDevD
   {
     points[i] = {x[i], y[i]};
   }
-  put(std::make_shared<renderers::Polygon>(gc_lineinfo(gc), gc_fill(gc),
+  put(std::make_unique<renderers::Polygon>(gc_lineinfo(gc), gc_fill(gc),
                                            std::move(points)));
 }
 void unigd_device::dev_polyline(int n, double *x, double *y, pGEcontext gc, pDevDesc dd)
@@ -337,7 +337,7 @@ void unigd_device::dev_polyline(int n, double *x, double *y, pGEcontext gc, pDev
   {
     points[i] = {x[i], y[i]};
   }
-  put(std::make_shared<renderers::Polyline>(gc_lineinfo(gc), std::move(points)));
+  put(std::make_unique<renderers::Polyline>(gc_lineinfo(gc), std::move(points)));
 }
 void unigd_device::dev_path(double *x, double *y, int npoly, int *nper, Rboolean winding,
                             pGEcontext gc, pDevDesc dd)
@@ -354,7 +354,7 @@ void unigd_device::dev_path(double *x, double *y, int npoly, int *nper, Rboolean
     points[i] = {x[i], y[i]};
   }
 
-  put(std::make_shared<renderers::Path>(gc_lineinfo(gc), gc_fill(gc), std::move(points),
+  put(std::make_unique<renderers::Path>(gc_lineinfo(gc), gc_fill(gc), std::move(points),
                                         std::move(vnper), winding));
 }
 void unigd_device::dev_raster(unsigned int *raster, int w, int h, double x, double y,
@@ -365,19 +365,19 @@ void unigd_device::dev_raster(unsigned int *raster, int w, int h, double x, doub
   const double abs_width = std::fabs(width);
 
   std::vector<unsigned int> vraster(raster, raster + (w * h));
-  put(std::make_shared<renderers::Raster>(
+  put(std::make_unique<renderers::Raster>(
       std::move(vraster), gvertex<int>{w, h},
       grect<double>{x, y - abs_height, abs_width, abs_height}, rot, interpolate));
 }
 
 // OTHER
 
-void unigd_device::put(std::shared_ptr<renderers::DrawCall> dc)
+void unigd_device::put(std::unique_ptr<renderers::DrawCall> &&t_dc)
 {
   if (m_target.is_void()) return;
 
   // debug_println("DC put");
-  m_dc_buffer.emplace_back(dc);
+  m_dc_buffer.emplace_back(std::move(t_dc));
   // m_data_store->add_dc(m_target.get_index(), dc, replaying);
 }
 

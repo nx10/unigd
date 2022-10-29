@@ -251,8 +251,16 @@ class Page
 {
  public:
   Page(page_id_t t_id, gvertex<double> t_size);
-  void put(std::shared_ptr<DrawCall> t_dc);
-  void put(const std::vector<std::shared_ptr<DrawCall>> t_dcs);
+
+  Page(const Page &) = delete;
+  Page &operator=(Page &) = delete;
+  Page &operator=(const Page &) = delete;
+  
+  Page(Page &&) = default;
+  Page &operator=(Page &&) = default;
+  
+  void put(std::unique_ptr<DrawCall> &&t_dc);
+  void put(std::vector<std::unique_ptr<DrawCall>> &&t_dcs);
   void clear();
   void clip(grect<double> t_rect);
 
@@ -260,7 +268,7 @@ class Page
   gvertex<double> size;
   color_t fill;
 
-  std::vector<std::shared_ptr<DrawCall>> dcs;
+  std::vector<std::unique_ptr<DrawCall>> dcs;
   std::vector<Clip> cps;
 };
 

@@ -34,14 +34,14 @@ std::experimental::optional<ex::plot_relative_t> HttpgdDataStore::normalize_inde
 ex::plot_index_t HttpgdDataStore::append(gvertex<double> t_size)
 {
   const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
-  m_pages.emplace_back(m_id_counter, t_size);
+  m_pages.emplace_back(unigd::renderers::Page{m_id_counter, t_size});
 
   m_id_counter = incwrap(m_id_counter);
 
   return m_pages.size() - 1;
 }
 void HttpgdDataStore::add_dc(ex::plot_relative_t t_index,
-                             std::shared_ptr<renderers::DrawCall> t_dc, bool t_silent)
+                             std::unique_ptr<renderers::DrawCall> &&t_dc, bool t_silent)
 {
   const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
   if (!m_valid_index(t_index))
@@ -49,16 +49,16 @@ void HttpgdDataStore::add_dc(ex::plot_relative_t t_index,
     return;
   }
   auto index = m_index_to_pos(t_index);
-  m_pages[index].put(t_dc);
+  m_pages[index].put(std::move(t_dc));
   if (!t_silent)
   {
     m_inc_upid();
   }
 }
 
-void HttpgdDataStore::add_dc(
-    ex::plot_relative_t t_index,
-    const std::vector<std::shared_ptr<renderers::DrawCall>> &t_dcs, bool t_silent)
+void HttpgdDataStore::add_dc(ex::plot_relative_t t_index,
+                             std::vector<std::unique_ptr<renderers::DrawCall>> &&t_dcs,
+                             bool t_silent)
 {
   const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex, std::defer_lock);
   if (!m_valid_index(t_index))
@@ -67,7 +67,7 @@ void HttpgdDataStore::add_dc(
   }
   auto index = m_index_to_pos(t_index);
 
-  m_pages[index].put(t_dcs);
+  m_pages[index].put(std::move(t_dcs));
   if (!t_silent)
   {
     m_inc_upid();
@@ -97,7 +97,7 @@ bool HttpgdDataStore::remove(ex::plot_relative_t t_index, bool t_silent)
   }
   auto index = m_index_to_pos(t_index);
 
-  m_pages.erase(m_pages.begin() + index);
+  m_pages.erase(m_pages.begin() + index); 
   if (!t_silent)  // if it was the last page
   {
     m_inc_upid();
@@ -112,10 +112,10 @@ bool HttpgdDataStore::remove_all()
   {
     return false;
   }
-  for (auto p : m_pages)
+  /*for (auto &p : m_pages)
   {
     p.clear();
-  }
+  }*/
   m_pages.clear();
   m_inc_upid();
   return true;
