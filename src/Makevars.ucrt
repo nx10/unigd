@@ -5,7 +5,7 @@ PKG_CPPFLAGS = -Ilib \
 	-I$(R_TOOLS_SOFT)/include/cairo \
 	-I../inst/include
 
-PKG_LIBS = -lcairo -lpixman-1 -lfontconfig -lncrypt -lksecdd -lbcrypt -lexpat -lharfbuzz_too -lfreetype_too -lharfbuzz -lfreetype -lpng16 -lpng -lbz2 -lgdi32 -lintl -liconv -lz -lcfitsio -ltiff -ltiffxx -ljpeg -lzstd -lwebp -llzma
+PKG_LIBS = -lcairo -lpixman-1 -lfontconfig -lncrypt -lksecdd -lbcrypt -lexpat -lharfbuzz_too -lfreetype_too -lharfbuzz -lfreetype -lpng16 -lpng -lbz2 -lgdi32 -lintl -liconv -lz -lcfitsio -ltiff -ltiffxx -ljpeg -lzstd -lwebp -lsharpyuv -llzma
 
 all: clean 
 
