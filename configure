@@ -97,7 +97,7 @@ PKG_LIBTIFF_DEB_NAME="libtiff-dev"
 PKG_LIBTIFF_RPM_NAME="libtiff-devel"
 PKG_LIBTIFF_BREW_NAME="libtiff"
 PKG_LIBTIFF_TEST_HEADER="<tiffio.hxx>"
-PKG_LIBTIFF_LIBS="-ltiff -ljpeg -lz"
+PKG_LIBTIFF_LIBS="-ltiff -ljpeg"
 
 # Use pkg-config if available
 if [ $(command -v pkg-config) ]; then

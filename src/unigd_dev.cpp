@@ -18,10 +18,6 @@
 
 namespace unigd
 {
-static inline void r_graphics_par_set(cpp11::list t_par)
-{
-  (cpp11::package("graphics")["par"])(t_par);
-}
 static inline cpp11::list r_graphics_par_get()
 {
   using namespace cpp11::literals;

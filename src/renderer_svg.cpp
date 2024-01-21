@@ -467,21 +467,6 @@ static inline void att_fill_or_none(fmt::memory_buffer &os, color_t col)
   }
 }
 
-static inline void att_fill_or_omit(fmt::memory_buffer &os, color_t col)
-{
-  int alpha = color::alpha(col);
-  if (alpha != 0)
-  {
-    fmt::format_to(std::back_inserter(os), R""( fill="#{:02X}{:02X}{:02X}")"",
-                   color::red(col), color::green(col), color::blue(col));
-    if (alpha != color::byte_mask)
-    {
-      fmt::format_to(std::back_inserter(os), R""( fill-opacity="{:.2f}")"",
-                     color::byte_frac(alpha));
-    }
-  }
-}
-
 static inline void att_lineinfo(fmt::memory_buffer &os, const LineInfo &line)
 {
   // 1 lwd = 1/96", but units in rest of document are 1/72"
