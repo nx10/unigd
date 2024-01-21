@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   a00_installation: a00_installation.html
   b00_guide: b00_guide.html
-last_built: 2023-09-04T21:36Z
+last_built: 2024-01-21T21:32Z
 urls:
   reference: https://nx10.github.io/unigd/reference
   article: https://nx10.github.io/unigd/articles
