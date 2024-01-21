@@ -215,12 +215,17 @@ void RendererSVG::page(const Page &t_page)
         "\n",
         cp.id, cp.rect.x, cp.rect.y, cp.rect.width, cp.rect.height);
   }
-  fmt::format_to(std::back_inserter(os), "</defs>\n");
   fmt::format_to(
       std::back_inserter(os),
-      R""(<rect width="100%" height="100%" style="stroke: none;fill: #{:02X}{:02X}{:02X};"/>)""
-      "\n",
-      color::red(t_page.fill), color::green(t_page.fill), color::blue(t_page.fill));
+      "</defs>\n"
+      R""(<rect width="100%" height="100%" style="stroke: none;)"");
+
+  css_fill_or_none(os, t_page.fill);
+  
+  fmt::format_to(
+      std::back_inserter(os),
+      R""("/>)""
+      "\n");
 
   clip_id_t last_id = t_page.cps.front().id;
   fmt::format_to(std::back_inserter(os),
