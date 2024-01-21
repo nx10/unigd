@@ -2,10 +2,9 @@
 #'
 #' Universal graphics device
 #'
-#' @docType package
 #' @name unigd-package
 #' @useDynLib unigd, .registration=TRUE
-NULL
+"_PACKAGE"
 
 .onLoad <- function(libname, pkgname) {
   unigd_ipc_open_()

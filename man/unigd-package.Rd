@@ -2,8 +2,42 @@
 % Please edit documentation in R/unigd-package.R
 \docType{package}
 \name{unigd-package}
+\alias{unigd}
 \alias{unigd-package}
 \title{unigd: Universal graphics device}
 \description{
 Universal graphics device
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/nx10/unigd}
+  \item \url{https://nx10.github.io/unigd/}
+  \item Report bugs at \url{https://github.com/nx10/unigd/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Florian Rupprecht \email{floruppr@gmail.com} (\href{https://orcid.org/0000-0002-1795-8624}{ORCID})
+
+Other contributors:
+\itemize{
+  \item Kun Ren \email{mail@renkun.me} [contributor]
+  \item Jeroen Ooms \email{jeroen@berkeley.edu} (\href{https://orcid.org/0000-0002-4035-0289}{ORCID}) [contributor]
+  \item Hadley Wickham \email{hadley@rstudio.com} (Author of included svglite code) [copyright holder]
+  \item Lionel Henry \email{lionel@rstudio.com} (Author of included svglite code) [copyright holder]
+  \item Thomas Lin Pedersen \email{thomas.pedersen@rstudio.com} (Author and creator of included svglite code) [copyright holder]
+  \item T Jake Luciani \email{jake@apache.org} (Author of included svglite code) [copyright holder]
+  \item Matthieu Decorde \email{matthieu.decorde@ens-lyon.fr} (Author of included svglite code) [copyright holder]
+  \item Vaudor Lise \email{lise.vaudor@ens-lyon.fr} (Author of included svglite code) [copyright holder]
+  \item Tony Plate (Contributor to included svglite code) [copyright holder]
+  \item David Gohel (Contributor to included svglite code) [copyright holder]
+  \item Yixuan Qiu (Contributor to included svglite code) [copyright holder]
+  \item Håkon Malmedal (Contributor to included svglite code) [copyright holder]
+  \item RStudio (Copyright holder of included svglite code) [copyright holder]
+  \item Brett Robinson (Author of included belle library) [copyright holder]
+  \item Google (Copyright holder of included material design icons) [copyright holder]
+  \item Victor Zverovich (Author of included fmt library) [copyright holder]
+}
+
 }
