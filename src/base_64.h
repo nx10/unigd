@@ -1,6 +1,8 @@
 #ifndef __UNIGD_BASE_64_H__
 #define __UNIGD_BASE_64_H__
 
+#include <cstdint>
+
 #include "draw_data.h"
 
 namespace unigd
