@@ -91,7 +91,7 @@ Example use-cases for this might be report generation, web services or interacti
 While you can most likely think of work-arounds for this issue, this `unigd`
 feature will certainly lower code complexity and increase performance. 
 
-Rendering in-memory is done by simply calling `ugd_save(...)` instead of `ugd_render(...)`:
+Rendering in-memory is done by simply calling `ugd_render(...)` instead of `ugd_save(...)`:
 
 ```r
 temp <- airquality$Temp
