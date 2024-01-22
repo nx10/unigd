@@ -1,6 +1,6 @@
 Package: unigd
 Type: Package
-Title: Universal graphics device
+Title: Universal Graphics Device
 Version: 0.1.0.9000
 Authors@R: 
     c(
@@ -22,7 +22,7 @@ Authors@R:
       person("Google", role = "cph", comment = "Copyright holder of included material design icons"),
       person("Victor", "Zverovich", role = "cph", comment = "Author of included fmt library")
     )
-Description: Universal graphics device.
+Description: A unified R graphics backend. Render R graphics fast and easy to many common file formats.
 License: GPL (>= 2)
 Depends:
     R (>= 3.2.0)
