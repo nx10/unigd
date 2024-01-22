@@ -2,7 +2,7 @@
 % Please edit documentation in R/unigd.R
 \name{ugd}
 \alias{ugd}
-\title{Asynchronous HTTP server graphics device.}
+\title{A unified R graphics backend.}
 \usage{
 ugd(
   width = getOption("unigd.width", 720),
@@ -45,10 +45,7 @@ on device start and reset every time \code{\link[=ugd_clear]{ugd_clear()}} is ca
 No return value, called to initialize graphics device.
 }
 \description{
-This function initializes a unigd graphics device and
-starts a local webserver, that allows for access via HTTP and WebSockets.
-A link will be printed by which the web client can be accessed using
-a browser.
+This function initializes a unigd graphics device.
 }
 \details{
 All font settings and descriptions are adopted from the excellent

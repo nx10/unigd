@@ -1,11 +1,8 @@
 
 
-#' Asynchronous HTTP server graphics device.
+#' A unified R graphics backend.
 #'
-#' This function initializes a unigd graphics device and
-#' starts a local webserver, that allows for access via HTTP and WebSockets.
-#' A link will be printed by which the web client can be accessed using
-#' a browser.
+#' This function initializes a unigd graphics device.
 #'
 #' All font settings and descriptions are adopted from the excellent
 #' 'svglite' package.
