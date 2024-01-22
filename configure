@@ -96,7 +96,7 @@ PKG_LIBTIFF_CONFIG_NAME="libtiff-4"
 PKG_LIBTIFF_DEB_NAME="libtiff-dev"
 PKG_LIBTIFF_RPM_NAME="libtiff-devel"
 PKG_LIBTIFF_BREW_NAME="libtiff"
-PKG_LIBTIFF_TEST_HEADER="<tiffio.hxx>"
+PKG_LIBTIFF_TEST_FILE="src/sysdep_tests/sysdep_libtiff.cpp"
 PKG_LIBTIFF_LIBS="-ltiff -ljpeg"
 
 # Use pkg-config if available
@@ -114,8 +114,7 @@ CXXFLAGS=`${R_HOME}/bin/R CMD config CXXFLAGS`
 CPPFLAGS=`${R_HOME}/bin/R CMD config CPPFLAGS`
 
 # Test configuration
-echo "#include $PKG_LIBTIFF_TEST_HEADER" | ${CXX} -E ${CPPFLAGS} ${PKG_LIBTIFF_CFLAGS} ${CXXFLAGS} -xc++ - >/dev/null 2>&1
-
+${CXX} ${CPPFLAGS} ${PKG_LIBTIFF_CFLAGS} ${CFLAGS} ${PKG_LIBTIFF_TEST_FILE} -o tmp_libtiff_test >/dev/null 2>configure.log
 # Customize the error
 if [ $? -ne 0 ]; then
   echo "------------------------------[ WARNING ]---------------------------"
@@ -136,6 +135,8 @@ if [ $? -ne 0 ]; then
   PKG_LIBTIFF_CFLAGS="-DUNIGD_NO_TIFF"
   PKG_LIBTIFF_LIBS=""
 fi
+# remove test file
+rm -f tmp_libtiff_test
 
 # Write to Makevars
 sed -e "s|@cflags@|$PKG_CFLAGS $PKG_LIBTIFF_CFLAGS|" -e "s|@libs@|$PKG_LIBS $PKG_LIBTIFF_LIBS|" src/Makevars.in > src/Makevars
