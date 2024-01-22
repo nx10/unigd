@@ -103,7 +103,7 @@ device:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/grDevices/png.html" class="external-link">png</a></span><span class="op">(</span>file<span class="op">=</span><span class="st">"my_plot1.png"</span>, width<span class="op">=</span><span class="fl">600</span>, height<span class="op">=</span><span class="fl">400</span><span class="op">)</span> <span class="co"># (1) Start the 'png' device</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">temp</span>, col<span class="op">=</span><span class="st">"darkblue"</span><span class="op">)</span>                      <span class="co"># (2) Plot a histogram</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span>                                       <span class="co"># (3) Close the device</span></span></code></pre></div>
-<p>Note that this has some unfortunate contstraints:</p>
+<p>Note that this has some unfortunate constraints:</p>
 <ul>
 <li>Rendering information must be specified <em>before</em> the plot is
 created
@@ -177,7 +177,7 @@ directly without having to create a file.</p>
 <p>For some applications, you might want to access the rendered data
 directly. Example use-cases for this might be report generation, web
 services or interactive applications. While you can most likely think of
-work-arounds for this issue, this <code>unigd</code> feature will
+workarounds for this issue, this <code>unigd</code> feature will
 certainly lower code complexity and increase performance.</p>
 <p>Rendering in-memory is done by simply calling
 <code>ugd_render(...)</code> instead of <code>ugd_save(...)</code>:</p>
@@ -307,7 +307,7 @@ are some noteworthy mentions:</p>
 <code>"strings"</code>-renderer
 <ul>
 <li>All text elements inside a plot</li>
-<li>Linebreak seperated plain text format</li>
+<li>Linebreak separated plain text format</li>
 <li>Could be used to e.g. ‘search’ through plots</li>
 </ul>
 </li>
