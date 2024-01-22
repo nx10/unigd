@@ -17,8 +17,8 @@ static inline std::string json_lineinfo(const LineInfo &t_line)
 {
   return fmt::format(
       R""({{ "col": "{}", "lwd": {:.2f}, "lty": {}, "lend": {}, "ljoin": {}, "lmitre": {} }})"",
-      hexcol(t_line.col), t_line.lwd, t_line.lty, t_line.lend, t_line.ljoin,
-      t_line.lmitre);
+      hexcol(t_line.col), t_line.lwd, t_line.lty, static_cast<int>(t_line.lend), static_cast<int>(t_line.ljoin),
+      static_cast<int>(t_line.lmitre));
 }
 
 static inline void json_verts(fmt::memory_buffer &os,
