@@ -39,7 +39,7 @@ extension.}
 Rendered SVG string.
 }
 \description{
-See \code{\link[=ugd_render]{ugd_render()}} for acessing plot data directly in memory without
+See \code{\link[=ugd_render]{ugd_render()}} for accessing plot data directly in memory without
 saving as a file.
 This function will only work after starting a device with \code{\link[=ugd]{ugd()}}.
 }

@@ -259,7 +259,7 @@ ugd_render <- function(page = 0,
 
 #' Render unigd plot to a file.
 #'
-#' See [ugd_render()] for acessing plot data directly in memory without
+#' See [ugd_render()] for accessing plot data directly in memory without
 #' saving as a file.
 #' This function will only work after starting a device with [ugd()].
 #'

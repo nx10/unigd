@@ -38,7 +38,7 @@ See [the guide](https://nx10.github.io/unigd/articles/b00_guide.html) for more d
 
 ## Contributions welcome!
 
-`unigd` is mostly written in C++, but contributions to the tests (in R) or the documentatation are also always welcome!
+`unigd` is mostly written in C++, but contributions to the tests (in R) or the documentation are also always welcome!
 
 ## About &amp; License
 

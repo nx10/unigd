@@ -26,7 +26,7 @@ hist(temp, col="darkblue")                      # (2) Plot a histogram
 dev.off()                                       # (3) Close the device
 ```
 
-Note that this has some unfortunate contstraints:
+Note that this has some unfortunate constraints:
 
 - Rendering information must be specified _before_ the plot is created
   - File format (`png()`, `pdf()`, `svg()`, ...)
@@ -88,7 +88,7 @@ The next section will illustrate how to access the render data directly without 
 
 For some applications, you might want to access the rendered data directly.
 Example use-cases for this might be report generation, web services or interactive applications.
-While you can most likely think of work-arounds for this issue, this `unigd`
+While you can most likely think of workarounds for this issue, this `unigd`
 feature will certainly lower code complexity and increase performance. 
 
 Rendering in-memory is done by simply calling `ugd_render(...)` instead of `ugd_save(...)`:
@@ -223,7 +223,7 @@ not go into too much detail about this topic but here are some noteworthy mentio
 
 - `"strings"`-renderer 
   - All text elements inside a plot
-  - Linebreak seperated plain text format
+  - Linebreak separated plain text format
   - Could be used to e.g. 'search' through plots
 - `"meta"`-renderer 
   - Meta information about the plot
