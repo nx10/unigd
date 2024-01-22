@@ -28,11 +28,11 @@ struct device_params
 class DeviceTarget
 {
  public:
-  [[nodiscard]] int get_index() const;
+  int get_index() const;
   void set_index(int index);
-  [[nodiscard]] int get_newest_index() const;
+  int get_newest_index() const;
   void set_newest_index(int index);
-  [[nodiscard]] bool is_void() const;
+  bool is_void() const;
   void set_void();
 
  private:
