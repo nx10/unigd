@@ -13,3 +13,5 @@
 ^\.covrignore$
 ^.clang-format$
 ^valgrind.dockerfile$
+^CRAN-SUBMISSION$
+^cran-comments\.md$
