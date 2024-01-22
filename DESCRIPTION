@@ -20,9 +20,11 @@ Authors@R:
       person("RStudio", role = "cph", comment = "Copyright holder of included svglite code"),
       person("Brett", "Robinson", role = "cph", comment = "Author of included belle library"),
       person("Google", role = "cph", comment = "Copyright holder of included material design icons"),
-      person("Victor", "Zverovich", role = "cph", comment = "Author of included fmt library")
+      person("Victor", "Zverovich", role = "cph", comment = "Author of included fmt library"),
+      person("Andrzej", "Krzemienski", role = "cph", comment = "Author of included std::experimental::optional library")
     )
 Description: A unified R graphics backend. Render R graphics fast and easy to many common file formats.
+    Provides a thread safe C interface for asynchronous rendering of R graphics.
 License: GPL (>= 2)
 Depends:
     R (>= 3.2.0)

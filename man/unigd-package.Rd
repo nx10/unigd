@@ -38,6 +38,7 @@ Other contributors:
   \item Brett Robinson (Author of included belle library) [copyright holder]
   \item Google (Copyright holder of included material design icons) [copyright holder]
   \item Victor Zverovich (Author of included fmt library) [copyright holder]
+  \item Andrzej Krzemienski (Author of included std::experimental::optional library) [copyright holder]
 }
 
 }
