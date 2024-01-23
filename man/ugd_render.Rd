@@ -40,12 +40,8 @@ See \code{\link[=ugd_save]{ugd_save()}} for saving rendered plots as files.
 This function will only work after starting a device with \code{\link[=ugd]{ugd()}}.
 }
 \examples{
-\dontrun{
-
 ugd()
 plot(1, 1)
 ugd_render(width = 600, height = 400, as = "svg")
-
 dev.off()
-}
 }

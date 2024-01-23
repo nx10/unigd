@@ -44,8 +44,6 @@ is specified inline and an unigd graphics device is managed
 therefore not necessary.
 }
 \examples{
-\dontrun{
-
 ugd_render_inline({
   hist(rnorm(100))
 }, as = "svgz")
@@ -55,5 +53,4 @@ s <- ugd_render_inline({
   lines(c(0.5, 1, 0.5), c(0.5, 1, 1))
 })
 cat(s)
-}
 }

@@ -20,13 +20,10 @@ Whether the page existed (and thereby was successfully removed).
 This function will only work after starting a device with \code{\link[=ugd]{ugd()}}.
 }
 \examples{
-\dontrun{
-
 ugd()
 plot(1, 1) # page 1
 hist(rnorm(100)) # page 2
 ugd_remove(page = 1) # remove page 1
 
 dev.off()
-}
 }

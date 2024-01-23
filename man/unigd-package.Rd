@@ -23,6 +23,7 @@ Useful links:
 Other contributors:
 \itemize{
   \item Kun Ren \email{mail@renkun.me} [contributor]
+  \item Tatsuya Shima \email{ts1s1andn@gmail.com} [contributor]
   \item Jeroen Ooms \email{jeroen@berkeley.edu} (\href{https://orcid.org/0000-0002-4035-0289}{ORCID}) [contributor]
   \item Hadley Wickham \email{hadley@rstudio.com} (Author of included svglite code) [copyright holder]
   \item Lionel Henry \email{lionel@rstudio.com} (Author of included svglite code) [copyright holder]

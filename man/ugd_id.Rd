@@ -19,7 +19,7 @@ value > 1 the returned type is a list if IDs. Set to \code{0} for all.}
 (see also: \code{\link[=ugd_state]{ugd_state()}}).}
 }
 \value{
-TODO
+List containing static plot IDs.
 }
 \description{
 Query unigd graphics device static plot IDs.
@@ -28,21 +28,26 @@ Available plot IDs starting from \code{index} will be returned.
 This function will only work after starting a device with \code{\link[=ugd]{ugd()}}.
 }
 \examples{
-\dontrun{
+ugd() # Initialize graphics device
 
-ugd()
+# Page 1
 plot.new()
 text(.5, .5, "#1")
+
+# Page 2
 plot.new()
 text(.5, .5, "#2")
+
+# Page 3
 plot.new()
 text(.5, .5, "#3")
-third <- ugd_id()
-second <- ugd_id(2)
-all <- ugd_id(1, limit = Inf)
-ugd_remove(1)
-ugd_plot(second)
 
-dev.off()
-}
+third <- ugd_id() # Get ID of page 3 (last page)
+second <- ugd_id(2) # Get ID of page 2
+all <- ugd_id(1, limit = Inf) # Get all IDs
+
+ugd_remove(1) # Remove page 1
+ugd_render(second) # Render page 2
+
+dev.off() # Close device
 }

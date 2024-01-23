@@ -35,6 +35,9 @@ be 50\%.)}
 
 \item{...}{Additional parameters passed to \code{ugd(...)}}
 }
+\value{
+No return value. Plot will be saved to file.
+}
 \description{
 Convenience function for quick inline plot rendering.
 This is similar to \code{\link[=ugd_save]{ugd_save()}} but the plotting code
@@ -43,11 +46,11 @@ is specified inline and an unigd graphics device is managed
 therefore not necessary.
 }
 \examples{
-\dontrun{
+tf <- tempfile(fileext=".svg")
+on.exit(unlink(tf))
 
 ugd_save_inline({
   plot.new()
   lines(c(0.5, 1, 0.5), c(0.5, 1, 1))
-}, file = "plot.svg")
-}
+}, file = tf)
 }

@@ -16,14 +16,11 @@ Whether there were any pages to remove.
 This function will only work after starting a device with \code{\link[=ugd]{ugd()}}.
 }
 \examples{
-\dontrun{
-
 ugd()
 plot(1, 1)
 hist(rnorm(100))
-ugd_clear()
+ugd_clear() # Clear all previous plots
 hist(rnorm(100))
 
 dev.off()
-}
 }

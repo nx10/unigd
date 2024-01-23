@@ -33,17 +33,16 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#'
-#' ugd() # Initialize graphics device and start server
-#' ugd_browse() # Or copy the displayed link in the browser
+#' ugd() # Initialize graphics device
 #'
 #' # Plot something
 #' x <- seq(0, 3 * pi, by = 0.1)
 #' plot(x, sin(x), type = "l")
 #'
+#' # Render plot as SVG
+#' ugd_render(width = 600, height = 400, as = "svg")
+#'
 #' dev.off() # alternatively: ugd_close()
-#' }
 ugd <-
   function(width = getOption("unigd.width", 720),
            height = getOption("unigd.height", 576),
@@ -84,15 +83,12 @@ stop_if_not_unigd_device <- function(which) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#'
 #' ugd()
 #' ugd_state()
 #' plot(1, 1)
 #' ugd_state()
 #'
 #' dev.off()
-#' }
 ugd_state <- function(which = dev.cur()) {
   stop_if_not_unigd_device(which)
   return(unigd_state_(which))
@@ -113,13 +109,9 @@ ugd_state <- function(which = dev.cur()) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#'
-#' ugd()
-#' ugd_info()
-#'
-#' dev.off()
-#' }
+#' ugd() # Initialize graphics device
+#' ugd_info() # Get device information
+#' dev.off() # Close device
 ugd_info <- function(which = dev.cur()) {
   stop_if_not_unigd_device(which)
   return(unigd_info_(which))
@@ -164,29 +156,34 @@ ugd_renderers <- function() {
 #' @param state Include the current device state in the returned result
 #'  (see also: [ugd_state()]).
 #'
-#' @return TODO
+#' @return List containing static plot IDs.
 #'
 #' @importFrom grDevices dev.cur
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' ugd() # Initialize graphics device
 #'
-#' ugd()
+#' # Page 1
 #' plot.new()
 #' text(.5, .5, "#1")
+#'
+#' # Page 2
 #' plot.new()
 #' text(.5, .5, "#2")
+#'
+#' # Page 3
 #' plot.new()
 #' text(.5, .5, "#3")
-#' third <- ugd_id()
-#' second <- ugd_id(2)
-#' all <- ugd_id(1, limit = Inf)
-#' ugd_remove(1)
-#' ugd_plot(second)
 #'
-#' dev.off()
-#' }
+#' third <- ugd_id() # Get ID of page 3 (last page)
+#' second <- ugd_id(2) # Get ID of page 2
+#' all <- ugd_id(1, limit = Inf) # Get all IDs
+#'
+#' ugd_remove(1) # Remove page 1
+#' ugd_render(second) # Render page 2
+#'
+#' dev.off() # Close device
 ugd_id <- function(index = 0, limit = 1, which = dev.cur(), state = FALSE) {
   stop_if_not_unigd_device(which)
   if (is.infinite(limit)) {
@@ -238,20 +235,16 @@ print.unigd_pid <- function(x, ...) cat(x$id)
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#'
 #' ugd()
 #' plot(1, 1)
 #' ugd_render(width = 600, height = 400, as = "svg")
-#'
 #' dev.off()
-#' }
 ugd_render <- function(page = 0,
-                     width = -1,
-                     height = -1,
-                     zoom = 1,
-                     as = "svg",
-                     which = dev.cur()) {
+                       width = -1,
+                       height = -1,
+                       zoom = 1,
+                       as = "svg",
+                       which = dev.cur()) {
   stop_if_not_unigd_device(which)
   page <- page_id_to_index(page, which)
   unigd_render_(which, page - 1, width, height, zoom, as)
@@ -277,21 +270,23 @@ ugd_render <- function(page = 0,
 #'   extension.
 #' @param which Which device (ID).
 #'
-#' @return Rendered SVG string.
+#' @return No return value. Plot will be saved to file.
 #'
 #' @importFrom grDevices dev.cur
 #' @importFrom tools file_ext
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#'
 #' ugd()
+#'
 #' plot(1, 1)
-#' ugd_save(file = tempfile(), width = 600, height = 400, as = "png")
+#'
+#' tf <- tempfile()
+#' on.exit(unlink(tf))
+#'
+#' ugd_save(file = tf, width = 600, height = 400, as = "png")
 #'
 #' dev.off()
-#' }
 ugd_save <- function(file,
                      page = 0,
                      width = -1,
@@ -305,7 +300,8 @@ ugd_save <- function(file,
     as <- tolower(tools::file_ext(file))
     if (!(as %in% ugd_renderers()$id)) {
       stop("Renderer could not automatically be inferred from file extension.",
-        " (Set the renderer explicitly with e.g. `ugd_save(..., as = \"svg\")`)")
+           " (Set the renderer explicitly with ",
+           "e.g. `ugd_save(..., as = \"svg\")`)")
     }
   }
   ret <- unigd_render_(which, page - 1, width, height, zoom, as)
@@ -331,15 +327,12 @@ ugd_save <- function(file,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#'
 #' ugd()
 #' plot(1, 1) # page 1
 #' hist(rnorm(100)) # page 2
 #' ugd_remove(page = 1) # remove page 1
 #'
 #' dev.off()
-#' }
 ugd_remove <- function(page = 0, which = dev.cur()) {
   stop_if_not_unigd_device(which)
   if (inherits(page, "unigd_pid")) {
@@ -360,16 +353,13 @@ ugd_remove <- function(page = 0, which = dev.cur()) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#'
 #' ugd()
 #' plot(1, 1)
 #' hist(rnorm(100))
-#' ugd_clear()
+#' ugd_clear() # Clear all previous plots
 #' hist(rnorm(100))
 #'
 #' dev.off()
-#' }
 ugd_clear <- function(which = dev.cur()) {
   stop_if_not_unigd_device(which)
   return(unigd_clear_(which))
@@ -390,10 +380,7 @@ ugd_clear <- function(which = dev.cur()) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#'
 #' ugd()
-#' ugd_browse() # open browser
 #' hist(rnorm(100))
 #' ugd_close() # Equvalent to dev.off()
 #'
@@ -401,7 +388,6 @@ ugd_clear <- function(which = dev.cur()) {
 #' ugd()
 #' ugd()
 #' ugd_close(all = TRUE)
-#' }
 ugd_close <- function(which = dev.cur(), all = FALSE) {
   if (all) {
     ds <- dev.list()
@@ -437,8 +423,6 @@ ugd_close <- function(which = dev.cur(), all = FALSE) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#'
 #' ugd_render_inline({
 #'   hist(rnorm(100))
 #' }, as = "svgz")
@@ -448,7 +432,6 @@ ugd_close <- function(which = dev.cur(), all = FALSE) {
 #'   lines(c(0.5, 1, 0.5), c(0.5, 1, 1))
 #' })
 #' cat(s)
-#' }
 ugd_render_inline <- function(code,
                        page = 0,
                        width = getOption("unigd.width", 720),
@@ -500,16 +483,17 @@ ugd_render_inline <- function(code,
 #' @param as Renderer.
 #' @param ... Additional parameters passed to `ugd(...)`
 #'
+#' @return No return value. Plot will be saved to file.
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' tf <- tempfile(fileext=".svg")
+#' on.exit(unlink(tf))
 #'
 #' ugd_save_inline({
 #'   plot.new()
 #'   lines(c(0.5, 1, 0.5), c(0.5, 1, 1))
-#' }, file = "plot.svg")
-#' }
+#' }, file = tf)
 ugd_save_inline <- function(code,
                        file,
                        page = 0,

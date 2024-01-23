@@ -2,6 +2,8 @@
 #' Plot a test pattern that can be used to evaluate and compare graphics
 #' devices.
 #'
+#' @return Nothing, but a plot is generated.
+#'
 #' @export
 #'
 #' @examples

@@ -36,7 +36,7 @@ extension.}
 \item{which}{Which device (ID).}
 }
 \value{
-Rendered SVG string.
+No return value. Plot will be saved to file.
 }
 \description{
 See \code{\link[=ugd_render]{ugd_render()}} for accessing plot data directly in memory without
@@ -44,12 +44,14 @@ saving as a file.
 This function will only work after starting a device with \code{\link[=ugd]{ugd()}}.
 }
 \examples{
-\dontrun{
-
 ugd()
+
 plot(1, 1)
-ugd_save(file = tempfile(), width = 600, height = 400, as = "png")
+
+tf <- tempfile()
+on.exit(unlink(tf))
+
+ugd_save(file = tf, width = 600, height = 400, as = "png")
 
 dev.off()
-}
 }

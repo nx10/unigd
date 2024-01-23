@@ -52,15 +52,14 @@ All font settings and descriptions are adopted from the excellent
 'svglite' package.
 }
 \examples{
-\dontrun{
-
-ugd() # Initialize graphics device and start server
-ugd_browse() # Or copy the displayed link in the browser
+ugd() # Initialize graphics device
 
 # Plot something
 x <- seq(0, 3 * pi, by = 0.1)
 plot(x, sin(x), type = "l")
 
+# Render plot as SVG
+ugd_render(width = 600, height = 400, as = "svg")
+
 dev.off() # alternatively: ugd_close()
-}
 }

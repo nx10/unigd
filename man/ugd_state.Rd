@@ -20,13 +20,10 @@ Access status information of a unigd graphics device.
 This function will only work after starting a device with \code{\link[=ugd]{ugd()}}.
 }
 \examples{
-\dontrun{
-
 ugd()
 ugd_state()
 plot(1, 1)
 ugd_state()
 
 dev.off()
-}
 }

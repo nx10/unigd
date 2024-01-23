@@ -20,10 +20,7 @@ This achieves the same effect as \code{\link[grDevices:dev]{grDevices::dev.off()
 but will only close the device if it has the unigd type.
 }
 \examples{
-\dontrun{
-
 ugd()
-ugd_browse() # open browser
 hist(rnorm(100))
 ugd_close() # Equvalent to dev.off()
 
@@ -31,5 +28,4 @@ ugd()
 ugd()
 ugd()
 ugd_close(all = TRUE)
-}
 }

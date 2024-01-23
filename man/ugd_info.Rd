@@ -19,11 +19,7 @@ Access general information of a unigd graphics device.
 This function will only work after starting a device with \code{\link[=ugd]{ugd()}}.
 }
 \examples{
-\dontrun{
-
-ugd()
-ugd_info()
-
-dev.off()
-}
+ugd() # Initialize graphics device
+ugd_info() # Get device information
+dev.off() # Close device
 }
