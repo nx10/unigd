@@ -95,28 +95,39 @@ value &gt; 1 the returned type is a list if IDs. Set to <code>0</code> for all.<
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>TODO</p>
+<p>List containing static plot IDs.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="ugd.html">ugd</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Initialize graphics device</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="ugd.html">ugd</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Page 1</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/frame.html" class="external-link">plot.new</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span><span class="fl">.5</span>, <span class="fl">.5</span>, <span class="st">"#1"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Page 2</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/frame.html" class="external-link">plot.new</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span><span class="fl">.5</span>, <span class="fl">.5</span>, <span class="st">"#2"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Page 3</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/frame.html" class="external-link">plot.new</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span><span class="fl">.5</span>, <span class="fl">.5</span>, <span class="st">"#3"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">third</span> <span class="op">&lt;-</span> <span class="fu">ugd_id</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">second</span> <span class="op">&lt;-</span> <span class="fu">ugd_id</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">all</span> <span class="op">&lt;-</span> <span class="fu">ugd_id</span><span class="op">(</span><span class="fl">1</span>, limit <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="ugd_remove.html">ugd_remove</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">ugd_plot</span><span class="op">(</span><span class="va">second</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="va">third</span> <span class="op">&lt;-</span> <span class="fu">ugd_id</span><span class="op">(</span><span class="op">)</span> <span class="co"># Get ID of page 3 (last page)</span></span></span>
+<span class="r-in"><span><span class="va">second</span> <span class="op">&lt;-</span> <span class="fu">ugd_id</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span> <span class="co"># Get ID of page 2</span></span></span>
+<span class="r-in"><span><span class="va">all</span> <span class="op">&lt;-</span> <span class="fu">ugd_id</span><span class="op">(</span><span class="fl">1</span>, limit <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span> <span class="co"># Get all IDs</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ugd_remove.html">ugd_remove</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="co"># Remove page 1</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span><span class="fu"><a href="ugd_render.html">ugd_render</a></span><span class="op">(</span><span class="va">second</span><span class="op">)</span> <span class="co"># Render page 2</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1unigd </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "&lt;svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" class=\"httpgd\" width=\"720.00\" height=\"576.00\" viewBox=\"0 0 720.00 576.00\"&gt;\n&lt;defs&gt;\n  &lt;style type='text/css'&gt;&lt;![CDATA[\n    .httpgd line, .httpgd polyline, .httpgd polygon, .httpgd path, .httpgd rect, .httpgd circle {\n      fill: none;\n      stroke: #000000;\n      stroke-linecap: round;\n      stroke-linejoin: round;\n      stroke-miterlimit: 10.00;\n    }\n  ]]&gt;&lt;/style&gt;\n&lt;clipPath id=\"c0\"&gt;&lt;rect x=\"0.00\" y=\"0.00\" width=\"720.00\" height=\"576.00\"/&gt;&lt;/clipPath&gt;\n&lt;clipPath id=\"c1\"&gt;&lt;rect x=\"59.04\" y=\"59.04\" width=\"630.72\" height=\"443.52\"/&gt;&lt;/clipPath&gt;\n&lt;/defs&gt;\n&lt;rect width=\"100%\" height=\"100%\" style=\"stroke: none;fill: #FFFFFF;\"/&gt;\n&lt;g clip-path=\"url(#c0)\"&gt;\n&lt;/g&gt;&lt;g clip-path=\"url(#c1)\"&gt;\n&lt;g&gt;&lt;text x=\"374.40\" y=\"285.25\" text-anchor=\"middle\" style=\"font-family: Liberation Sans;font-size: 12.00px;\" textLength=\"17.70px\" lengthAdjust=\"spacingAndGlyphs\"&gt;#2&lt;/text&gt;&lt;/g&gt;\n&lt;/g&gt;\n&lt;/svg&gt;"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Close device</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> agg_png </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       2 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
