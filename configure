@@ -114,7 +114,7 @@ CXXFLAGS=`${R_HOME}/bin/R CMD config CXXFLAGS`
 CPPFLAGS=`${R_HOME}/bin/R CMD config CPPFLAGS`
 
 # Test configuration
-${CXX} ${CPPFLAGS} ${PKG_LIBTIFF_CFLAGS} ${CFLAGS} ${PKG_LIBTIFF_TEST_FILE} -o tmp_libtiff_test >/dev/null 2>configure.log
+${CXX} ${CPPFLAGS} ${PKG_LIBTIFF_CFLAGS} ${CFLAGS} ${PKG_LIBTIFF_TEST_FILE} ${PKG_LIBTIFF_LIBS} -o tmp_libtiff_test >/dev/null 2>configure.log
 # Customize the error
 if [ $? -ne 0 ]; then
   echo "------------------------------[ WARNING ]---------------------------"
