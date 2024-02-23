@@ -2,10 +2,19 @@ CXX_STD = CXX14
 
 PKG_CPPFLAGS = -Ilib \
 	-DFMT_HEADER_ONLY \
-	-I$(R_TOOLS_SOFT)/include/cairo \
 	-I../inst/include
 
-PKG_LIBS = -lcairo -lpixman-1 -lfontconfig -lncrypt -lksecdd -lbcrypt -lexpat -lharfbuzz_too -lfreetype_too -lharfbuzz -lfreetype -lpng16 -lpng -lbz2 -lgdi32 -lintl -liconv -lz -lcfitsio -ltiff -ltiffxx -ljpeg -lzstd -lwebp -lsharpyuv -llzma
+ifeq (,$(shell pkg-config --version 2>/dev/null))
+  LIBDEFLATE = $(or $(and $(wildcard $(R_TOOLS_SOFT)/lib/libdeflate.a),-ldeflate),)
+  LIBLERC = $(or $(and $(wildcard $(R_TOOLS_SOFT)/lib/liblerc.a),-llerc),)
+  LIBBROTLI = $(or $(and $(wildcard $(R_TOOLS_SOFT)/lib/libbrotlidec.a),-lbrotlidec -lbrotlicommon),)
+  LIBSHARPYUV = $(or $(and $(wildcard $(R_TOOLS_SOFT)/lib/libsharpyuv.a),-lsharpyuv),)
+  PKG_LIBS = -lcairo -lpixman-1 -lfontconfig -lncrypt -lksecdd -lbcrypt -lexpat -lharfbuzz_too -lfreetype_too -lharfbuzz -lfreetype $(LIBBROTLI) -lpng16 -lpng -lbz2 -lgdi32 -lintl -liconv -lz -lcfitsio -ltiff -ltiffxx $(LIBDEFLATE) $(LIBLERC) -ljpeg -lzstd -lwebp $(LIBSHARPYUV) -llzma -luuid -lole32
+  PKG_CPPFLAGS += -I$(R_TOOLS_SOFT)/include/cairo -DCAIRO_WIN32_STATIC_BUILD
+else
+  PKG_LIBS = -ltiffxx $(shell pkg-config --libs cairo libtiff-4)
+  PKG_CPPFLAGS += $(shell pkg-config --cflags cairo libtiff-4)
+endif
 
 all: clean 
 
