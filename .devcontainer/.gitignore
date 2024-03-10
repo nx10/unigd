@@ -7,6 +7,7 @@
 !/conf/shell/var/
 !/conf/shell/var/tmp/
 !/conf/shell/var/tmp/snippets/
+!/debian-*/
 !/scripts/
 !/scripts/usr/
 !/scripts/usr/local/
@@ -14,10 +15,12 @@
 
 !/conf/shell/etc/skel/.profile
 !/conf/shell/var/tmp/snippets/*.sh
+!/debian-*/devcontainer.json
 !/scripts/usr/local/bin/*.sh
 
 !/.gitignore
 !/devcontainer.json
+!/Debian.Dockerfile
 !/R.Dockerfile
 !/LICENSE
 !/README.md
