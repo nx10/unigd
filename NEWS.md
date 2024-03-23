@@ -1,4 +1,9 @@
-# unigd 0.1.0.9000
+# unigd 0.1.1
+
+- Fix issues with 'libtiff'. (Thanks @benz0li)
+- Update linking on Windows for upcoming version of 'Rtools'. (Thanks @kalibera)
+
+# unigd 0.1.0
 
 - Split graphics rendering and R interface from 'httpgd'.
 - Large refactoring and rewrite.
