@@ -23,10 +23,15 @@ This package provides a thread-safe interface to power interactive graphics clie
 
 ## Installation
 
-You can install the development version of `unigd` from GitHub with:
+Install `unigd` from CRAN:
 
-``` r
-# install.packages("remotes")
+```R
+install.packages("unigd")
+```
+
+Or get the latest development version from GitHub:
+
+```R
 remotes::install_github("nx10/unigd")
 ```
 
