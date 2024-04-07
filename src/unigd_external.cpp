@@ -13,7 +13,7 @@ using unigd_handle_t = unigd_handle<unigd::unigd_device>;
 
 unigd_find_results find_results::c_repr()
 {
-  return {state, static_cast<plot_index_t>(ids.size()), &ids[0]};
+  return {state, static_cast<plot_index_t>(ids.size()), ids.data()};
 }
 
 int api_test_fun() { return 7; }
@@ -163,7 +163,7 @@ UNIGD_RENDERERS_HANDLE api_renderers(unigd_renderers_list *renderer)
     re->emplace_back(it.second.info);
   }
 
-  *renderer = {&((*re)[0]), re->size()};
+  *renderer = {(*re).data(), re->size()};
 
   return re;
 }

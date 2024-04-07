@@ -126,7 +126,7 @@ inline std::string raster_to_string(std::vector<unsigned int> raster_, int w, in
   }
 
   std::vector<std::uint8_t> buffer;
-  png_set_rows(png, info, &rows[0]);
+  png_set_rows(png, info, rows.data());
   png_set_write_fn(png, &buffer, png_memory_write, NULL);
   png_write_png(png, info, PNG_TRANSFORM_IDENTITY, NULL);
   png_destroy_write_struct(&png, &info);
