@@ -188,6 +188,10 @@ class generic_dev : public std::enable_shared_from_this<generic_dev<T>>
   virtual void dev_fill(SEXP path, int rule, const pGEcontext gc, pDevDesc dd) {}
   virtual void dev_fillStroke(SEXP path, int rule, const pGEcontext gc, pDevDesc dd) {}
 
+  // R_GE_version >= 16
+  virtual void dev_glyph(int n, int *glyphs, double *x, double *y, SEXP font,
+                         double size, int colour, double rot, pDevDesc dd) {};
+
   // GRAPHICS DEVICE FEATURE FLAGS
 
   bool m_df_cap = false;
@@ -304,8 +308,16 @@ class generic_dev : public std::enable_shared_from_this<generic_dev<T>>
       cap[R_GE_capability_compositing] = cpp11::writable::integers({0});
       cap[R_GE_capability_transformations] = cpp11::writable::integers({0});
       cap[R_GE_capability_paths] = cpp11::writable::integers({0});
+      #if R_GE_version >= 16
+      cap[R_GE_capability_glyphs] = cpp11::writable::integers({0});
+      #endif
       return cpp11::as_sexp(cap);
     };
+#endif
+#if R_GE_version >= 16
+    dd->glyph = [](int n, int *glyphs, double *x, double *y, SEXP font,
+                   double size, int colour, double rot, pDevDesc dd)
+    { from_dd(dd)->dev_glyph(n, glyphs, x, y, font, size, colour, rot, dd); };
 #endif
 
     if (m_df_cap)
@@ -379,8 +391,11 @@ class generic_dev : public std::enable_shared_from_this<generic_dev<T>>
 #if R_GE_version == 14
     dd->deviceVersion = R_GE_deviceClip;
 #endif
-#if R_GE_version >= 15
+#if R_GE_version == 15
     dd->deviceVersion = R_GE_group;
+#endif
+#if R_GE_version >= 16
+    dd->deviceVersion = R_GE_glyphs;
 #endif
 
     // Device specific
