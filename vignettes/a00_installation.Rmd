@@ -39,6 +39,18 @@ If `libpng` is missing install it via:
 brew install libpng
 ```
 
+If `Cairo` is missing install it via:
+
+```sh
+brew install cairo
+```
+
+If `libtiff` is missing install it via:
+
+```sh
+brew install libtiff
+```
+
 If `X11` is missing the error message will include the text:
 
 ```sh
@@ -62,4 +74,32 @@ apt install libfontconfig1-dev
 
 ```sh
 dnf install fontconfig-devel
+```
+
+To support additional plot file formats (PDF, EPS, PS) optionally, the `Cairo` library is required.
+
+#### Debian, Ubuntu, etc.
+
+```sh
+apt install libcairo2-dev
+```
+
+#### Fedora, CentOS, RHEL, etc.
+
+```sh
+dnf install cairo-devel
+```
+
+To support additional TIFF formats optionally, the `libtiff` library is required.
+
+#### Debian, Ubuntu, etc.
+
+```sh
+apt install libtiff-dev
+```
+
+#### Fedora, EPEL, etc.
+
+```sh
+dnf install libtiff-devel
 ```
