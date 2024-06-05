@@ -1,3 +1,9 @@
+# unigd 0.1.2
+
+- Fixed an issue that made unigd crash when rendering without any plots in the history on some platforms.
+- Update installation instructions (thanks @huangyxi).
+- Minor internal improvements.
+
 # unigd 0.1.1
 
 - Fix issues with 'libtiff'. (Thanks @benz0li)
