@@ -1,6 +1,7 @@
 #ifndef __UNIGD_DRAW_DATA_H__
 #define __UNIGD_DRAW_DATA_H__
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
