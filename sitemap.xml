@@ -1,69 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://nx10.github.io/unigd/404.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/articles/a00_installation.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/articles/b00_guide.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/index.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/ugd.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/ugd_clear.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/ugd_close.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/ugd_id.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/ugd_info.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/ugd_remove.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/ugd_render.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/ugd_render_inline.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/ugd_renderers.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/ugd_save.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/ugd_save_inline.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/ugd_state.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/ugd_test_pattern.html</loc>
-  </url>
-  <url>
-    <loc>https://nx10.github.io/unigd/reference/unigd-package.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://nx10.github.io/unigd/404.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/articles/a00_installation.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/articles/b00_guide.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/articles/index.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/authors.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/index.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/news/index.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/index.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/ugd.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/ugd_clear.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/ugd_close.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/ugd_id.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/ugd_info.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/ugd_remove.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/ugd_render.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/ugd_render_inline.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/ugd_renderers.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/ugd_save.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/ugd_save_inline.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/ugd_state.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/ugd_test_pattern.html</loc></url>
+<url><loc>https://nx10.github.io/unigd/reference/unigd-package.html</loc></url>
 </urlset>
+
