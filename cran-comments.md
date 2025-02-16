@@ -16,3 +16,8 @@ C++14 is essential for this package.
       libs   8.4Mb
 
 This package uses larger libraries.
+
+## GCC 15 error
+
+The missing standard library include has been added.
+Package successfully builds with the current GCC 15 snapshot.
