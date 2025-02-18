@@ -1,5 +1,3 @@
-CXX_STD = CXX14
-
 PKG_CPPFLAGS = -Ilib \
 	-DFMT_HEADER_ONLY \
 	-I../inst/include
@@ -16,7 +14,7 @@ else
   PKG_CPPFLAGS += $(shell pkg-config --cflags cairo libtiff-4)
 endif
 
-all: clean 
+all: clean
 
 clean:
 	rm -f $(OBJECTS)
