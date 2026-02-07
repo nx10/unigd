@@ -327,18 +327,18 @@ void RendererCairo::visit(const Raster *t_raster)
   for (size_t i = 0; i < t_raster->raster.size(); ++i)
   {
     const color_t alpha = color::alpha(t_raster->raster[i]);
-    imageData[i * 4 + 3] = alpha;
+    imageData[i * 4 + 3] = static_cast<unsigned char>(alpha);
     if (alpha < color::byte_mask)
     {
-      imageData[i * 4 + 2] = color::red(t_raster->raster[i]) * alpha / color::byte_mask;
-      imageData[i * 4 + 1] = color::green(t_raster->raster[i]) * alpha / color::byte_mask;
-      imageData[i * 4 + 0] = color::blue(t_raster->raster[i]) * alpha / color::byte_mask;
+      imageData[i * 4 + 2] = static_cast<unsigned char>(color::red(t_raster->raster[i]) * alpha / color::byte_mask);
+      imageData[i * 4 + 1] = static_cast<unsigned char>(color::green(t_raster->raster[i]) * alpha / color::byte_mask);
+      imageData[i * 4 + 0] = static_cast<unsigned char>(color::blue(t_raster->raster[i]) * alpha / color::byte_mask);
     }
     else
     {
-      imageData[i * 4 + 2] = color::red(t_raster->raster[i]);
-      imageData[i * 4 + 1] = color::green(t_raster->raster[i]);
-      imageData[i * 4 + 0] = color::blue(t_raster->raster[i]);
+      imageData[i * 4 + 2] = static_cast<unsigned char>(color::red(t_raster->raster[i]));
+      imageData[i * 4 + 1] = static_cast<unsigned char>(color::green(t_raster->raster[i]));
+      imageData[i * 4 + 0] = static_cast<unsigned char>(color::blue(t_raster->raster[i]));
     }
   }
   cairo_surface_t *image = cairo_image_surface_create_for_data(
@@ -388,8 +388,9 @@ static cairo_status_t cairowrite_ucvec(void *closure, unsigned char const *data,
 
 void RendererCairoPng::render(const Page &t_page, double t_scale)
 {
-  surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, t_page.size.x * t_scale,
-                                       t_page.size.y * t_scale);
+  surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+                                       static_cast<int>(t_page.size.x * t_scale),
+                                       static_cast<int>(t_page.size.y * t_scale));
 
   cr = cairo_create(surface);
 
@@ -411,8 +412,9 @@ void RendererCairoPng::get_data(const uint8_t **t_buf, size_t *t_size) const
 
 void RendererCairoPngBase64::render(const Page &t_page, double t_scale)
 {
-  surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, t_page.size.x * t_scale,
-                                       t_page.size.y * t_scale);
+  surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+                                       static_cast<int>(t_page.size.x * t_scale),
+                                       static_cast<int>(t_page.size.y * t_scale));
 
   cr = cairo_create(surface);
 
@@ -505,8 +507,8 @@ void RendererCairoEps::get_data(const uint8_t **t_buf, size_t *t_size) const
 void RendererCairoTiff::render(const Page &t_page, double t_scale)
 {
   const int argb_size = 4;
-  const int width = t_page.size.x * t_scale;
-  const int height = t_page.size.y * t_scale;
+  const int width = static_cast<int>(t_page.size.x * t_scale);
+  const int height = static_cast<int>(t_page.size.y * t_scale);
   const int stride = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, width);
 
   std::vector<unsigned char> raw_buffer(stride * height);

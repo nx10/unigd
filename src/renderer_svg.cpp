@@ -421,7 +421,7 @@ void RendererSVG::visit(const Path *t_path)
   css_lineinfo(os, t_path->line);
   css_fill_or_omit(os, t_path->fill);
   fmt::format_to(std::back_inserter(os), "fill-rule: ");
-  fmt::format_to(std::back_inserter(os), t_path->winding ? "nonzero" : "evenodd");
+  fmt::format_to(std::back_inserter(os), "{}", t_path->winding ? "nonzero" : "evenodd");
   fmt::format_to(std::back_inserter(os), ";\"/>");
 }
 
@@ -447,7 +447,7 @@ void RendererSVG::visit(const Raster *t_raster)
                    t_raster->rect.x, t_raster->rect.y);
   }
   fmt::format_to(std::back_inserter(os), " xlink:href=\"data:image/png;base64,");
-  fmt::format_to(std::back_inserter(os), raster_base64(*t_raster));
+  fmt::format_to(std::back_inserter(os), "{}", raster_base64(*t_raster));
   fmt::format_to(std::back_inserter(os), "\"/></g>");
 }
 
@@ -780,7 +780,7 @@ void RendererSVGPortable::visit(const Path *t_path)
   att_lineinfo(os, t_path->line);
   att_fill_or_none(os, t_path->fill);
   fmt::format_to(std::back_inserter(os), " fill-rule=\"");
-  fmt::format_to(std::back_inserter(os), t_path->winding ? "nonzero" : "evenodd");
+  fmt::format_to(std::back_inserter(os), "{}", t_path->winding ? "nonzero" : "evenodd");
   fmt::format_to(std::back_inserter(os), "\"/>");
 }
 
@@ -806,7 +806,7 @@ void RendererSVGPortable::visit(const Raster *t_raster)
                    t_raster->rect.x, t_raster->rect.y);
   }
   fmt::format_to(std::back_inserter(os), " xlink:href=\"data:image/png;base64,");
-  fmt::format_to(std::back_inserter(os), raster_base64(*t_raster));
+  fmt::format_to(std::back_inserter(os), "{}", raster_base64(*t_raster));
   fmt::format_to(std::back_inserter(os), "\"/></g>");
 }
 

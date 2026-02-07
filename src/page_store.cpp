@@ -38,7 +38,7 @@ ex::plot_index_t page_store::append(gvertex<double> t_size)
 
   m_id_counter = incwrap(m_id_counter);
 
-  return m_pages.size() - 1;
+  return static_cast<ex::plot_index_t>(m_pages.size() - 1);
 }
 void page_store::add_dc(ex::plot_relative_t t_index,
                         std::unique_ptr<renderers::DrawCall> &&t_dc, bool t_silent)
@@ -246,7 +246,7 @@ ex::find_results page_store::query(ex::plot_relative_t t_offset, ex::plot_id_t t
   auto index = m_index_to_pos(t_offset);
   if (t_limit <= 0)
   {
-    t_limit = m_pages.size();
+    t_limit = static_cast<ex::plot_id_t>(m_pages.size());
   }
   auto end = std::min(m_pages.size(), index + static_cast<std::size_t>(t_limit));
 

@@ -67,12 +67,12 @@ inline std::string raster_to_string(std::vector<unsigned int> raster_, int w, in
   if (!interpolate && double(w) < width)
   {
     resize = true;
-    w_fac = std::ceil(width / w);
+    w_fac = static_cast<int>(std::ceil(width / w));
   }
   if (!interpolate && double(h) < height)
   {
     resize = true;
-    h_fac = std::ceil(height / h);
+    h_fac = static_cast<int>(std::ceil(height / h));
   }
 
   if (resize)

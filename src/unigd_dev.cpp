@@ -295,7 +295,7 @@ void unigd_device::dev_text(double x, double y, const char *str, double rot, dou
     feature += font_info.features[i].feature[2];
     feature += font_info.features[i].feature[3];
     feature += "' ";
-    feature += font_info.features[i].setting;
+    feature += std::to_string(font_info.features[i].setting);
     feature += (i == font_info.n_features - 1 ? ";" : ",");
   }
 

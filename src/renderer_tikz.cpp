@@ -28,10 +28,10 @@ static inline void write_tex_escaped(fmt::memory_buffer &os, const std::string &
         fmt::format_to(std::back_inserter(os), "\\_");
         break;
       case '{':
-        fmt::format_to(std::back_inserter(os), "\\{");
+        fmt::format_to(std::back_inserter(os), "\\{{");
         break;
       case '}':
-        fmt::format_to(std::back_inserter(os), "\\}");
+        fmt::format_to(std::back_inserter(os), "\\}}");
         break;
       case '~':
         fmt::format_to(std::back_inserter(os), "\\textasciitilde");
