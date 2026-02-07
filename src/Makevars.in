@@ -1,10 +1,2 @@
 PKG_CPPFLAGS = @cflags@ -Ilib -I../inst/include -DFMT_HEADER_ONLY
-
-#PKG_CXXFLAGS=$(C_VISIBILITY)
-
-PKG_LIBS = @libs@ -lpng -lz
-
-all: clean
-
-clean:
-	rm -f $(SHLIB) $(OBJECTS)
+PKG_LIBS = @libs@

@@ -1,145 +1,250 @@
-# Based on davidgohel/gdtools package source with minimal modifications:
-# https://github.com/davidgohel/gdtools/blob/master/configure
-
-# Anticonf script by Jeroen Ooms (2020)
+#!/bin/sh
+# Configure script for unigd
+# Based on anticonf pattern by Jeroen Ooms
+#
 # The script will try 'pkg-config' to find required cflags and ldflags.
 # Make sure this executable is in PATH when installing the package.
 # Alternatively, you can set INCLUDE_DIR and LIB_DIR manually:
 # R CMD INSTALL --configure-vars='INCLUDE_DIR=/.../include LIB_DIR=/.../lib'
 
-# Library settings
-PKG_CONFIG_NAME="cairo freetype2"
-PKG_DEB_NAME="libcairo2-dev"
-PKG_RPM_NAME="cairo-devel"
-PKG_CSW_NAME="libcairo_dev"
-PKG_BREW_NAME="cairo"
+# Cleanup on exit
+cleanup() {
+  rm -f tmp_libtiff_test configure.log autobrew
+}
+trap cleanup EXIT
+
+# ------------------- Helpers -------------------
+
+has_pkg_config() {
+  command -v pkg-config >/dev/null 2>&1
+}
+
+pkg_config_cflags() {
+  pkg-config --cflags "$@" 2>/dev/null
+}
+
+pkg_config_libs() {
+  pkg-config --libs "$@" 2>/dev/null
+}
+
+# Print a consistent section header
+log_section() {
+  echo ""
+  echo "--- $1"
+}
+
+# Print a key=value pair for debugging
+log_var() {
+  echo "  $1=$2"
+}
+
+# Print an optional dependency warning with install hints
+warn_optional() {
+  _name="$1"
+  _feature="$2"
+  _define="$3"
+  _deb="$4"
+  _rpm="$5"
+  _brew="$6"
+
+  echo ""
+  echo "
+------------------------------------------------------------------------
+NOTE: ${_name} was not found.
+
+unigd will still work, but ${_feature} will not be available.
+
+To enable ${_feature}, install ${_name}:
+
+  Debian/Ubuntu:  sudo apt-get install ${_deb}
+  Fedora/RHEL:    sudo dnf install ${_rpm}
+  macOS Homebrew: brew install ${_brew}
+
+If ${_name} is installed but not detected, ensure pkg-config is in your
+PATH and PKG_CONFIG_PATH includes the relevant .pc file, or set paths
+manually:
+
+  R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
+------------------------------------------------------------------------
+"
+
+  if [ -f configure.log ] && [ -s configure.log ]; then
+    echo "Compiler output:"
+    cat configure.log
+    echo ""
+  fi
+}
+
+# ------------------- Cairo + Freetype -------------------
+
+log_section "Checking for cairo and freetype2"
+
+PKG_CFLAGS=""
 PKG_LIBS="-lcairo -lfreetype"
 PKG_TEST_FILE="src/sysdep_tests/sysdep_cairo.c"
 
-# Prefer static linking on MacOS
-if [ `uname` = "Darwin" ]; then
-PKG_CONFIG_NAME="--static $PKG_CONFIG_NAME"
-  if [ `arch` = "i386" ]; then
-    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/opt/libffi/lib/pkgconfig"
-  fi
-fi
-
 # Use pkg-config if available
-if [ `command -v pkg-config` ]; then
-  PKGCONFIG_CFLAGS=`pkg-config --cflags ${PKG_CONFIG_NAME}`
-  PKGCONFIG_LIBS=`pkg-config --libs ${PKG_CONFIG_NAME}`
+if has_pkg_config; then
+  PKGCONFIG_CFLAGS="$(pkg_config_cflags cairo freetype2)"
+  PKGCONFIG_LIBS="$(pkg_config_libs cairo freetype2)"
 fi
 
-# On CRAN do not use pkgconfig cairo (which depends on XQuartz)
+# On CRAN build machines do not use pkgconfig cairo (which depends on XQuartz)
 if [ -d "/Builds/CRAN-QA-Simon" ] || [ -d "/Volumes/Builds" ]; then
   unset PKGCONFIG_CFLAGS
   unset PKGCONFIG_LIBS
 fi
 
-# Note that cflags may be empty in case of success
+# Determine flags: manual override > pkg-config > Homebrew fallback > autobrew
 if [ "$INCLUDE_DIR" ] || [ "$LIB_DIR" ]; then
-  echo "Found INCLUDE_DIR and/or LIB_DIR!"
+  echo "  Using manually specified INCLUDE_DIR / LIB_DIR"
   PKG_CFLAGS="-I$INCLUDE_DIR $PKG_CFLAGS"
   PKG_LIBS="-L$LIB_DIR $PKG_LIBS"
 elif [ "$PKGCONFIG_CFLAGS" ] || [ "$PKGCONFIG_LIBS" ]; then
-  echo "Found pkg-config cflags and libs!"
-  PKG_CFLAGS=${PKGCONFIG_CFLAGS}
-  PKG_LIBS=${PKGCONFIG_LIBS}
-elif [ `uname` = "Darwin" ]; then
-  brew --version 2>/dev/null
-  if [ $? -eq 0 ]; then
-    BREWDIR=`brew --prefix`
-    PKG_CFLAGS="-I$BREWDIR/include/cairo -I$BREWDIR/include/fontconfig -I$BREWDIR/include/freetype2"
-    PKG_LIBS="-L$BREWDIR/lib $PKG_LIBS"
+  echo "  Found via pkg-config"
+  PKG_CFLAGS="${PKGCONFIG_CFLAGS}"
+  PKG_LIBS="${PKGCONFIG_LIBS}"
+elif [ "$(uname)" = "Darwin" ]; then
+  if command -v brew >/dev/null 2>&1; then
+    BREWDIR="$(brew --prefix)"
+    export PKG_CONFIG_PATH="${BREWDIR}/opt/cairo/lib/pkgconfig:${BREWDIR}/opt/freetype/lib/pkgconfig:${BREWDIR}/lib/pkgconfig:${PKG_CONFIG_PATH}"
+    if has_pkg_config; then
+      PKG_CFLAGS="$(pkg_config_cflags cairo freetype2)"
+      PKG_LIBS="$(pkg_config_libs cairo freetype2)"
+    fi
+    if [ -z "$PKG_CFLAGS" ] && [ -z "$PKG_LIBS" ]; then
+      echo "  Using Homebrew fallback paths"
+      PKG_CFLAGS="-I${BREWDIR}/include/cairo -I${BREWDIR}/include/fontconfig -I${BREWDIR}/include/freetype2"
+      PKG_LIBS="-L${BREWDIR}/lib ${PKG_LIBS}"
+    else
+      echo "  Found via Homebrew pkg-config"
+    fi
   else
     curl -sfL "https://autobrew.github.io/scripts/cairo" > autobrew
-    . autobrew
+    if [ -f autobrew ]; then
+      echo "  Using autobrew"
+      . ./autobrew
+    fi
   fi
 fi
 
-# Find compiler
-CC=`${R_HOME}/bin/R CMD config CC`
-CFLAGS=`${R_HOME}/bin/R CMD config CFLAGS`
-CPPFLAGS=`${R_HOME}/bin/R CMD config CPPFLAGS`
+# Find C compiler
+CC="$(${R_HOME}/bin/R CMD config CC)"
+CFLAGS="$(${R_HOME}/bin/R CMD config CFLAGS)"
+CPPFLAGS="$(${R_HOME}/bin/R CMD config CPPFLAGS)"
 
-# For debugging
-echo "Using PKG_CFLAGS=$PKG_CFLAGS"
-echo "Using PKG_LIBS=$PKG_LIBS"
+log_var "PKG_CFLAGS" "$PKG_CFLAGS"
+log_var "PKG_LIBS" "$PKG_LIBS"
 
-# Test configuration
+# Test cairo configuration
 ${CC} ${CPPFLAGS} ${PKG_CFLAGS} ${CFLAGS} -E ${PKG_TEST_FILE} >/dev/null 2>configure.log
 if [ $? -ne 0 ]; then
-  echo "------------------------------[ CAIRO ]---------------------------------"
-  echo "Info: Configuration failed to find cairo system library."
-  echo "httpgd is fully functional without cairo, but some plot file formats"
-  echo "will not be available."
-  echo "If you want to install cairo see below error for troubleshooting."
-  echo "-----------------------------[ ANTICONF ]-------------------------------"
-  echo "Configuration failed to find libraries. Try installing:"
-  echo " * deb: $PKG_DEB_NAME (Debian, Ubuntu)"
-  echo " * rpm: $PKG_RPM_NAME (Fedora, CentOS, RHEL)"
-  echo " * csw: $PKG_CSW_NAME (Solaris)"
-  echo " * brew: $PKG_BREW_NAME (OSX)"
-  echo "If $PKG_CONFIG_NAME are already installed, check that 'pkg-config' is in your"
-  echo "PATH and PKG_CONFIG_PATH contains a $PKG_CONFIG_NAME.pc file. If pkg-config"
-  echo "is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:"
-  echo "R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'"
-  echo "---------------------------[ ERROR MESSAGE ]----------------------------"
-  cat configure.log
-  echo "------------------------------------------------------------------------"
+  warn_optional "cairo" \
+    "some plot file formats (e.g. PNG via cairo)" \
+    "UNIGD_NO_CAIRO" \
+    "libcairo2-dev" \
+    "cairo-devel" \
+    "cairo"
   PKG_CFLAGS="-DUNIGD_NO_CAIRO"
   PKG_LIBS=""
+else
+  echo "  OK"
 fi
 
-# Library settings
-PKG_LIBTIFF_CONFIG_NAME="libtiff-4"
-PKG_LIBTIFF_DEB_NAME="libtiff-dev"
-PKG_LIBTIFF_RPM_NAME="libtiff-devel"
-PKG_LIBTIFF_BREW_NAME="libtiff"
-PKG_LIBTIFF_TEST_FILE="src/sysdep_tests/sysdep_libtiff.cpp"
+# ------------------- libtiff -------------------
+
+log_section "Checking for libtiff"
+
+PKG_LIBTIFF_CFLAGS=""
 PKG_LIBTIFF_LIBS="-ltiff -ljpeg"
+PKG_LIBTIFF_TEST_FILE="src/sysdep_tests/sysdep_libtiff.cpp"
 
-# Use pkg-config if available
-if [ $(command -v pkg-config) ]; then
-  PKG_LIBTIFF_CFLAGS=$(pkg-config --cflags --silence-errors $PKG_LIBTIFF_CONFIG_NAME)
-  PKG_LIBTIFF_LIBS="$(pkg-config --libs $PKG_LIBTIFF_CONFIG_NAME) -ltiffxx "
+if has_pkg_config; then
+  LIBTIFF_PC_CFLAGS="$(pkg-config --cflags --silence-errors libtiff-4 2>/dev/null)"
+  LIBTIFF_PC_LIBS="$(pkg_config_libs libtiff-4)"
+  if [ -n "$LIBTIFF_PC_LIBS" ]; then
+    echo "  Found via pkg-config"
+    PKG_LIBTIFF_CFLAGS="${LIBTIFF_PC_CFLAGS}"
+    PKG_LIBTIFF_LIBS="${LIBTIFF_PC_LIBS} -ltiffxx"
+  fi
 fi
 
-echo "Using PKG_LIBTIFF_CFLAGS=$PKG_LIBTIFF_CFLAGS"
-echo "Using PKG_LIBTIFF_LIBS=$PKG_LIBTIFF_LIBS"
+# Find C++ compiler
+CXX="$(${R_HOME}/bin/R CMD config CXX)"
+CXXFLAGS="$(${R_HOME}/bin/R CMD config CXXFLAGS)"
 
-# Find compiler
-CXX=`${R_HOME}/bin/R CMD config CXX`
-CXXFLAGS=`${R_HOME}/bin/R CMD config CXXFLAGS`
-CPPFLAGS=`${R_HOME}/bin/R CMD config CPPFLAGS`
+log_var "PKG_LIBTIFF_CFLAGS" "$PKG_LIBTIFF_CFLAGS"
+log_var "PKG_LIBTIFF_LIBS" "$PKG_LIBTIFF_LIBS"
 
-# Test configuration
-${CXX} ${CPPFLAGS} ${PKG_LIBTIFF_CFLAGS} ${CFLAGS} ${PKG_LIBTIFF_TEST_FILE} ${PKG_LIBTIFF_LIBS} -o tmp_libtiff_test >/dev/null 2>configure.log
-# Customize the error
+# Test libtiff configuration
+${CXX} ${CPPFLAGS} ${PKG_LIBTIFF_CFLAGS} ${CXXFLAGS} ${PKG_LIBTIFF_TEST_FILE} ${PKG_LIBTIFF_LIBS} -o tmp_libtiff_test >/dev/null 2>configure.log
 if [ $? -ne 0 ]; then
-  echo "------------------------------[ WARNING ]---------------------------"
-  echo "Info: Configuration failed to find $PKG_LIBTIFF_CONFIG_NAME system library."
-  echo "httpgd is fully functional without $PKG_LIBTIFF_CONFIG_NAME, but some plot file formats"
-  echo "will not be available."
-  echo "If you want to install $PKG_LIBTIFF_CONFIG_NAME see below error for troubleshooting."
-  echo "------------------------- ANTICONF ERROR ---------------------------"
-  echo "Configuration failed because $PKG_LIBTIFF_CONFIG_NAME was not found. Try installing:"
-  echo " * deb: $PKG_LIBTIFF_DEB_NAME (Debian, Ubuntu, etc)"
-  echo " * rpm: $PKG_LIBTIFF_RPM_NAME (Fedora, EPEL)"
-  echo " * brew: $PKG_LIBTIFF_BREW_NAME (OSX)"
-  echo "If $PKG_LIBTIFF_CONFIG_NAME is already installed, check that 'pkg-config' is in your"
-  echo "PATH and PKG_CONFIG_PATH contains a $PKG_LIBTIFF_CONFIG_NAME.pc file. If pkg-config"
-  echo "is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:"
-  echo "R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'"
-  echo "--------------------------------------------------------------------"
+  warn_optional "libtiff-4" \
+    "TIFF output" \
+    "UNIGD_NO_TIFF" \
+    "libtiff-dev" \
+    "libtiff-devel" \
+    "libtiff"
   PKG_LIBTIFF_CFLAGS="-DUNIGD_NO_TIFF"
   PKG_LIBTIFF_LIBS=""
+else
+  echo "  OK"
 fi
-# remove test file
-rm -f tmp_libtiff_test
 
-# Write to Makevars
-sed -e "s|@cflags@|$PKG_CFLAGS $PKG_LIBTIFF_CFLAGS|" -e "s|@libs@|$PKG_LIBS $PKG_LIBTIFF_LIBS|" src/Makevars.in > src/Makevars
+# ------------------- libpng -------------------
 
-# Success
+log_section "Checking for libpng"
+
+PKG_LIBPNG_CFLAGS=""
+PKG_LIBPNG_LIBS="-lpng"
+
+if has_pkg_config; then
+  LIBPNG_PC_CFLAGS="$(pkg_config_cflags libpng)"
+  LIBPNG_PC_LIBS="$(pkg_config_libs libpng)"
+  if [ -n "$LIBPNG_PC_LIBS" ]; then
+    echo "  Found via pkg-config"
+    PKG_LIBPNG_CFLAGS="${LIBPNG_PC_CFLAGS}"
+    PKG_LIBPNG_LIBS="${LIBPNG_PC_LIBS}"
+  fi
+fi
+
+log_var "PKG_LIBPNG_CFLAGS" "$PKG_LIBPNG_CFLAGS"
+log_var "PKG_LIBPNG_LIBS" "$PKG_LIBPNG_LIBS"
+echo "  OK (using fallback -lpng if not found via pkg-config)"
+
+# ------------------- zlib -------------------
+
+log_section "Checking for zlib"
+
+PKG_ZLIB_CFLAGS=""
+PKG_ZLIB_LIBS="-lz"
+
+if has_pkg_config; then
+  ZLIB_PC_CFLAGS="$(pkg_config_cflags zlib)"
+  ZLIB_PC_LIBS="$(pkg_config_libs zlib)"
+  if [ -n "$ZLIB_PC_LIBS" ]; then
+    echo "  Found via pkg-config"
+    PKG_ZLIB_CFLAGS="${ZLIB_PC_CFLAGS}"
+    PKG_ZLIB_LIBS="${ZLIB_PC_LIBS}"
+  fi
+fi
+
+log_var "PKG_ZLIB_CFLAGS" "$PKG_ZLIB_CFLAGS"
+log_var "PKG_ZLIB_LIBS" "$PKG_ZLIB_LIBS"
+echo "  OK (using fallback -lz if not found via pkg-config)"
+
+# ------------------- Write Makevars -------------------
+
+ALL_CFLAGS="${PKG_CFLAGS} ${PKG_LIBTIFF_CFLAGS} ${PKG_LIBPNG_CFLAGS} ${PKG_ZLIB_CFLAGS}"
+ALL_LIBS="${PKG_LIBS} ${PKG_LIBTIFF_LIBS} ${PKG_LIBPNG_LIBS} ${PKG_ZLIB_LIBS}"
+
+log_section "Configuration summary"
+log_var "PKG_CPPFLAGS" "$ALL_CFLAGS"
+log_var "PKG_LIBS" "$ALL_LIBS"
+echo ""
+
+sed -e "s|@cflags@|${ALL_CFLAGS}|" \
+    -e "s|@libs@|${ALL_LIBS}|" \
+    src/Makevars.in > src/Makevars
+
 exit 0
