@@ -9,7 +9,7 @@
 
 # Cleanup on exit
 cleanup() {
-  rm -f tmp_libtiff_test configure.log autobrew
+  rm -f tmp_libtiff_test tmp_libtiff_test-* configure.log autobrew
 }
 trap cleanup EXIT
 
