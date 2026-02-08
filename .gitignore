@@ -11,3 +11,5 @@ compile_commands.json
 windows
 docs
 inst/doc
+tools
+CLAUDE.md

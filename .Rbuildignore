@@ -15,3 +15,5 @@
 ^valgrind.dockerfile$
 ^CRAN-SUBMISSION$
 ^cran-comments\.md$
+^\.clang-tidy$
+^tools$
