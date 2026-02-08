@@ -13,16 +13,16 @@ static inline std::string hexcol(color_t t_color)
                      color::blue(t_color));
 }
 
-static inline std::string json_lineinfo(const LineInfo &t_line)
+static inline std::string json_lineinfo(const LineInfo& t_line)
 {
   return fmt::format(
       R""({{ "col": "{}", "lwd": {:.2f}, "lty": {}, "lend": {}, "ljoin": {}, "lmitre": {} }})"",
-      hexcol(t_line.col), t_line.lwd, t_line.lty, static_cast<int>(t_line.lend), static_cast<int>(t_line.ljoin),
-      static_cast<int>(t_line.lmitre));
+      hexcol(t_line.col), t_line.lwd, t_line.lty, static_cast<int>(t_line.lend),
+      static_cast<int>(t_line.ljoin), static_cast<int>(t_line.lmitre));
 }
 
-static inline void json_verts(fmt::memory_buffer &os,
-                              const std::vector<unigd::gvertex<double>> &t_verts)
+static inline void json_verts(fmt::memory_buffer& os,
+                              const std::vector<unigd::gvertex<double>>& t_verts)
 {
   fmt::format_to(std::back_inserter(os), "[");
   for (auto it = t_verts.begin(); it != t_verts.end(); ++it)
@@ -36,19 +36,19 @@ static inline void json_verts(fmt::memory_buffer &os,
   fmt::format_to(std::back_inserter(os), "]");
 }
 
-void RendererJSON::render(const Page &t_page, double t_scale)
+void RendererJSON::render(const Page& t_page, double t_scale)
 {
   m_scale = t_scale;
   page(t_page);
 }
 
-void RendererJSON::get_data(const uint8_t **t_buf, size_t *t_size) const
+void RendererJSON::get_data(const uint8_t** t_buf, size_t* t_size) const
 {
-  *t_buf = reinterpret_cast<const uint8_t *>(os.begin());
+  *t_buf = reinterpret_cast<const uint8_t*>(os.begin());
   *t_size = os.size();
 }
 
-void RendererJSON::page(const Page &t_page)
+void RendererJSON::page(const Page& t_page)
 {
   fmt::format_to(
       std::back_inserter(os),
@@ -83,7 +83,7 @@ void RendererJSON::page(const Page &t_page)
   fmt::format_to(std::back_inserter(os), "\n ]\n}}");
 }
 
-void RendererJSON::visit(const Rect *t_rect)
+void RendererJSON::visit(const Rect* t_rect)
 {
   fmt::format_to(
       std::back_inserter(os),
@@ -92,7 +92,7 @@ void RendererJSON::visit(const Rect *t_rect)
       t_rect->rect.height, json_lineinfo(t_rect->line));
 }
 
-void RendererJSON::visit(const Text *t_text)
+void RendererJSON::visit(const Text* t_text)
 {
   fmt::format_to(
       std::back_inserter(os),
@@ -104,7 +104,7 @@ void RendererJSON::visit(const Text *t_text)
       t_text->text.txtwidth_px);
 }
 
-void RendererJSON::visit(const Circle *t_circle)
+void RendererJSON::visit(const Circle* t_circle)
 {
   fmt::format_to(
       std::back_inserter(os),
@@ -113,7 +113,7 @@ void RendererJSON::visit(const Circle *t_circle)
       hexcol(t_circle->fill), json_lineinfo(t_circle->line));
 }
 
-void RendererJSON::visit(const Line *t_line)
+void RendererJSON::visit(const Line* t_line)
 {
   fmt::format_to(
       std::back_inserter(os),
@@ -122,7 +122,7 @@ void RendererJSON::visit(const Line *t_line)
       json_lineinfo(t_line->line));
 }
 
-void RendererJSON::visit(const Polyline *t_polyline)
+void RendererJSON::visit(const Polyline* t_polyline)
 {
   fmt::format_to(std::back_inserter(os),
                  R""("type": "polyline", "clip_id": {}, "line": {}, "points": )"",
@@ -130,7 +130,7 @@ void RendererJSON::visit(const Polyline *t_polyline)
   json_verts(os, t_polyline->points);
 }
 
-void RendererJSON::visit(const Polygon *t_polygon)
+void RendererJSON::visit(const Polygon* t_polygon)
 {
   fmt::format_to(
       std::back_inserter(os),
@@ -139,7 +139,7 @@ void RendererJSON::visit(const Polygon *t_polygon)
   json_verts(os, t_polygon->points);
 }
 
-void RendererJSON::visit(const Path *t_path)
+void RendererJSON::visit(const Path* t_path)
 {
   fmt::format_to(std::back_inserter(os),
                  R""("type": "path", "clip_id": {}, "fill": "{}", "line": {}, "nper": )"",
@@ -158,7 +158,7 @@ void RendererJSON::visit(const Path *t_path)
   json_verts(os, t_path->points);
 }
 
-void RendererJSON::visit(const Raster *t_raster)
+void RendererJSON::visit(const Raster* t_raster)
 {
   fmt::format_to(
       std::back_inserter(os),

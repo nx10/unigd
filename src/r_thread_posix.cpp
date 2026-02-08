@@ -1,10 +1,10 @@
 #ifndef _WIN32
 #include <R_ext/eventloop.h>  // for addInputHandler()
+#include <thread>
 #include <unistd.h>
 
 #include <cpp11/R.hpp>
 #include <cpp11/protect.hpp>
-#include <thread>
 
 #include "r_thread.h"
 

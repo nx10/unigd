@@ -1,12 +1,11 @@
 #ifndef __UNIGD_UNIGD_EXTERNAL_H__
 #define __UNIGD_UNIGD_EXTERNAL_H__
 
-#include <stdlib.h>
-#include <unigd_api_v1.h>
-
 #include <cstring>
 #include <memory>
+#include <stdlib.h>
 #include <string>
+#include <unigd_api_v1.h>
 #include <vector>
 
 namespace unigd
@@ -20,15 +19,18 @@ using renderer_id_t = UNIGD_RENDERER_ID;
 
 using graphics_client = unigd_graphics_client;
 
-inline char *copy_c_str(std::string str)
+inline char* copy_c_str(std::string str)
 {
   const auto size = str.size();
-  char *buffer = new char[size + 1];
+  char* buffer = new char[size + 1];
   memcpy(buffer, str.c_str(), size + 1);
   return buffer;
 }
 
-inline void destroy_c_str(char *str) { delete str; }
+inline void destroy_c_str(char* str)
+{
+  delete str;
+}
 
 template <class DeviceClass>
 struct unigd_handle
@@ -52,7 +54,7 @@ class render_data
   render_data() = default;
   virtual ~render_data() = default;
 
-  virtual void get_data(const uint8_t **t_buf, size_t *t_size) const = 0;
+  virtual void get_data(const uint8_t** t_buf, size_t* t_size) const = 0;
 };
 }  // namespace ex
 

@@ -4,7 +4,6 @@
 
 #include <cairo-pdf.h>
 #include <cairo-ps.h>
-
 #include <sstream>
 
 #include "base_64.h"  // for RendererCairoPngBase64
@@ -22,7 +21,7 @@ namespace renderers
 {
 constexpr double MATH_PI{3.14159265358979323846};
 
-inline void set_color(cairo_t *cr, color_t col)
+inline void set_color(cairo_t* cr, color_t col)
 {
   color_t alpha = color::alpha(col);
   double red = color::red_frac(col);
@@ -41,7 +40,7 @@ inline void set_color(cairo_t *cr, color_t col)
   }
 }
 
-inline void set_linetype(cairo_t *cr, const LineInfo &line)
+inline void set_linetype(cairo_t* cr, const LineInfo& line)
 {
   cairo_line_cap_t lcap = CAIRO_LINE_CAP_SQUARE;
   cairo_line_join_t ljoin = CAIRO_LINE_JOIN_ROUND;
@@ -85,12 +84,15 @@ inline void set_linetype(cairo_t *cr, const LineInfo &line)
     /* Use unsigned int otherwise right shift of 'dt'
    may not terminate for loop */
     unsigned int dt = line.lty;
-    for (l = 0; dt != 0; dt >>= 4, l++) ls[l] = (dt & 0xF) * lwd / 96.0 * 72;
+    for (l = 0; dt != 0; dt >>= 4, l++)
+    {
+      ls[l] = (dt & 0xF) * lwd / 96.0 * 72;
+    }
     cairo_set_dash(cr, ls, l, 0);
   }
 }
 
-void RendererCairo::render_page(const Page *t_page)
+void RendererCairo::render_page(const Page* t_page)
 {
   if (!color::transparent(t_page->fill))
   {
@@ -100,19 +102,19 @@ void RendererCairo::render_page(const Page *t_page)
     cairo_fill(cr);
   }
 
-  const auto &first_clip = t_page->cps.front();
+  const auto& first_clip = t_page->cps.front();
   cairo_new_path(cr);
   cairo_rectangle(cr, first_clip.rect.x, first_clip.rect.y, first_clip.rect.width,
                   first_clip.rect.height);
   cairo_clip(cr);
   auto last_clip_id = first_clip.id;
-  for (const auto &dc : t_page->dcs)
+  for (const auto& dc : t_page->dcs)
   {
     if (dc->clip_id != last_clip_id)
     {
-      const auto &next_clip =
+      const auto& next_clip =
           *std::find_if(t_page->cps.begin(), t_page->cps.end(),
-                        [&](const Clip &clip) { return clip.id == dc->clip_id; });
+                        [&](const Clip& clip) { return clip.id == dc->clip_id; });
 
       cairo_reset_clip(
           cr);  // todo: cairo docs discourages this (but R grDevices does it)
@@ -127,7 +129,7 @@ void RendererCairo::render_page(const Page *t_page)
   }
 }
 
-void RendererCairo::visit(const Rect *t_rect)
+void RendererCairo::visit(const Rect* t_rect)
 {
   cairo_new_path(cr);
 
@@ -150,7 +152,7 @@ void RendererCairo::visit(const Rect *t_rect)
   }
 }
 
-void RendererCairo::visit(const Text *t_text)
+void RendererCairo::visit(const Text* t_text)
 {
   if (color::transparent(t_text->col))
   {
@@ -184,7 +186,7 @@ void RendererCairo::visit(const Text *t_text)
   cairo_restore(cr);
 }
 
-void RendererCairo::visit(const Circle *t_circle)
+void RendererCairo::visit(const Circle* t_circle)
 {
   cairo_new_path(cr);
   cairo_arc(cr, t_circle->pos.x, t_circle->pos.y,
@@ -204,7 +206,7 @@ void RendererCairo::visit(const Circle *t_circle)
   }
 }
 
-void RendererCairo::visit(const Line *t_line)
+void RendererCairo::visit(const Line* t_line)
 {
   if (color::transparent(t_line->line.col))
   {
@@ -219,7 +221,7 @@ void RendererCairo::visit(const Line *t_line)
   cairo_stroke(cr);
 }
 
-void RendererCairo::visit(const Polyline *t_polyline)
+void RendererCairo::visit(const Polyline* t_polyline)
 {
   if (color::transparent(t_polyline->line.col))
   {
@@ -244,7 +246,7 @@ void RendererCairo::visit(const Polyline *t_polyline)
   cairo_stroke(cr);
 }
 
-void RendererCairo::visit(const Polygon *t_polygon)
+void RendererCairo::visit(const Polygon* t_polygon)
 {
   cairo_new_path(cr);
   for (auto it = t_polygon->points.begin(); it != t_polygon->points.end(); ++it)
@@ -274,7 +276,7 @@ void RendererCairo::visit(const Polygon *t_polygon)
   }
 }
 
-void RendererCairo::visit(const Path *t_path)
+void RendererCairo::visit(const Path* t_path)
 {
   cairo_new_path(cr);
 
@@ -312,7 +314,7 @@ void RendererCairo::visit(const Path *t_path)
   }
 }
 
-void RendererCairo::visit(const Raster *t_raster)
+void RendererCairo::visit(const Raster* t_raster)
 {
   cairo_save(cr);
   cairo_translate(cr, t_raster->rect.x, t_raster->rect.y);
@@ -330,18 +332,22 @@ void RendererCairo::visit(const Raster *t_raster)
     imageData[i * 4 + 3] = static_cast<unsigned char>(alpha);
     if (alpha < color::byte_mask)
     {
-      imageData[i * 4 + 2] = static_cast<unsigned char>(color::red(t_raster->raster[i]) * alpha / color::byte_mask);
-      imageData[i * 4 + 1] = static_cast<unsigned char>(color::green(t_raster->raster[i]) * alpha / color::byte_mask);
-      imageData[i * 4 + 0] = static_cast<unsigned char>(color::blue(t_raster->raster[i]) * alpha / color::byte_mask);
+      imageData[i * 4 + 2] = static_cast<unsigned char>(color::red(t_raster->raster[i]) *
+                                                        alpha / color::byte_mask);
+      imageData[i * 4 + 1] = static_cast<unsigned char>(
+          color::green(t_raster->raster[i]) * alpha / color::byte_mask);
+      imageData[i * 4 + 0] = static_cast<unsigned char>(color::blue(t_raster->raster[i]) *
+                                                        alpha / color::byte_mask);
     }
     else
     {
       imageData[i * 4 + 2] = static_cast<unsigned char>(color::red(t_raster->raster[i]));
-      imageData[i * 4 + 1] = static_cast<unsigned char>(color::green(t_raster->raster[i]));
+      imageData[i * 4 + 1] =
+          static_cast<unsigned char>(color::green(t_raster->raster[i]));
       imageData[i * 4 + 0] = static_cast<unsigned char>(color::blue(t_raster->raster[i]));
     }
   }
-  cairo_surface_t *image = cairo_image_surface_create_for_data(
+  cairo_surface_t* image = cairo_image_surface_create_for_data(
       imageData.data(), CAIRO_FORMAT_ARGB32, t_raster->wh.x, t_raster->wh.y,
       4 * t_raster->wh.x);
 
@@ -367,26 +373,26 @@ void RendererCairo::visit(const Raster *t_raster)
 
 // TARGETS
 
-static cairo_status_t cairowrite_fmt(void *closure, unsigned char const *data,
+static cairo_status_t cairowrite_fmt(void* closure, const unsigned char* data,
                                      unsigned int length)
 {
-  auto *os = static_cast<fmt::memory_buffer *>(closure);
+  auto* os = static_cast<fmt::memory_buffer*>(closure);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  std::string s(reinterpret_cast<char const *>(data), length);
+  std::string s(reinterpret_cast<const char*>(data), length);
   fmt::format_to(std::back_inserter(*os), "{}", s);
   return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t cairowrite_ucvec(void *closure, unsigned char const *data,
+static cairo_status_t cairowrite_ucvec(void* closure, const unsigned char* data,
                                        unsigned int length)
 {
-  auto *render_data = static_cast<std::vector<unsigned char> *>(closure);
+  auto* render_data = static_cast<std::vector<unsigned char>*>(closure);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   render_data->insert(render_data->end(), data, data + length);
   return CAIRO_STATUS_SUCCESS;
 }
 
-void RendererCairoPng::render(const Page &t_page, double t_scale)
+void RendererCairoPng::render(const Page& t_page, double t_scale)
 {
   surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
                                        static_cast<int>(t_page.size.x * t_scale),
@@ -404,13 +410,13 @@ void RendererCairoPng::render(const Page &t_page, double t_scale)
   cairo_surface_destroy(surface);
 }
 
-void RendererCairoPng::get_data(const uint8_t **t_buf, size_t *t_size) const
+void RendererCairoPng::get_data(const uint8_t** t_buf, size_t* t_size) const
 {
   *t_buf = &m_render_data[0];
   *t_size = m_render_data.size();
 }
 
-void RendererCairoPngBase64::render(const Page &t_page, double t_scale)
+void RendererCairoPngBase64::render(const Page& t_page, double t_scale)
 {
   surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
                                        static_cast<int>(t_page.size.x * t_scale),
@@ -431,13 +437,13 @@ void RendererCairoPngBase64::render(const Page &t_page, double t_scale)
   cairo_surface_destroy(surface);
 }
 
-void RendererCairoPngBase64::get_data(const uint8_t **t_buf, size_t *t_size) const
+void RendererCairoPngBase64::get_data(const uint8_t** t_buf, size_t* t_size) const
 {
-  *t_buf = reinterpret_cast<const unsigned char *>(m_buf.data());
+  *t_buf = reinterpret_cast<const unsigned char*>(m_buf.data());
   *t_size = m_buf.size();
 }
 
-void RendererCairoPdf::render(const Page &t_page, double t_scale)
+void RendererCairoPdf::render(const Page& t_page, double t_scale)
 {
   surface = cairo_pdf_surface_create_for_stream(
       cairowrite_ucvec, &m_render_data, t_page.size.x * t_scale, t_page.size.y * t_scale);
@@ -452,13 +458,13 @@ void RendererCairoPdf::render(const Page &t_page, double t_scale)
   cairo_surface_destroy(surface);
 }
 
-void RendererCairoPdf::get_data(const uint8_t **t_buf, size_t *t_size) const
+void RendererCairoPdf::get_data(const uint8_t** t_buf, size_t* t_size) const
 {
   *t_buf = &m_render_data[0];
   *t_size = m_render_data.size();
 }
 
-void RendererCairoPs::render(const Page &t_page, double t_scale)
+void RendererCairoPs::render(const Page& t_page, double t_scale)
 {
   surface = cairo_ps_surface_create_for_stream(
       cairowrite_fmt, &m_os, t_page.size.x * t_scale, t_page.size.y * t_scale);
@@ -473,13 +479,13 @@ void RendererCairoPs::render(const Page &t_page, double t_scale)
   cairo_surface_destroy(surface);
 }
 
-void RendererCairoPs::get_data(const uint8_t **t_buf, size_t *t_size) const
+void RendererCairoPs::get_data(const uint8_t** t_buf, size_t* t_size) const
 {
-  *t_buf = reinterpret_cast<const uint8_t *>(m_os.begin());
+  *t_buf = reinterpret_cast<const uint8_t*>(m_os.begin());
   *t_size = m_os.size();
 }
 
-void RendererCairoEps::render(const Page &t_page, double t_scale)
+void RendererCairoEps::render(const Page& t_page, double t_scale)
 {
   surface = cairo_ps_surface_create_for_stream(
       cairowrite_fmt, &m_os, t_page.size.x * t_scale, t_page.size.y * t_scale);
@@ -495,16 +501,16 @@ void RendererCairoEps::render(const Page &t_page, double t_scale)
   cairo_surface_destroy(surface);
 }
 
-void RendererCairoEps::get_data(const uint8_t **t_buf, size_t *t_size) const
+void RendererCairoEps::get_data(const uint8_t** t_buf, size_t* t_size) const
 {
-  *t_buf = reinterpret_cast<const uint8_t *>(m_os.begin());
+  *t_buf = reinterpret_cast<const uint8_t*>(m_os.begin());
   *t_size = m_os.size();
 }
 
 #ifndef UNIGD_NO_TIFF
 
 // see: https://research.cs.wisc.edu/graphics/Courses/638-f1999/libtiff_tutorial.htm
-void RendererCairoTiff::render(const Page &t_page, double t_scale)
+void RendererCairoTiff::render(const Page& t_page, double t_scale)
 {
   const int argb_size = 4;
   const int width = static_cast<int>(t_page.size.x * t_scale);
@@ -520,7 +526,7 @@ void RendererCairoTiff::render(const Page &t_page, double t_scale)
   render_page(&t_page);
 
   std::ostringstream tiff_ostream;
-  TIFF *tiff = TIFFStreamOpen("memory", &tiff_ostream);  // filename is ignored
+  TIFF* tiff = TIFFStreamOpen("memory", &tiff_ostream);  // filename is ignored
 
   TIFFSetField(tiff, TIFFTAG_IMAGEWIDTH, width);
   TIFFSetField(tiff, TIFFTAG_IMAGELENGTH, height);
@@ -564,7 +570,7 @@ void RendererCairoTiff::render(const Page &t_page, double t_scale)
   m_render_data.assign(out.begin(), out.end());
 }
 
-void RendererCairoTiff::get_data(const uint8_t **t_buf, size_t *t_size) const
+void RendererCairoTiff::get_data(const uint8_t** t_buf, size_t* t_size) const
 {
   *t_buf = &m_render_data[0];
   *t_size = m_render_data.size();

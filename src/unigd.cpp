@@ -1,4 +1,8 @@
 #include <algorithm>  // std::max
+#include <memory>
+#include <string>
+#include <vector>
+
 #include <cpp11/as.hpp>
 #include <cpp11/data_frame.hpp>
 #include <cpp11/function.hpp>
@@ -7,9 +11,6 @@
 #include <cpp11/logicals.hpp>
 #include <cpp11/raws.hpp>
 #include <cpp11/strings.hpp>
-#include <memory>
-#include <string>
-#include <vector>
 
 #include "debug_print.h"
 #include "generic_dev.h"
@@ -51,8 +52,8 @@ inline std::shared_ptr<unigd::unigd_device> validate_unigddev(int devnum)
   const auto state = dev->plt_state();
 
   SEXP client_info;
-  unigd::ex::graphics_client *client;
-  void *client_data;
+  unigd::ex::graphics_client* client;
+  void* client_data;
   if (dev->get_client_anonymous(&client, &client_data))
   {
     client_info = cpp11::writable::strings({std::string(client->info(client_data))});
@@ -145,7 +146,7 @@ inline std::shared_ptr<unigd::unigd_device> validate_unigddev(int devnum)
     cpp11::stop("Plot does not exist.");
   }
 
-  const uint8_t *buf;
+  const uint8_t* buf;
   size_t buf_size;
   renderer->get_data(&buf, &buf_size);
 
@@ -208,6 +209,12 @@ inline std::shared_ptr<unigd::unigd_device> validate_unigddev(int devnum)
   return dev->plt_clear();
 }
 
-[[cpp11::register]] void unigd_ipc_open_() { unigd::async::ipc_open(); }
+[[cpp11::register]] void unigd_ipc_open_()
+{
+  unigd::async::ipc_open();
+}
 
-[[cpp11::register]] void unigd_ipc_close_() { unigd::async::ipc_close(); }
+[[cpp11::register]] void unigd_ipc_close_()
+{
+  unigd::async::ipc_close();
+}

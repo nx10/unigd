@@ -1,13 +1,12 @@
 #ifndef __UNIGD_PAGE_STORE_H__
 #define __UNIGD_PAGE_STORE_H__
 
-#include <stdint.h>
-
 #include <atomic>
 #include <compat/optional.hpp>
 #include <functional>
 #include <mutex>
 #include <shared_mutex>
+#include <stdint.h>
 #include <string>
 #include <vector>
 
@@ -22,20 +21,20 @@ class page_store
  public:
   page_store() = default;
 
-  page_store(const page_store &) = delete;
-  page_store &operator=(page_store &) = delete;
-  page_store &operator=(const page_store &) = delete;
+  page_store(const page_store&) = delete;
+  page_store& operator=(page_store&) = delete;
+  page_store& operator=(const page_store&) = delete;
 
-  page_store(page_store &&) = delete;
-  page_store &operator=(page_store &&) = delete;
+  page_store(page_store&&) = delete;
+  page_store& operator=(page_store&&) = delete;
 
   std::experimental::optional<ex::plot_index_t> find_index(ex::plot_id_t t_id);
   std::experimental::optional<ex::plot_relative_t> normalize_index(
       ex::plot_relative_t t_index);
 
-  bool render(ex::plot_relative_t t_index, renderers::render_target *t_renderer,
+  bool render(ex::plot_relative_t t_index, renderers::render_target* t_renderer,
               double t_scale);
-  bool render_if_size(ex::plot_relative_t t_index, renderers::render_target *t_renderer,
+  bool render_if_size(ex::plot_relative_t t_index, renderers::render_target* t_renderer,
                       double t_scale, gvertex<double> t_target_size);
 
   ex::plot_index_t append(gvertex<double> t_size);
@@ -46,10 +45,10 @@ class page_store
   gvertex<double> size(ex::plot_relative_t t_index);
 
   void fill(ex::plot_relative_t t_index, color_t t_fill);
-  void add_dc(ex::plot_relative_t t_index, std::unique_ptr<renderers::DrawCall> &&t_dc,
+  void add_dc(ex::plot_relative_t t_index, std::unique_ptr<renderers::DrawCall>&& t_dc,
               bool t_silent);
   void add_dc(ex::plot_relative_t t_index,
-              std::vector<std::unique_ptr<renderers::DrawCall>> &&t_dcs, bool t_silent);
+              std::vector<std::unique_ptr<renderers::DrawCall>>&& t_dcs, bool t_silent);
   void clip(ex::plot_relative_t t_index, grect<double> t_rect);
 
   ex::device_state state();

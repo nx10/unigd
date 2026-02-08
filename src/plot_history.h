@@ -4,7 +4,6 @@
 #include <cpp11/list.hpp>
 #define R_NO_REMAP
 #include <R_ext/GraphicsEngine.h>
-
 #include <string>
 
 namespace unigd
@@ -20,7 +19,7 @@ class PlotHistory
   void put(R_xlen_t index, SEXP snapshot);
   bool put_current(R_xlen_t index, pDevDesc dd);
   void put_last(R_xlen_t index, pDevDesc dd);
-  bool get(R_xlen_t index, SEXP *snapshot);
+  bool get(R_xlen_t index, SEXP* snapshot);
 
   bool remove(R_xlen_t index);
 

@@ -1,10 +1,10 @@
 #ifndef __UNIGD_RENDERER_SVG_H__
 #define __UNIGD_RENDERER_SVG_H__
 
-#include <fmt/format.h>
-
 #include <compat/optional.hpp>
 #include <string>
+
+#include <fmt/format.h>
 
 #include "renderers.h"
 
@@ -16,19 +16,19 @@ class RendererSVG : public render_target, public draw_call_visitor
 {
  public:
   explicit RendererSVG(std::experimental::optional<std::string> t_extra_css);
-  void render(const Page &t_page, double t_scale) override;
-  void get_data(const uint8_t **t_buf, size_t *t_size) const override;
+  void render(const Page& t_page, double t_scale) override;
+  void get_data(const uint8_t** t_buf, size_t* t_size) const override;
 
   // Renderer
-  void page(const Page &t_page);
-  void visit(const Rect *t_rect) override;
-  void visit(const Text *t_text) override;
-  void visit(const Circle *t_circle) override;
-  void visit(const Line *t_line) override;
-  void visit(const Polyline *t_polyline) override;
-  void visit(const Polygon *t_polygon) override;
-  void visit(const Path *t_path) override;
-  void visit(const Raster *t_raster) override;
+  void page(const Page& t_page);
+  void visit(const Rect* t_rect) override;
+  void visit(const Text* t_text) override;
+  void visit(const Circle* t_circle) override;
+  void visit(const Line* t_line) override;
+  void visit(const Polyline* t_polyline) override;
+  void visit(const Polygon* t_polygon) override;
+  void visit(const Path* t_path) override;
+  void visit(const Raster* t_raster) override;
 
  private:
   fmt::memory_buffer os;
@@ -46,19 +46,19 @@ class RendererSVGPortable : public render_target, public draw_call_visitor
 {
  public:
   RendererSVGPortable();
-  void render(const Page &t_page, double t_scale) override;
-  void get_data(const uint8_t **t_buf, size_t *t_size) const override;
+  void render(const Page& t_page, double t_scale) override;
+  void get_data(const uint8_t** t_buf, size_t* t_size) const override;
 
   // Renderer
-  void page(const Page &t_page);
-  void visit(const Rect *t_rect) override;
-  void visit(const Text *t_text) override;
-  void visit(const Circle *t_circle) override;
-  void visit(const Line *t_line) override;
-  void visit(const Polyline *t_polyline) override;
-  void visit(const Polygon *t_polygon) override;
-  void visit(const Path *t_path) override;
-  void visit(const Raster *t_raster) override;
+  void page(const Page& t_page);
+  void visit(const Rect* t_rect) override;
+  void visit(const Text* t_text) override;
+  void visit(const Circle* t_circle) override;
+  void visit(const Line* t_line) override;
+  void visit(const Polyline* t_polyline) override;
+  void visit(const Polygon* t_polygon) override;
+  void visit(const Path* t_path) override;
+  void visit(const Raster* t_raster) override;
 
  private:
   fmt::memory_buffer os;
@@ -70,8 +70,8 @@ class RendererSVGZ : public RendererSVG
 {
  public:
   explicit RendererSVGZ(std::experimental::optional<std::string> t_extra_css);
-  void render(const Page &t_page, double t_scale) override;
-  void get_data(const uint8_t **t_buf, size_t *t_size) const override;
+  void render(const Page& t_page, double t_scale) override;
+  void get_data(const uint8_t** t_buf, size_t* t_size) const override;
 
  private:
   std::vector<unsigned char> m_compressed;
@@ -81,8 +81,8 @@ class RendererSVGZPortable : public RendererSVGPortable
 {
  public:
   RendererSVGZPortable();
-  void render(const Page &t_page, double t_scale) override;
-  void get_data(const uint8_t **t_buf, size_t *t_size) const override;
+  void render(const Page& t_page, double t_scale) override;
+  void get_data(const uint8_t** t_buf, size_t* t_size) const override;
 
  private:
   std::vector<unsigned char> m_compressed;

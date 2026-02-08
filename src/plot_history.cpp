@@ -35,6 +35,7 @@ bool PlotHistory::replay_current(pDevDesc dd)
 }
 
 PlotHistory::PlotHistory() : m_items() {}
+
 void PlotHistory::put(R_xlen_t t_index, SEXP t_snapshot)
 {
   if (m_items.size() <= t_index)
@@ -43,6 +44,7 @@ void PlotHistory::put(R_xlen_t t_index, SEXP t_snapshot)
   }
   m_items[t_index] = t_snapshot;
 }
+
 bool PlotHistory::put_current(R_xlen_t t_index, pDevDesc dd)
 {
   pGEDevDesc gdd = desc2GEDesc(dd);
@@ -61,11 +63,17 @@ bool PlotHistory::put_current(R_xlen_t t_index, pDevDesc dd)
   }
   return false;
 }
+
 void PlotHistory::put_last(R_xlen_t t_index, pDevDesc dd)
 {
   put(t_index, desc2GEDesc(dd)->savedSnapshot);
 }
-void PlotHistory::clear() { m_items.clear(); }
+
+void PlotHistory::clear()
+{
+  m_items.clear();
+}
+
 bool PlotHistory::play(R_xlen_t t_index, pDevDesc dd)
 {
   SEXP snap = R_NilValue;
@@ -84,7 +92,8 @@ bool PlotHistory::play(R_xlen_t t_index, pDevDesc dd)
   }
   return false;
 }
-bool PlotHistory::get(R_xlen_t t_index, SEXP *t_snapshot)
+
+bool PlotHistory::get(R_xlen_t t_index, SEXP* t_snapshot)
 {
   if (m_items.size() <= t_index)
   {

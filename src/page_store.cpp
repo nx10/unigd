@@ -15,6 +15,7 @@ inline bool page_store::m_valid_index(ex::plot_relative_t t_index)
   const auto psize = static_cast<ex::plot_relative_t>(m_pages.size());
   return (psize > 0 && (t_index >= -psize && t_index < psize));
 }
+
 inline std::size_t page_store::m_index_to_pos(ex::plot_relative_t t_index)
 {
   return (t_index < 0 ? (m_pages.size() + t_index) : t_index);
@@ -40,8 +41,9 @@ ex::plot_index_t page_store::append(gvertex<double> t_size)
 
   return static_cast<ex::plot_index_t>(m_pages.size() - 1);
 }
+
 void page_store::add_dc(ex::plot_relative_t t_index,
-                        std::unique_ptr<renderers::DrawCall> &&t_dc, bool t_silent)
+                        std::unique_ptr<renderers::DrawCall>&& t_dc, bool t_silent)
 {
   const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex);
   if (!m_valid_index(t_index))
@@ -57,7 +59,7 @@ void page_store::add_dc(ex::plot_relative_t t_index,
 }
 
 void page_store::add_dc(ex::plot_relative_t t_index,
-                        std::vector<std::unique_ptr<renderers::DrawCall>> &&t_dcs,
+                        std::vector<std::unique_ptr<renderers::DrawCall>>&& t_dcs,
                         bool t_silent)
 {
   const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex);
@@ -73,6 +75,7 @@ void page_store::add_dc(ex::plot_relative_t t_index,
     m_inc_upid();
   }
 }
+
 void page_store::clear(ex::plot_relative_t t_index, bool t_silent)
 {
   const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex);
@@ -87,6 +90,7 @@ void page_store::clear(ex::plot_relative_t t_index, bool t_silent)
     m_inc_upid();
   }
 }
+
 bool page_store::remove(ex::plot_relative_t t_index, bool t_silent)
 {
   const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex);
@@ -104,6 +108,7 @@ bool page_store::remove(ex::plot_relative_t t_index, bool t_silent)
   }
   return true;
 }
+
 bool page_store::remove_all()
 {
   const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex);
@@ -120,6 +125,7 @@ bool page_store::remove_all()
   m_inc_upid();
   return true;
 }
+
 void page_store::fill(ex::plot_relative_t t_index, color_t t_fill)
 {
   const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex);
@@ -130,6 +136,7 @@ void page_store::fill(ex::plot_relative_t t_index, color_t t_fill)
   auto index = m_index_to_pos(t_index);
   m_pages[index].fill = t_fill;
 }
+
 void page_store::resize(ex::plot_relative_t t_index, gvertex<double> t_size)
 {
   const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex);
@@ -141,6 +148,7 @@ void page_store::resize(ex::plot_relative_t t_index, gvertex<double> t_size)
   m_pages[index].size = t_size;
   m_pages[index].clear();
 }
+
 unigd::gvertex<double> page_store::size(ex::plot_relative_t t_index)
 {
   const std::shared_lock<std::shared_timed_mutex> r_lock(m_store_mutex);
@@ -151,6 +159,7 @@ unigd::gvertex<double> page_store::size(ex::plot_relative_t t_index)
   auto index = m_index_to_pos(t_index);
   return m_pages[index].size;
 }
+
 void page_store::clip(ex::plot_relative_t t_index, grect<double> t_rect)
 {
   const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex);
@@ -162,7 +171,7 @@ void page_store::clip(ex::plot_relative_t t_index, grect<double> t_rect)
   m_pages[index].clip(t_rect);
 }
 
-bool page_store::render(ex::plot_relative_t t_index, renderers::render_target *t_renderer,
+bool page_store::render(ex::plot_relative_t t_index, renderers::render_target* t_renderer,
                         double t_scale)
 {
   const std::unique_lock<std::shared_timed_mutex> w_lock(m_store_mutex);
@@ -176,7 +185,7 @@ bool page_store::render(ex::plot_relative_t t_index, renderers::render_target *t
 }
 
 bool page_store::render_if_size(ex::plot_relative_t t_index,
-                                renderers::render_target *t_renderer, double t_scale,
+                                renderers::render_target* t_renderer, double t_scale,
                                 gvertex<double> t_target_size)
 {
   const std::shared_lock<std::shared_timed_mutex> r_lock(m_store_mutex);
@@ -222,7 +231,11 @@ std::experimental::optional<ex::plot_index_t> page_store::find_index(ex::plot_id
   return std::experimental::nullopt;
 }
 
-void page_store::m_inc_upid() { m_upid = incwrap(m_upid); }
+void page_store::m_inc_upid()
+{
+  m_upid = incwrap(m_upid);
+}
+
 unigd_device_state page_store::state()
 {
   const std::shared_lock<std::shared_timed_mutex> r_lock(m_store_mutex);

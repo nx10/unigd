@@ -85,7 +85,7 @@ static std::unordered_map<std::string, renderer_map_entry> renderer_map = {
 #endif /* UNIGD_NO_CAIRO */
 };
 
-bool find(const std::string &id, renderer_map_entry *renderer)
+bool find(const std::string& id, renderer_map_entry* renderer)
 {
   const auto it = renderer_map.find(id);
   if (it != renderer_map.end())
@@ -96,7 +96,7 @@ bool find(const std::string &id, renderer_map_entry *renderer)
   return false;
 }
 
-bool find_generator(const std::string &id, renderer_gen *renderer)
+bool find_generator(const std::string& id, renderer_gen* renderer)
 {
   renderer_map_entry renderer_str;
   if (find(id, &renderer_str))
@@ -107,7 +107,7 @@ bool find_generator(const std::string &id, renderer_gen *renderer)
   return false;
 }
 
-bool find_info(const std::string &id, unigd_renderer_info *renderer)
+bool find_info(const std::string& id, unigd_renderer_info* renderer)
 {
   renderer_map_entry renderer_str;
   if (find(id, &renderer_str))
@@ -118,7 +118,7 @@ bool find_info(const std::string &id, unigd_renderer_info *renderer)
   return false;
 }
 
-const std::unordered_map<std::string, renderer_map_entry> *renderers()
+const std::unordered_map<std::string, renderer_map_entry>* renderers()
 {
   return &renderer_map;
 }

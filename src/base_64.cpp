@@ -12,7 +12,8 @@ namespace unigd
 const static char encode_lookup[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 const static char pad_character = '=';
-std::string base64_encode(const std::uint8_t *buffer, size_t size)
+
+std::string base64_encode(const std::uint8_t* buffer, size_t size)
 {
   std::string encoded_string;
   encoded_string.reserve(((size / 3) + (size % 3 > 0)) * 4);
@@ -50,13 +51,14 @@ std::string base64_encode(const std::uint8_t *buffer, size_t size)
 
 static void png_memory_write(png_structp png_ptr, png_bytep data, png_size_t length)
 {
-  std::vector<uint8_t> *p = (std::vector<uint8_t> *)png_get_io_ptr(png_ptr);
+  std::vector<uint8_t>* p = (std::vector<uint8_t>*)png_get_io_ptr(png_ptr);
   p->insert(p->end(), data, data + length);
 }
+
 inline std::string raster_to_string(std::vector<unsigned int> raster_, int w, int h,
                                     double width, double height, bool interpolate)
 {
-  unsigned int *raster = raster_.data();
+  unsigned int* raster = raster_.data();
 
   h = h < 0 ? -h : h;
   w = w < 0 ? -w : w;
@@ -119,10 +121,10 @@ inline std::string raster_to_string(std::vector<unsigned int> raster_, int w, in
   }
   png_set_IHDR(png, info, w, h, 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
                PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-  std::vector<uint8_t *> rows(h);
+  std::vector<uint8_t*> rows(h);
   for (int y = 0; y < h; ++y)
   {
-    rows[y] = (uint8_t *)raster + y * w * 4;
+    rows[y] = (uint8_t*)raster + y * w * 4;
   }
 
   std::vector<std::uint8_t> buffer;
@@ -134,7 +136,7 @@ inline std::string raster_to_string(std::vector<unsigned int> raster_, int w, in
   return base64_encode(buffer.data(), buffer.size());
 }
 
-std::string raster_base64(const renderers::Raster &t_raster)
+std::string raster_base64(const renderers::Raster& t_raster)
 {
   return raster_to_string(t_raster.raster, t_raster.wh.x, t_raster.wh.y,
                           t_raster.rect.width, t_raster.rect.height,

@@ -28,7 +28,7 @@ grect<T> normalize_rect(T x0, T y0, T x1, T y1)
 }
 
 template <class T>
-bool rect_equals(const grect<T> &r0, const grect<T> &r1, T eps)
+bool rect_equals(const grect<T>& r0, const grect<T>& r1, T eps)
 {
   return (std::fabs(r0.x - r1.x) < eps) && (std::fabs(r0.y - r1.y) < eps) &&
          (std::fabs(r0.width - r1.width) < eps) &&

@@ -32,27 +32,72 @@ constexpr color_t rgb(color_t r, color_t g, color_t b)
 {
   return ((r << red_offset) | (g << green_offset) | (b << blue_offset) | alpha_mask);
 }
+
 constexpr color_t rgba(color_t r, color_t g, color_t b, color_t a)
 {
   return ((r << red_offset) | (g << green_offset) | (b << blue_offset) |
           (a << alpha_offset));
 }
-constexpr color_t red(color_t x) { return (x >> red_offset) & byte_mask; }
-constexpr color_t green(color_t x) { return (x >> green_offset) & byte_mask; }
-constexpr color_t blue(color_t x) { return (x >> blue_offset) & byte_mask; }
-constexpr color_t alpha(color_t x) { return (x >> alpha_offset) & byte_mask; }
-constexpr bool opaque(color_t x) { return alpha(x) == byte_mask; }
-constexpr bool transparent(color_t x) { return alpha(x) == 0; }
+
+constexpr color_t red(color_t x)
+{
+  return (x >> red_offset) & byte_mask;
+}
+
+constexpr color_t green(color_t x)
+{
+  return (x >> green_offset) & byte_mask;
+}
+
+constexpr color_t blue(color_t x)
+{
+  return (x >> blue_offset) & byte_mask;
+}
+
+constexpr color_t alpha(color_t x)
+{
+  return (x >> alpha_offset) & byte_mask;
+}
+
+constexpr bool opaque(color_t x)
+{
+  return alpha(x) == byte_mask;
+}
+
+constexpr bool transparent(color_t x)
+{
+  return alpha(x) == 0;
+}
+
 constexpr bool tranwhite(color_t x)
 {
   return x == rgba(byte_mask, byte_mask, byte_mask, 0);
 }
 
-constexpr double byte_frac(color_t x) { return x / static_cast<double>(byte_mask); }
-constexpr double red_frac(color_t x) { return byte_frac(red(x)); }
-constexpr double green_frac(color_t x) { return byte_frac(green(x)); }
-constexpr double blue_frac(color_t x) { return byte_frac(blue(x)); }
-constexpr double alpha_frac(color_t x) { return byte_frac(alpha(x)); }
+constexpr double byte_frac(color_t x)
+{
+  return x / static_cast<double>(byte_mask);
+}
+
+constexpr double red_frac(color_t x)
+{
+  return byte_frac(red(x));
+}
+
+constexpr double green_frac(color_t x)
+{
+  return byte_frac(green(x));
+}
+
+constexpr double blue_frac(color_t x)
+{
+  return byte_frac(blue(x));
+}
+
+constexpr double alpha_frac(color_t x)
+{
+  return byte_frac(alpha(x));
+}
 }  // namespace color
 
 using clip_id_t = int;
@@ -123,21 +168,21 @@ class Raster;
 
 struct draw_call_visitor
 {
-  virtual void visit(const Rect *t_rect) = 0;
-  virtual void visit(const Text *t_text) = 0;
-  virtual void visit(const Circle *t_circle) = 0;
-  virtual void visit(const Line *t_line) = 0;
-  virtual void visit(const Polyline *t_polyline) = 0;
-  virtual void visit(const Polygon *t_polygon) = 0;
-  virtual void visit(const Path *t_path) = 0;
-  virtual void visit(const Raster *t_raster) = 0;
+  virtual void visit(const Rect* t_rect) = 0;
+  virtual void visit(const Text* t_text) = 0;
+  virtual void visit(const Circle* t_circle) = 0;
+  virtual void visit(const Line* t_line) = 0;
+  virtual void visit(const Polyline* t_polyline) = 0;
+  virtual void visit(const Polygon* t_polygon) = 0;
+  virtual void visit(const Path* t_path) = 0;
+  virtual void visit(const Raster* t_raster) = 0;
 };
 
 class DrawCall
 {
  public:
   virtual ~DrawCall() = default;
-  virtual void visit(draw_call_visitor *t_visitor) const = 0;
+  virtual void visit(draw_call_visitor* t_visitor) const = 0;
 
   clip_id_t clip_id = 0;
 };
@@ -145,9 +190,9 @@ class DrawCall
 class Text : public DrawCall
 {
  public:
-  Text(color_t t_col, gvertex<double> t_pos, std::string &&t_str, double t_rot,
-       double t_hadj, TextInfo &&t_text);
-  void visit(draw_call_visitor *t_visitor) const override;
+  Text(color_t t_col, gvertex<double> t_pos, std::string&& t_str, double t_rot,
+       double t_hadj, TextInfo&& t_text);
+  void visit(draw_call_visitor* t_visitor) const override;
 
   color_t col;
   gvertex<double> pos;
@@ -159,8 +204,8 @@ class Text : public DrawCall
 class Circle : public DrawCall
 {
  public:
-  Circle(LineInfo &&t_line, color_t t_fill, gvertex<double> t_pos, double t_radius);
-  void visit(draw_call_visitor *t_visitor) const override;
+  Circle(LineInfo&& t_line, color_t t_fill, gvertex<double> t_pos, double t_radius);
+  void visit(draw_call_visitor* t_visitor) const override;
 
   LineInfo line;
   color_t fill;
@@ -171,8 +216,8 @@ class Circle : public DrawCall
 class Line : public DrawCall
 {
  public:
-  Line(LineInfo &&t_line, gvertex<double> t_orig, gvertex<double> t_dest);
-  void visit(draw_call_visitor *t_visitor) const override;
+  Line(LineInfo&& t_line, gvertex<double> t_orig, gvertex<double> t_dest);
+  void visit(draw_call_visitor* t_visitor) const override;
 
   LineInfo line;
   gvertex<double> orig, dest;
@@ -181,8 +226,8 @@ class Line : public DrawCall
 class Rect : public DrawCall
 {
  public:
-  Rect(LineInfo &&t_line, color_t t_fill, grect<double> t_rect);
-  void visit(draw_call_visitor *t_visitor) const override;
+  Rect(LineInfo&& t_line, color_t t_fill, grect<double> t_rect);
+  void visit(draw_call_visitor* t_visitor) const override;
 
   LineInfo line;
   color_t fill;
@@ -192,28 +237,30 @@ class Rect : public DrawCall
 class Polyline : public DrawCall
 {
  public:
-  Polyline(LineInfo &&t_line, std::vector<gvertex<double>> &&t_points);
-  void visit(draw_call_visitor *t_visitor) const override;
+  Polyline(LineInfo&& t_line, std::vector<gvertex<double>>&& t_points);
+  void visit(draw_call_visitor* t_visitor) const override;
 
   LineInfo line;
   std::vector<gvertex<double>> points;
 };
+
 class Polygon : public DrawCall
 {
  public:
-  Polygon(LineInfo &&t_line, color_t t_fill, std::vector<gvertex<double>> &&t_points);
-  void visit(draw_call_visitor *t_visitor) const override;
+  Polygon(LineInfo&& t_line, color_t t_fill, std::vector<gvertex<double>>&& t_points);
+  void visit(draw_call_visitor* t_visitor) const override;
 
   LineInfo line;
   color_t fill;
   std::vector<gvertex<double>> points;
 };
+
 class Path : public DrawCall
 {
  public:
-  Path(LineInfo &&t_line, color_t t_fill, std::vector<gvertex<double>> &&t_points,
-       std::vector<int> &&t_nper, bool t_winding);
-  void visit(draw_call_visitor *t_visitor) const override;
+  Path(LineInfo&& t_line, color_t t_fill, std::vector<gvertex<double>>&& t_points,
+       std::vector<int>&& t_nper, bool t_winding);
+  void visit(draw_call_visitor* t_visitor) const override;
 
   LineInfo line;
   color_t fill;
@@ -225,9 +272,9 @@ class Path : public DrawCall
 class Raster : public DrawCall
 {
  public:
-  Raster(std::vector<unsigned int> &&t_raster, gvertex<int> t_wh, grect<double> t_rect,
+  Raster(std::vector<unsigned int>&& t_raster, gvertex<int> t_wh, grect<double> t_rect,
          double t_rot, bool t_interpolate);
-  void visit(draw_call_visitor *t_visitor) const override;
+  void visit(draw_call_visitor* t_visitor) const override;
 
   std::vector<unsigned int> raster;
   gvertex<int> wh;
@@ -239,7 +286,7 @@ class Raster : public DrawCall
 class Clip
 {
  public:
-  inline bool equals(const grect<double> &t_rect) const
+  inline bool equals(const grect<double>& t_rect) const
   {
     return rect_equals(t_rect, rect, 0.01);
   }
@@ -253,15 +300,15 @@ class Page
  public:
   Page(page_id_t t_id, gvertex<double> t_size);
 
-  Page(const Page &) = delete;
-  Page &operator=(Page &) = delete;
-  Page &operator=(const Page &) = delete;
+  Page(const Page&) = delete;
+  Page& operator=(Page&) = delete;
+  Page& operator=(const Page&) = delete;
 
-  Page(Page &&) = default;
-  Page &operator=(Page &&) = default;
+  Page(Page&&) = default;
+  Page& operator=(Page&&) = default;
 
-  void put(std::unique_ptr<DrawCall> &&t_dc);
-  void put(std::vector<std::unique_ptr<DrawCall>> &&t_dcs);
+  void put(std::unique_ptr<DrawCall>&& t_dc);
+  void put(std::vector<std::unique_ptr<DrawCall>>&& t_dcs);
   void clear();
   void clip(grect<double> t_rect);
 

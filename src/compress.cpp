@@ -1,16 +1,15 @@
 #include "compress.h"
 
-#include <zlib.h>
-
 #include <string>
 #include <vector>
+#include <zlib.h>
 
 namespace unigd
 {
 namespace compr
 {
 template <typename charTypeIn, typename charTypeOut>
-inline std::vector<charTypeOut> compressToGzip(const charTypeIn *input, size_t inputSize)
+inline std::vector<charTypeOut> compressToGzip(const charTypeIn* input, size_t inputSize)
 {
   static_assert(sizeof(charTypeIn) == 1, "input not a char type");
   static_assert(sizeof(charTypeOut) == 1, "output not a char type vector");
@@ -20,7 +19,7 @@ inline std::vector<charTypeOut> compressToGzip(const charTypeIn *input, size_t i
   zs.zfree = Z_NULL;
   zs.opaque = Z_NULL;
   zs.avail_in = static_cast<uInt>(inputSize);
-  zs.next_in = (Bytef *)input;
+  zs.next_in = (Bytef*)input;
 
   int ret = deflateInit2(&zs, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15 | 16, 8,
                          Z_DEFAULT_STRATEGY);
@@ -38,7 +37,7 @@ inline std::vector<charTypeOut> compressToGzip(const charTypeIn *input, size_t i
     buffer.resize(buffer.size() + chunk_size);
 
     zs.avail_out = chunk_size;
-    zs.next_out = reinterpret_cast<Bytef *>(&buffer[old_size]);
+    zs.next_out = reinterpret_cast<Bytef*>(&buffer[old_size]);
     ret = deflate(&zs, Z_FINISH);
     if (ret == Z_STREAM_ERROR)
     {
@@ -56,12 +55,12 @@ inline std::vector<charTypeOut> compressToGzip(const charTypeIn *input, size_t i
   return buffer;
 }
 
-std::vector<uint8_t> compress(const uint8_t *input, size_t input_size)
+std::vector<uint8_t> compress(const uint8_t* input, size_t input_size)
 {
   return compressToGzip<uint8_t, uint8_t>(input, input_size);
 }
 
-std::vector<unsigned char> compress_str(const std::string &s)
+std::vector<unsigned char> compress_str(const std::string& s)
 {
   return compressToGzip<char, unsigned char>(s.c_str(), s.size());
 }

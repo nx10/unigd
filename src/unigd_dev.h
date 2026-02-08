@@ -2,10 +2,11 @@
 #define __UNIGD_UNIGD_DEV_H__
 
 #include <compat/optional.hpp>
-#include <cpp11/list.hpp>
 #include <iostream>
 #include <memory>
 #include <mutex>
+
+#include <cpp11/list.hpp>
 
 #include "generic_dev.h"
 #include "page_store.h"
@@ -48,20 +49,20 @@ class unigd_device : public generic_dev<unigd_device>
   cpp11::list system_aliases;
   cpp11::list user_aliases;
 
-  unigd_device(const device_params &t_params);
+  unigd_device(const device_params& t_params);
 
-  unigd_device(const unigd_device &) = delete;
-  unigd_device &operator=(unigd_device &) = delete;
-  unigd_device &operator=(const unigd_device &) = delete;
+  unigd_device(const unigd_device&) = delete;
+  unigd_device& operator=(unigd_device&) = delete;
+  unigd_device& operator=(const unigd_device&) = delete;
 
-  unigd_device(unigd_device &&) = delete;
-  unigd_device &operator=(unigd_device &&) = delete;
+  unigd_device(unigd_device&&) = delete;
+  unigd_device& operator=(unigd_device&&) = delete;
 
-  bool attach_client(ex::graphics_client *t_client, UNIGD_CLIENT_ID t_client_id,
-                     void *t_client_data);
-  bool get_client(ex::graphics_client **t_client, UNIGD_CLIENT_ID t_client_id,
-                  void **t_client_data);
-  bool get_client_anonymous(ex::graphics_client **t_client, void **t_client_data);
+  bool attach_client(ex::graphics_client* t_client, UNIGD_CLIENT_ID t_client_id,
+                     void* t_client_data);
+  bool get_client(ex::graphics_client** t_client, UNIGD_CLIENT_ID t_client_id,
+                  void** t_client_data);
+  bool get_client_anonymous(ex::graphics_client** t_client, void** t_client_data);
   bool remove_client();
 
   // Synchronous access
@@ -70,7 +71,7 @@ class unigd_device : public generic_dev<unigd_device>
   bool plt_remove(int index);
   bool plt_clear();
   bool plt_render(int index, double width, double height,
-                  renderers::render_target *t_renderer, double t_scale);
+                  renderers::render_target* t_renderer, double t_scale);
 
   // Datastore only access
 
@@ -93,25 +94,25 @@ class unigd_device : public generic_dev<unigd_device>
   void dev_deactivate(pDevDesc dd) override;
   void dev_close(pDevDesc dd) override;
   void dev_clip(double x0, double x1, double y0, double y1, pDevDesc dd) override;
-  void dev_size(double *left, double *right, double *bottom, double *top,
+  void dev_size(double* left, double* right, double* bottom, double* top,
                 pDevDesc dd) override;
   void dev_newPage(pGEcontext gc, pDevDesc dd) override;
   void dev_line(double x1, double y1, double x2, double y2, pGEcontext gc,
                 pDevDesc dd) override;
-  void dev_text(double x, double y, const char *str, double rot, double hadj,
+  void dev_text(double x, double y, const char* str, double rot, double hadj,
                 pGEcontext gc, pDevDesc dd) override;
-  double dev_strWidth(const char *str, pGEcontext gc, pDevDesc dd) override;
+  double dev_strWidth(const char* str, pGEcontext gc, pDevDesc dd) override;
   void dev_rect(double x0, double y0, double x1, double y1, pGEcontext gc,
                 pDevDesc dd) override;
   void dev_circle(double x, double y, double r, pGEcontext gc, pDevDesc dd) override;
-  void dev_polygon(int n, double *x, double *y, pGEcontext gc, pDevDesc dd) override;
-  void dev_polyline(int n, double *x, double *y, pGEcontext gc, pDevDesc dd) override;
-  void dev_path(double *x, double *y, int npoly, int *nper, Rboolean winding,
+  void dev_polygon(int n, double* x, double* y, pGEcontext gc, pDevDesc dd) override;
+  void dev_polyline(int n, double* x, double* y, pGEcontext gc, pDevDesc dd) override;
+  void dev_path(double* x, double* y, int npoly, int* nper, Rboolean winding,
                 pGEcontext gc, pDevDesc dd) override;
   void dev_mode(int mode, pDevDesc dd) override;
-  void dev_metricInfo(int c, pGEcontext gc, double *ascent, double *descent,
-                      double *width, pDevDesc dd) override;
-  void dev_raster(unsigned int *raster, int w, int h, double x, double y, double width,
+  void dev_metricInfo(int c, pGEcontext gc, double* ascent, double* descent,
+                      double* width, pDevDesc dd) override;
+  void dev_raster(unsigned int* raster, int w, int h, double x, double y, double width,
                   double height, double rot, Rboolean interpolate, pGEcontext gc,
                   pDevDesc dd) override;
 
@@ -119,16 +120,16 @@ class unigd_device : public generic_dev<unigd_device>
   PlotHistory m_history;
   std::shared_ptr<page_store> m_data_store;
 
-  ex::graphics_client *m_client{nullptr};
+  ex::graphics_client* m_client{nullptr};
   UNIGD_CLIENT_ID m_client_id = 0;
-  void *m_client_data{nullptr};
+  void* m_client_data{nullptr};
 
   bool replaying{false};  // Is the device replaying
   DeviceTarget m_target;
 
   bool m_initialized{false};
 
-  void put(std::unique_ptr<renderers::DrawCall> &&t_dc);
+  void put(std::unique_ptr<renderers::DrawCall>&& t_dc);
 
   // set device size
   void resize_device_to_page(pDevDesc dd);

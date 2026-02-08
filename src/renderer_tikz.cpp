@@ -6,9 +6,9 @@ namespace unigd
 {
 namespace renderers
 {
-static inline void write_tex_escaped(fmt::memory_buffer &os, const std::string &text)
+static inline void write_tex_escaped(fmt::memory_buffer& os, const std::string& text)
 {
-  for (const char &c : text)
+  for (const char& c : text)
   {
     switch (c)
     {
@@ -48,13 +48,13 @@ static inline void write_tex_escaped(fmt::memory_buffer &os, const std::string &
   }
 }
 
-static inline void tex_xcolor_rgb(fmt::memory_buffer &os, color_t col)
+static inline void tex_xcolor_rgb(fmt::memory_buffer& os, color_t col)
 {
   fmt::format_to(std::back_inserter(os), "{{rgb,255:red,{}; green,{}; blue,{}}}",
                  color::red(col), color::green(col), color::blue(col));
 }
 
-static inline void tex_fill_or_omit(fmt::memory_buffer &os, color_t col)
+static inline void tex_fill_or_omit(fmt::memory_buffer& os, color_t col)
 {
   auto alpha = color::alpha(col);
   if (alpha != 0)
@@ -70,7 +70,7 @@ static inline void tex_fill_or_omit(fmt::memory_buffer &os, color_t col)
   }
 }
 
-static inline void tex_lineinfo(fmt::memory_buffer &os, const LineInfo &line)
+static inline void tex_lineinfo(fmt::memory_buffer& os, const LineInfo& line)
 {
   // 1 lwd = 1/96", but units in rest of document are 1/72"
   fmt::format_to(std::back_inserter(os), "line width={:.2f}pt", line.lwd / 96.0 * 72);
@@ -150,19 +150,19 @@ static inline void tex_lineinfo(fmt::memory_buffer &os, const LineInfo &line)
   }
 }
 
-void RendererTikZ::render(const Page &t_page, double t_scale)
+void RendererTikZ::render(const Page& t_page, double t_scale)
 {
   m_scale = t_scale;
   page(t_page);
 }
 
-void RendererTikZ::get_data(const uint8_t **t_buf, size_t *t_size) const
+void RendererTikZ::get_data(const uint8_t** t_buf, size_t* t_size) const
 {
-  *t_buf = reinterpret_cast<const uint8_t *>(os.begin());
+  *t_buf = reinterpret_cast<const uint8_t*>(os.begin());
   *t_size = os.size();
 }
 
-void RendererTikZ::page(const Page &t_page)
+void RendererTikZ::page(const Page& t_page)
 {
   fmt::format_to(std::back_inserter(os),
                  R""(\begin{{tikzpicture}}[x=1pt,y=-1pt,scale={:.2f}])""
@@ -185,7 +185,7 @@ void RendererTikZ::page(const Page &t_page)
                    t_page.size.x, t_page.size.y);
   }
 
-  const auto &first_clip = t_page.cps.front();
+  const auto& first_clip = t_page.cps.front();
   fmt::format_to(std::back_inserter(os),
                  R""(\begin{{scope}}\clip ({:.2f},{:.2f}) rectangle ({:.2f},{:.2f});)""
                  "\n",
@@ -201,9 +201,9 @@ void RendererTikZ::page(const Page &t_page)
     }
     if ((*it)->clip_id != last_clip_id)
     {
-      const auto &next_clip =
+      const auto& next_clip =
           *std::find_if(t_page.cps.begin(), t_page.cps.end(),
-                        [&](const Clip &clip) { return clip.id == (*it)->clip_id; });
+                        [&](const Clip& clip) { return clip.id == (*it)->clip_id; });
       fmt::format_to(
           std::back_inserter(os),
           R""(\end{{scope}}\begin{{scope}}\clip ({:.2f},{:.2f}) rectangle ({:.2f},{:.2f});)""
@@ -221,7 +221,7 @@ void RendererTikZ::page(const Page &t_page)
                  R""(\end{{tikzpicture}})"");
 }
 
-void RendererTikZ::visit(const Rect *t_rect)
+void RendererTikZ::visit(const Rect* t_rect)
 {
   fmt::format_to(std::back_inserter(os), R""(\draw[)"");
   tex_fill_or_omit(os, t_rect->fill);
@@ -232,7 +232,7 @@ void RendererTikZ::visit(const Rect *t_rect)
                  t_rect->rect.y + t_rect->rect.height);
 }
 
-void RendererTikZ::visit(const Text *t_text)
+void RendererTikZ::visit(const Text* t_text)
 {
   fmt::format_to(std::back_inserter(os), R""(\node[text=)"");
   tex_xcolor_rgb(os, t_text->col);
@@ -270,7 +270,7 @@ void RendererTikZ::visit(const Text *t_text)
   fmt::format_to(std::back_inserter(os), R""(}};)"");
 }
 
-void RendererTikZ::visit(const Circle *t_circle)
+void RendererTikZ::visit(const Circle* t_circle)
 {
   fmt::format_to(std::back_inserter(os), R""(\draw[)"");
   tex_fill_or_omit(os, t_circle->fill);
@@ -279,7 +279,7 @@ void RendererTikZ::visit(const Circle *t_circle)
                  t_circle->pos.x, t_circle->pos.y, t_circle->radius);
 }
 
-void RendererTikZ::visit(const Line *t_line)
+void RendererTikZ::visit(const Line* t_line)
 {
   fmt::format_to(std::back_inserter(os), R""(\draw[)"");
   tex_lineinfo(os, t_line->line);
@@ -287,7 +287,7 @@ void RendererTikZ::visit(const Line *t_line)
                  t_line->orig.x, t_line->orig.y, t_line->dest.x, t_line->dest.y);
 }
 
-void RendererTikZ::visit(const Polyline *t_polyline)
+void RendererTikZ::visit(const Polyline* t_polyline)
 {
   fmt::format_to(std::back_inserter(os), R""(\draw[)"");
   tex_lineinfo(os, t_polyline->line);
@@ -303,7 +303,7 @@ void RendererTikZ::visit(const Polyline *t_polyline)
   fmt::format_to(std::back_inserter(os), ";");
 }
 
-void RendererTikZ::visit(const Polygon *t_polygon)
+void RendererTikZ::visit(const Polygon* t_polygon)
 {
   fmt::format_to(std::back_inserter(os), R""(\draw[)"");
   tex_fill_or_omit(os, t_polygon->fill);
@@ -316,7 +316,7 @@ void RendererTikZ::visit(const Polygon *t_polygon)
   fmt::format_to(std::back_inserter(os), "cycle;");
 }
 
-void RendererTikZ::visit(const Path *t_path)
+void RendererTikZ::visit(const Path* t_path)
 {
   fmt::format_to(std::back_inserter(os), R""(\draw[)"");
   tex_fill_or_omit(os, t_path->fill);
@@ -346,7 +346,7 @@ void RendererTikZ::visit(const Path *t_path)
   fmt::format_to(std::back_inserter(os), ";");
 }
 
-void RendererTikZ::visit(const Raster *t_raster)
+void RendererTikZ::visit(const Raster* t_raster)
 {
   fmt::format_to(std::back_inserter(os),
                  R""(% WARNING: TikZ raster image drawing not yet supported.)"");

@@ -19,20 +19,21 @@ namespace renderers
 class render_target : public ex::render_data
 {
  public:
-  virtual void render(const Page &t_page, double t_scale) = 0;
+  virtual void render(const Page& t_page, double t_scale) = 0;
 };
 
 using renderer_gen = std::function<std::unique_ptr<render_target>()>;
+
 struct renderer_map_entry
 {
   unigd_renderer_info info;
   renderer_gen generator;
 };
 
-bool find(const std::string &id, renderer_map_entry *renderer);
-bool find_generator(const std::string &id, renderer_gen *renderer);
-bool find_info(const std::string &id, unigd_renderer_info *renderer);
-const std::unordered_map<std::string, renderer_map_entry> *renderers();
+bool find(const std::string& id, renderer_map_entry* renderer);
+bool find_generator(const std::string& id, renderer_gen* renderer);
+bool find_info(const std::string& id, unigd_renderer_info* renderer);
+const std::unordered_map<std::string, renderer_map_entry>* renderers();
 }  // namespace renderers
 
 }  // namespace unigd

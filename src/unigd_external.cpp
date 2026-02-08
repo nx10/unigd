@@ -16,15 +16,21 @@ unigd_find_results find_results::c_repr()
   return {state, static_cast<plot_index_t>(ids.size()), ids.data()};
 }
 
-int api_test_fun() { return 7; }
+int api_test_fun()
+{
+  return 7;
+}
 
-void api_log(const char *t_message)
+void api_log(const char* t_message)
 {
   std::string msg(t_message);
   async::r_thread([=]() { Rprintf("unigd client: %s\n", msg.c_str()); });
 }
 
-const char *api_info() { return "unigd " UNIGD_VERSION; }
+const char* api_info()
+{
+  return "unigd " UNIGD_VERSION;
+}
 
 UNIGD_CLIENT_ID api_register_client_id()
 {
@@ -32,8 +38,8 @@ UNIGD_CLIENT_ID api_register_client_id()
   return client_id_counter++;  // todo: handle overflow
 }
 
-UNIGD_HANDLE api_device_attach(int devnum, unigd_graphics_client *client,
-                               UNIGD_CLIENT_ID client_id, void *client_data)
+UNIGD_HANDLE api_device_attach(int devnum, unigd_graphics_client* client,
+                               UNIGD_CLIENT_ID client_id, void* client_data)
 {
   auto dev = unigd_device::from_device_number(devnum);
   if (!dev)
@@ -47,15 +53,15 @@ UNIGD_HANDLE api_device_attach(int devnum, unigd_graphics_client *client,
   return nullptr;
 }
 
-void *api_device_get(int devnum, UNIGD_CLIENT_ID client_id)
+void* api_device_get(int devnum, UNIGD_CLIENT_ID client_id)
 {
   auto dev = unigd_device::from_device_number(devnum);
   if (!dev)
   {
     return nullptr;
   }
-  graphics_client *client;
-  void *client_data;
+  graphics_client* client;
+  void* client_data;
   if (!dev->get_client(&client, client_id, &client_data))
   {
     return nullptr;
@@ -66,24 +72,24 @@ void *api_device_get(int devnum, UNIGD_CLIENT_ID client_id)
 
 void api_device_destroy(UNIGD_HANDLE handle)
 {
-  delete static_cast<unigd_handle_t *>(handle);
+  delete static_cast<unigd_handle_t*>(handle);
 }
 
 unigd_device_state api_device_state(UNIGD_HANDLE ugd_handle)
 {
-  const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
+  const auto ugd = static_cast<unigd_handle_t*>(ugd_handle);
   return ugd->device->plt_state();
 }
 
 bool api_plots_clear(UNIGD_HANDLE ugd_handle)
 {
-  const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
+  const auto ugd = static_cast<unigd_handle_t*>(ugd_handle);
   return ugd->device->api_clear();
 }
 
 bool api_plots_remove(UNIGD_HANDLE ugd_handle, UNIGD_PLOT_ID id)
 {
-  const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
+  const auto ugd = static_cast<unigd_handle_t*>(ugd_handle);
   return ugd->device->api_remove(id);
 }
 
@@ -91,9 +97,9 @@ UNIGD_RENDER_HANDLE api_render_create(UNIGD_HANDLE ugd_handle,
                                       UNIGD_RENDERER_ID renderer_id,
                                       UNIGD_PLOT_ID plot_id,
                                       unigd_render_args render_args,
-                                      unigd_render_access *render_access)
+                                      unigd_render_access* render_access)
 {
-  const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
+  const auto ugd = static_cast<unigd_handle_t*>(ugd_handle);
   auto handle = ugd->device
                     ->api_render(renderer_id, plot_id, render_args.width,
                                  render_args.height, render_args.scale)
@@ -114,15 +120,15 @@ UNIGD_RENDER_HANDLE api_render_create(UNIGD_HANDLE ugd_handle,
 
 void api_render_destroy(UNIGD_RENDER_HANDLE handle)
 {
-  delete static_cast<unigd::ex::render_data *>(handle);
+  delete static_cast<unigd::ex::render_data*>(handle);
 }
 
 UNIGD_FIND_HANDLE api_plots_find(UNIGD_HANDLE ugd_handle, UNIGD_PLOT_RELATIVE offset,
-                                 UNIGD_PLOT_INDEX limit, unigd_find_results *results)
+                                 UNIGD_PLOT_INDEX limit, unigd_find_results* results)
 {
-  const auto ugd = static_cast<unigd_handle_t *>(ugd_handle);
+  const auto ugd = static_cast<unigd_handle_t*>(ugd_handle);
 
-  auto *re = new find_results{};
+  auto* re = new find_results{};
   *re = ugd->device->plt_query(offset, limit);
   *results = re->c_repr();
   return re;
@@ -130,18 +136,18 @@ UNIGD_FIND_HANDLE api_plots_find(UNIGD_HANDLE ugd_handle, UNIGD_PLOT_RELATIVE of
 
 void api_plots_find_destroy(UNIGD_FIND_HANDLE handle)
 {
-  delete static_cast<unigd::ex::find_results *>(handle);
+  delete static_cast<unigd::ex::find_results*>(handle);
 }
 
 UNIGD_RENDERERS_ENTRY_HANDLE api_renderers_find(UNIGD_RENDERER_ID id,
-                                                unigd_renderer_info *renderer)
+                                                unigd_renderer_info* renderer)
 {
   if (!renderers::find_info(id, renderer))
   {
     return nullptr;
   }
   static int ok_return = 1;
-  return static_cast<void *>(&ok_return);
+  return static_cast<void*>(&ok_return);
 }
 
 void api_renderers_find_destroy(UNIGD_RENDERERS_ENTRY_HANDLE handle)
@@ -150,15 +156,15 @@ void api_renderers_find_destroy(UNIGD_RENDERERS_ENTRY_HANDLE handle)
   // adding/removing)
 }
 
-UNIGD_RENDERERS_HANDLE api_renderers(unigd_renderers_list *renderer)
+UNIGD_RENDERERS_HANDLE api_renderers(unigd_renderers_list* renderer)
 {
   const auto rs = renderers::renderers();
 
-  auto *re = new std::vector<unigd_renderer_info>;
+  auto* re = new std::vector<unigd_renderer_info>;
 
   re->reserve(rs->size());
 
-  for (auto &it : *rs)
+  for (auto& it : *rs)
   {
     re->emplace_back(it.second.info);
   }
@@ -170,10 +176,10 @@ UNIGD_RENDERERS_HANDLE api_renderers(unigd_renderers_list *renderer)
 
 void api_renderers_destroy(UNIGD_RENDERERS_HANDLE handle)
 {
-  delete static_cast<std::vector<unigd_renderer_info> *>(handle);
+  delete static_cast<std::vector<unigd_renderer_info>*>(handle);
 }
 
-int api_v1_create(unigd_api_v1 **api_)
+int api_v1_create(unigd_api_v1** api_)
 {
   auto api = new unigd_api_v1();
 
@@ -206,7 +212,7 @@ int api_v1_create(unigd_api_v1 **api_)
   return 0;
 }
 
-int api_v1_destroy(unigd_api_v1 *api_)
+int api_v1_destroy(unigd_api_v1* api_)
 {
   delete api_;
 

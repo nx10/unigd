@@ -1,9 +1,9 @@
 #include "renderer_svg.h"
 
-#include <fmt/ostream.h>
-
 #include <cmath>
 #include <functional>
+
+#include <fmt/ostream.h>
 
 #include "base_64.h"
 #include "compress.h"
@@ -14,9 +14,9 @@ namespace unigd
 namespace renderers
 {
 
-static inline void write_xml_escaped(fmt::memory_buffer &os, const std::string &text)
+static inline void write_xml_escaped(fmt::memory_buffer& os, const std::string& text)
 {
-  for (const char &c : text)
+  for (const char& c : text)
   {
     switch (c)
     {
@@ -41,7 +41,7 @@ static inline void write_xml_escaped(fmt::memory_buffer &os, const std::string &
   }
 }
 
-static inline void css_fill_or_none(fmt::memory_buffer &os, color_t col)
+static inline void css_fill_or_none(fmt::memory_buffer& os, color_t col)
 {
   int alpha = color::alpha(col);
   if (alpha == 0)
@@ -59,7 +59,7 @@ static inline void css_fill_or_none(fmt::memory_buffer &os, color_t col)
   }
 }
 
-static inline void css_fill_or_omit(fmt::memory_buffer &os, color_t col)
+static inline void css_fill_or_omit(fmt::memory_buffer& os, color_t col)
 {
   int alpha = color::alpha(col);
   if (alpha != 0)
@@ -79,7 +79,8 @@ static inline double scale_lty(int lty, double lwd)
   // https://github.com/wch/r-source/blob/master/src/library/grDevices/src/cairo/cairoFns.c#L134
   return ((lwd > 1) ? lwd : 1) * (lty & 15);
 }
-static inline void css_lineinfo(fmt::memory_buffer &os, const LineInfo &line)
+
+static inline void css_lineinfo(fmt::memory_buffer& os, const LineInfo& line)
 {
   // 1 lwd = 1/96", but units in rest of document are 1/72"
   fmt::format_to(std::back_inserter(os), "stroke-width: {:.2f};", line.lwd / 96.0 * 72);
@@ -168,19 +169,19 @@ RendererSVG::RendererSVG(std::experimental::optional<std::string> t_extra_css)
 {
 }
 
-void RendererSVG::render(const Page &t_page, double t_scale)
+void RendererSVG::render(const Page& t_page, double t_scale)
 {
   m_scale = t_scale;
   this->page(t_page);
 }
 
-void RendererSVG::get_data(const uint8_t **t_buf, size_t *t_size) const
+void RendererSVG::get_data(const uint8_t** t_buf, size_t* t_size) const
 {
-  *t_buf = reinterpret_cast<const uint8_t *>(os.begin());
+  *t_buf = reinterpret_cast<const uint8_t*>(os.begin());
   *t_size = os.size();
 }
 
-void RendererSVG::page(const Page &t_page)
+void RendererSVG::page(const Page& t_page)
 {
   os.reserve((t_page.dcs.size() + t_page.cps.size()) * 128 + 512);
   fmt::format_to(
@@ -207,7 +208,7 @@ void RendererSVG::page(const Page &t_page)
   }
   fmt::format_to(std::back_inserter(os), "  ]]></style>\n");
 
-  for (const auto &cp : t_page.cps)
+  for (const auto& cp : t_page.cps)
   {
     fmt::format_to(
         std::back_inserter(os),
@@ -215,24 +216,21 @@ void RendererSVG::page(const Page &t_page)
         "\n",
         cp.id, cp.rect.x, cp.rect.y, cp.rect.width, cp.rect.height);
   }
-  fmt::format_to(
-      std::back_inserter(os),
-      "</defs>\n"
-      R""(<rect width="100%" height="100%" style="stroke: none;)"");
+  fmt::format_to(std::back_inserter(os),
+                 "</defs>\n"
+                 R""(<rect width="100%" height="100%" style="stroke: none;)"");
 
   css_fill_or_none(os, t_page.fill);
-  
-  fmt::format_to(
-      std::back_inserter(os),
-      R""("/>)""
-      "\n");
+
+  fmt::format_to(std::back_inserter(os), R""("/>)""
+                                         "\n");
 
   clip_id_t last_id = t_page.cps.front().id;
   fmt::format_to(std::back_inserter(os),
                  R""(<g clip-path="url(#c{:d})">)""
                  "\n",
                  last_id);
-  for (const auto &dc : t_page.dcs)
+  for (const auto& dc : t_page.dcs)
   {
     if (dc->clip_id != last_id)
     {
@@ -248,7 +246,7 @@ void RendererSVG::page(const Page &t_page)
   fmt::format_to(std::back_inserter(os), "</g>\n</svg>");
 }
 
-void RendererSVG::visit(const Text *t_text)
+void RendererSVG::visit(const Text* t_text)
 {
   // If we specify the clip path inside <image>, the "transform" also
   // affects the clip path, so we need to specify clip path at an outer level
@@ -316,7 +314,7 @@ void RendererSVG::visit(const Text *t_text)
   fmt::format_to(std::back_inserter(os), "</text></g>");
 }
 
-void RendererSVG::visit(const Circle *t_circle)
+void RendererSVG::visit(const Circle* t_circle)
 {
   fmt::format_to(std::back_inserter(os), "<circle ");
   fmt::format_to(std::back_inserter(os), R""(cx="{:.2f}" cy="{:.2f}" r="{:.2f}" )"",
@@ -328,7 +326,7 @@ void RendererSVG::visit(const Circle *t_circle)
   fmt::format_to(std::back_inserter(os), "\"/>");
 }
 
-void RendererSVG::visit(const Line *t_line)
+void RendererSVG::visit(const Line* t_line)
 {
   fmt::format_to(std::back_inserter(os), "<line ");
   fmt::format_to(std::back_inserter(os),
@@ -340,7 +338,7 @@ void RendererSVG::visit(const Line *t_line)
   fmt::format_to(std::back_inserter(os), "\"/>");
 }
 
-void RendererSVG::visit(const Rect *t_rect)
+void RendererSVG::visit(const Rect* t_rect)
 {
   fmt::format_to(std::back_inserter(os), "<rect ");
   fmt::format_to(std::back_inserter(os),
@@ -353,7 +351,7 @@ void RendererSVG::visit(const Rect *t_rect)
   fmt::format_to(std::back_inserter(os), "\"/>");
 }
 
-void RendererSVG::visit(const Polyline *t_polyline)
+void RendererSVG::visit(const Polyline* t_polyline)
 {
   fmt::format_to(std::back_inserter(os), "<polyline points=\"");
   for (auto it = t_polyline->points.begin(); it != t_polyline->points.end(); ++it)
@@ -369,7 +367,7 @@ void RendererSVG::visit(const Polyline *t_polyline)
   fmt::format_to(std::back_inserter(os), "\"/>");
 }
 
-void RendererSVG::visit(const Polygon *t_polygon)
+void RendererSVG::visit(const Polygon* t_polygon)
 {
   fmt::format_to(std::back_inserter(os), "<polygon points=\"");
   for (auto it = t_polygon->points.begin(); it != t_polygon->points.end(); ++it)
@@ -390,7 +388,7 @@ void RendererSVG::visit(const Polygon *t_polygon)
   fmt::format_to(std::back_inserter(os), "/>");
 }
 
-void RendererSVG::visit(const Path *t_path)
+void RendererSVG::visit(const Path* t_path)
 {
   fmt::format_to(std::back_inserter(os), "<path d=\"");
 
@@ -425,7 +423,7 @@ void RendererSVG::visit(const Path *t_path)
   fmt::format_to(std::back_inserter(os), ";\"/>");
 }
 
-void RendererSVG::visit(const Raster *t_raster)
+void RendererSVG::visit(const Raster* t_raster)
 {
   // If we specify the clip path inside <image>, the "transform" also
   // affects the clip path, so we need to specify clip path at an outer level
@@ -453,7 +451,7 @@ void RendererSVG::visit(const Raster *t_raster)
 
 // Portable SVG renderer
 
-static inline void att_fill_or_none(fmt::memory_buffer &os, color_t col)
+static inline void att_fill_or_none(fmt::memory_buffer& os, color_t col)
 {
   int alpha = color::alpha(col);
   if (alpha == 0)
@@ -472,7 +470,7 @@ static inline void att_fill_or_none(fmt::memory_buffer &os, color_t col)
   }
 }
 
-static inline void att_lineinfo(fmt::memory_buffer &os, const LineInfo &line)
+static inline void att_lineinfo(fmt::memory_buffer& os, const LineInfo& line)
 {
   // 1 lwd = 1/96", but units in rest of document are 1/72"
   fmt::format_to(std::back_inserter(os), R""(stroke-width="{:.2f}")"",
@@ -554,20 +552,20 @@ static inline void att_lineinfo(fmt::memory_buffer &os, const LineInfo &line)
 
 RendererSVGPortable::RendererSVGPortable() : os() {}
 
-void RendererSVGPortable::render(const Page &t_page, double t_scale)
+void RendererSVGPortable::render(const Page& t_page, double t_scale)
 {
   m_unique_id = unigd::uuid::uuid();
   m_scale = t_scale;
   this->page(t_page);
 }
 
-void RendererSVGPortable::get_data(const uint8_t **t_buf, size_t *t_size) const
+void RendererSVGPortable::get_data(const uint8_t** t_buf, size_t* t_size) const
 {
-  *t_buf = reinterpret_cast<const uint8_t *>(os.begin());
+  *t_buf = reinterpret_cast<const uint8_t*>(os.begin());
   *t_size = os.size();
 }
 
-void RendererSVGPortable::page(const Page &t_page)
+void RendererSVGPortable::page(const Page& t_page)
 {
   os.reserve((t_page.dcs.size() + t_page.cps.size()) * 128 + 512);
   fmt::format_to(
@@ -579,7 +577,7 @@ void RendererSVGPortable::page(const Page &t_page)
                  t_page.size.x * m_scale, t_page.size.y * m_scale, t_page.size.x,
                  t_page.size.y);
 
-  for (const auto &cp : t_page.cps)
+  for (const auto& cp : t_page.cps)
   {
     fmt::format_to(
         std::back_inserter(os),
@@ -599,7 +597,7 @@ void RendererSVGPortable::page(const Page &t_page)
                  R""(<g clip-path="url(#c{:d}-{})">)""
                  "\n",
                  last_id, m_unique_id);
-  for (const auto &dc : t_page.dcs)
+  for (const auto& dc : t_page.dcs)
   {
     if (dc->clip_id != last_id)
     {
@@ -615,7 +613,7 @@ void RendererSVGPortable::page(const Page &t_page)
   fmt::format_to(std::back_inserter(os), "</g>\n</svg>");
 }
 
-void RendererSVGPortable::visit(const Rect *t_rect)
+void RendererSVGPortable::visit(const Rect* t_rect)
 {
   fmt::format_to(std::back_inserter(os), "<rect ");
   fmt::format_to(std::back_inserter(os),
@@ -627,7 +625,7 @@ void RendererSVGPortable::visit(const Rect *t_rect)
   fmt::format_to(std::back_inserter(os), "/>");
 }
 
-void RendererSVGPortable::visit(const Text *t_text)
+void RendererSVGPortable::visit(const Text* t_text)
 {
   // If we specify the clip path inside <image>, the "transform" also
   // affects the clip path, so we need to specify clip path at an outer level
@@ -694,7 +692,7 @@ void RendererSVGPortable::visit(const Text *t_text)
   fmt::format_to(std::back_inserter(os), "</text></g>");
 }
 
-void RendererSVGPortable::visit(const Circle *t_circle)
+void RendererSVGPortable::visit(const Circle* t_circle)
 {
   fmt::format_to(std::back_inserter(os), "<circle ");
   fmt::format_to(std::back_inserter(os), R""(cx="{:.2f}" cy="{:.2f}" r="{:.2f}" )"",
@@ -705,7 +703,7 @@ void RendererSVGPortable::visit(const Circle *t_circle)
   fmt::format_to(std::back_inserter(os), "/>");
 }
 
-void RendererSVGPortable::visit(const Line *t_line)
+void RendererSVGPortable::visit(const Line* t_line)
 {
   fmt::format_to(std::back_inserter(os), "<line ");
   fmt::format_to(std::back_inserter(os),
@@ -716,7 +714,7 @@ void RendererSVGPortable::visit(const Line *t_line)
   fmt::format_to(std::back_inserter(os), "/>");
 }
 
-void RendererSVGPortable::visit(const Polyline *t_polyline)
+void RendererSVGPortable::visit(const Polyline* t_polyline)
 {
   fmt::format_to(std::back_inserter(os), "<polyline points=\"");
   for (auto it = t_polyline->points.begin(); it != t_polyline->points.end(); ++it)
@@ -732,7 +730,7 @@ void RendererSVGPortable::visit(const Polyline *t_polyline)
   fmt::format_to(std::back_inserter(os), "/>");
 }
 
-void RendererSVGPortable::visit(const Polygon *t_polygon)
+void RendererSVGPortable::visit(const Polygon* t_polygon)
 {
   fmt::format_to(std::back_inserter(os), "<polygon points=\"");
   for (auto it = t_polygon->points.begin(); it != t_polygon->points.end(); ++it)
@@ -749,7 +747,7 @@ void RendererSVGPortable::visit(const Polygon *t_polygon)
   fmt::format_to(std::back_inserter(os), "/>");
 }
 
-void RendererSVGPortable::visit(const Path *t_path)
+void RendererSVGPortable::visit(const Path* t_path)
 {
   fmt::format_to(std::back_inserter(os), "<path d=\"");
 
@@ -784,7 +782,7 @@ void RendererSVGPortable::visit(const Path *t_path)
   fmt::format_to(std::back_inserter(os), "\"/>");
 }
 
-void RendererSVGPortable::visit(const Raster *t_raster)
+void RendererSVGPortable::visit(const Raster* t_raster)
 {
   // If we specify the clip path inside <image>, the "transform" also
   // affects the clip path, so we need to specify clip path at an outer level
@@ -815,18 +813,18 @@ RendererSVGZ::RendererSVGZ(std::experimental::optional<std::string> t_extra_css)
 {
 }
 
-void RendererSVGZ::render(const Page &t_page, double t_scale)
+void RendererSVGZ::render(const Page& t_page, double t_scale)
 {
   RendererSVG::render(t_page, t_scale);
 
-  const uint8_t *buf;
+  const uint8_t* buf;
   size_t buf_size;
   RendererSVG::get_data(&buf, &buf_size);
 
   m_compressed = compr::compress(buf, buf_size);
 }
 
-void RendererSVGZ::get_data(const uint8_t **t_buf, size_t *t_size) const
+void RendererSVGZ::get_data(const uint8_t** t_buf, size_t* t_size) const
 {
   *t_buf = m_compressed.data();
   *t_size = m_compressed.size();
@@ -834,18 +832,18 @@ void RendererSVGZ::get_data(const uint8_t **t_buf, size_t *t_size) const
 
 RendererSVGZPortable::RendererSVGZPortable() : RendererSVGPortable() {}
 
-void RendererSVGZPortable::render(const Page &t_page, double t_scale)
+void RendererSVGZPortable::render(const Page& t_page, double t_scale)
 {
   RendererSVGPortable::render(t_page, t_scale);
 
-  const uint8_t *buf;
+  const uint8_t* buf;
   size_t buf_size;
   RendererSVGPortable::get_data(&buf, &buf_size);
 
   m_compressed = compr::compress(buf, buf_size);
 }
 
-void RendererSVGZPortable::get_data(const uint8_t **t_buf, size_t *t_size) const
+void RendererSVGZPortable::get_data(const uint8_t** t_buf, size_t* t_size) const
 {
   *t_buf = m_compressed.data();
   *t_size = m_compressed.size();

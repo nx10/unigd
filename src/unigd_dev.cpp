@@ -1,16 +1,16 @@
 
 #include "unigd_dev.h"
 
-#include <svglite_utils.h>
-
 #include <cmath>
+#include <memory>
+#include <string>
+
 #include <cpp11/as.hpp>
 #include <cpp11/doubles.hpp>
 #include <cpp11/function.hpp>
 #include <cpp11/list.hpp>
 #include <cpp11/strings.hpp>
-#include <memory>
-#include <string>
+#include <svglite_utils.h>
 
 #include "debug_print.h"
 #include "r_thread.h"
@@ -25,27 +25,44 @@ static inline cpp11::list r_graphics_par_get()
       cpp11::package("graphics")["par"]("no.readonly"_nm = true));
 }
 
-int DeviceTarget::get_index() const { return m_index; }
+int DeviceTarget::get_index() const
+{
+  return m_index;
+}
+
 void DeviceTarget::set_index(int t_index)
 {
   m_void = false;
   m_index = t_index;
 }
-int DeviceTarget::get_newest_index() const { return m_newest_index; }
-void DeviceTarget::set_newest_index(int t_index) { m_newest_index = t_index; }
-bool DeviceTarget::is_void() const { return m_void; }
+
+int DeviceTarget::get_newest_index() const
+{
+  return m_newest_index;
+}
+
+void DeviceTarget::set_newest_index(int t_index)
+{
+  m_newest_index = t_index;
+}
+
+bool DeviceTarget::is_void() const
+{
+  return m_void;
+}
+
 void DeviceTarget::set_void()
 {
   m_void = true;
   m_index = -1;
 }
 
-unigd_device::unigd_device(const device_params &t_params)
-    : generic_dev(t_params.width, t_params.height, t_params.pointsize, t_params.bg),
-      system_aliases(cpp11::as_cpp<cpp11::list>(t_params.aliases["system"])),
-      user_aliases(cpp11::as_cpp<cpp11::list>(t_params.aliases["user"])),
-      m_history(),
-      m_client(nullptr)
+unigd_device::unigd_device(const device_params& t_params)
+    : generic_dev(t_params.width, t_params.height, t_params.pointsize, t_params.bg)
+    , system_aliases(cpp11::as_cpp<cpp11::list>(t_params.aliases["system"]))
+    , user_aliases(cpp11::as_cpp<cpp11::list>(t_params.aliases["user"]))
+    , m_history()
+    , m_client(nullptr)
 {
   m_df_displaylist = true;
 
@@ -56,8 +73,8 @@ unigd_device::unigd_device(const device_params &t_params)
   m_initialized = true;
 }
 
-bool unigd_device::attach_client(ex::graphics_client *t_client,
-                                 UNIGD_CLIENT_ID t_client_id, void *t_client_data)
+bool unigd_device::attach_client(ex::graphics_client* t_client,
+                                 UNIGD_CLIENT_ID t_client_id, void* t_client_data)
 {
   if (m_client)
   {
@@ -70,8 +87,8 @@ bool unigd_device::attach_client(ex::graphics_client *t_client,
   return true;
 }
 
-bool unigd_device::get_client(ex::graphics_client **t_client, UNIGD_CLIENT_ID t_client_id,
-                              void **t_client_data)
+bool unigd_device::get_client(ex::graphics_client** t_client, UNIGD_CLIENT_ID t_client_id,
+                              void** t_client_data)
 {
   if (!m_client || (m_client_id != t_client_id))
   {
@@ -82,8 +99,8 @@ bool unigd_device::get_client(ex::graphics_client **t_client, UNIGD_CLIENT_ID t_
   return true;
 }
 
-bool unigd_device::get_client_anonymous(ex::graphics_client **t_client,
-                                        void **t_client_data)
+bool unigd_device::get_client_anonymous(ex::graphics_client** t_client,
+                                        void** t_client_data)
 {
   *t_client = m_client;
   *t_client_data = m_client_data;
@@ -106,7 +123,10 @@ bool unigd_device::remove_client()
 
 void unigd_device::dev_activate(pDevDesc dd)
 {
-  if (!m_initialized) return;
+  if (!m_initialized)
+  {
+    return;
+  }
   debug_println("ACTIVATE");
   m_data_store->set_device_active(true);
   if (m_client)
@@ -114,9 +134,13 @@ void unigd_device::dev_activate(pDevDesc dd)
     m_client->state_change(m_client_data);
   }
 }
+
 void unigd_device::dev_deactivate(pDevDesc dd)
 {
-  if (!m_initialized) return;
+  if (!m_initialized)
+  {
+    return;
+  }
   debug_println("DEACTIVATE");
   m_data_store->set_device_active(false);
   if (m_client)
@@ -128,7 +152,10 @@ void unigd_device::dev_deactivate(pDevDesc dd)
 void unigd_device::dev_mode(int mode, pDevDesc dd)
 {
   // debug_println("MODE %i", mode);
-  if (m_target.is_void() || mode == 1) return;
+  if (m_target.is_void() || mode == 1)
+  {
+    return;
+  }
 
   // flush buffer
   m_data_store->add_dc(m_target.get_index(), std::move(m_dc_buffer), replaying);
@@ -157,8 +184,8 @@ void unigd_device::dev_close(pDevDesc dd)
   m_history.clear();
 }
 
-void unigd_device::dev_metricInfo(int c, pGEcontext gc, double *ascent, double *descent,
-                                  double *width, pDevDesc dd)
+void unigd_device::dev_metricInfo(int c, pGEcontext gc, double* ascent, double* descent,
+                                  double* width, pDevDesc dd)
 {
   if (c < 0)
   {
@@ -180,7 +207,8 @@ void unigd_device::dev_metricInfo(int c, pGEcontext gc, double *ascent, double *
   *descent *= mod;
   *width *= mod;
 }
-double unigd_device::dev_strWidth(const char *str, pGEcontext gc, pDevDesc dd)
+
+double unigd_device::dev_strWidth(const char* str, pGEcontext gc, pDevDesc dd)
 {
   FontSettings font = get_font_file(gc->fontfamily, gc->fontface, user_aliases);
 
@@ -204,7 +232,8 @@ void unigd_device::dev_clip(double x0, double x1, double y0, double y1, pDevDesc
   }
   m_data_store->clip(m_target.get_index(), normalize_rect(x0, y0, x1, y1));
 }
-void unigd_device::dev_size(double *left, double *right, double *bottom, double *top,
+
+void unigd_device::dev_size(double* left, double* right, double* bottom, double* top,
                             pDevDesc dd)
 {
 }
@@ -257,9 +286,15 @@ void unigd_device::dev_newPage(pGEcontext gc, pDevDesc dd)
   {
     debug_print("    -> rewrite target: %i\n", m_target.get_index());
     debug_print("    -> clear page\n");
-    if (!m_target.is_void()) m_data_store->clear(m_target.get_index(), true);
+    if (!m_target.is_void())
+    {
+      m_data_store->clear(m_target.get_index(), true);
+    }
   }
-  if (!m_target.is_void()) m_data_store->fill(m_target.get_index(), fill);
+  if (!m_target.is_void())
+  {
+    m_data_store->fill(m_target.get_index(), fill);
+  }
 }
 
 inline renderers::LineInfo gc_lineinfo(pGEcontext gc)
@@ -271,7 +306,11 @@ inline renderers::LineInfo gc_lineinfo(pGEcontext gc)
           static_cast<renderers::LineInfo::GC_linejoin>(gc->ljoin),
           gc->lmitre};
 }
-inline color_t gc_fill(pGEcontext gc) { return gc->fill; }
+
+inline color_t gc_fill(pGEcontext gc)
+{
+  return gc->fill;
+}
 
 void unigd_device::dev_line(double x1, double y1, double x2, double y2, pGEcontext gc,
                             pDevDesc dd)
@@ -279,7 +318,8 @@ void unigd_device::dev_line(double x1, double y1, double x2, double y2, pGEconte
   put(std::make_unique<renderers::Line>(gc_lineinfo(gc), gvertex<double>{x1, y1},
                                         gvertex<double>{x2, y2}));
 }
-void unigd_device::dev_text(double x, double y, const char *str, double rot, double hadj,
+
+void unigd_device::dev_text(double x, double y, const char* str, double rot, double hadj,
                             pGEcontext gc, pDevDesc dd)
 {
   FontSettings font_info = get_font_file(gc->fontfamily, gc->fontface, user_aliases);
@@ -306,18 +346,21 @@ void unigd_device::dev_text(double x, double y, const char *str, double rot, dou
           fontname(gc->fontfamily, gc->fontface, system_aliases, user_aliases, font_info),
           gc->cex * gc->ps, is_italic(gc->fontface), dev_strWidth(str, gc, dd)}));
 }
+
 void unigd_device::dev_rect(double x0, double y0, double x1, double y1, pGEcontext gc,
                             pDevDesc dd)
 {
   put(std::make_unique<renderers::Rect>(gc_lineinfo(gc), gc_fill(gc),
                                         normalize_rect(x0, y0, x1, y1)));
 }
+
 void unigd_device::dev_circle(double x, double y, double r, pGEcontext gc, pDevDesc dd)
 {
   put(std::make_unique<renderers::Circle>(gc_lineinfo(gc), gc_fill(gc),
                                           gvertex<double>{x, y}, r));
 }
-void unigd_device::dev_polygon(int n, double *x, double *y, pGEcontext gc, pDevDesc dd)
+
+void unigd_device::dev_polygon(int n, double* x, double* y, pGEcontext gc, pDevDesc dd)
 {
   std::vector<gvertex<double>> points(n);
   for (int i = 0; i < n; ++i)
@@ -327,7 +370,8 @@ void unigd_device::dev_polygon(int n, double *x, double *y, pGEcontext gc, pDevD
   put(std::make_unique<renderers::Polygon>(gc_lineinfo(gc), gc_fill(gc),
                                            std::move(points)));
 }
-void unigd_device::dev_polyline(int n, double *x, double *y, pGEcontext gc, pDevDesc dd)
+
+void unigd_device::dev_polyline(int n, double* x, double* y, pGEcontext gc, pDevDesc dd)
 {
   std::vector<gvertex<double>> points(n);
   for (int i = 0; i < n; ++i)
@@ -336,12 +380,13 @@ void unigd_device::dev_polyline(int n, double *x, double *y, pGEcontext gc, pDev
   }
   put(std::make_unique<renderers::Polyline>(gc_lineinfo(gc), std::move(points)));
 }
-void unigd_device::dev_path(double *x, double *y, int npoly, int *nper, Rboolean winding,
+
+void unigd_device::dev_path(double* x, double* y, int npoly, int* nper, Rboolean winding,
                             pGEcontext gc, pDevDesc dd)
 {
   std::vector<int> vnper(nper, nper + npoly);
   int npoints = 0;
-  for (const auto &val : vnper)
+  for (const auto& val : vnper)
   {
     npoints += val;
   }
@@ -354,7 +399,8 @@ void unigd_device::dev_path(double *x, double *y, int npoly, int *nper, Rboolean
   put(std::make_unique<renderers::Path>(gc_lineinfo(gc), gc_fill(gc), std::move(points),
                                         std::move(vnper), winding));
 }
-void unigd_device::dev_raster(unsigned int *raster, int w, int h, double x, double y,
+
+void unigd_device::dev_raster(unsigned int* raster, int w, int h, double x, double y,
                               double width, double height, double rot,
                               Rboolean interpolate, pGEcontext gc, pDevDesc dd)
 {
@@ -369,9 +415,12 @@ void unigd_device::dev_raster(unsigned int *raster, int w, int h, double x, doub
 
 // OTHER
 
-void unigd_device::put(std::unique_ptr<renderers::DrawCall> &&t_dc)
+void unigd_device::put(std::unique_ptr<renderers::DrawCall>&& t_dc)
 {
-  if (m_target.is_void()) return;
+  if (m_target.is_void())
+  {
+    return;
+  }
 
   // debug_println("DC put");
   m_dc_buffer.emplace_back(std::move(t_dc));
@@ -380,7 +429,10 @@ void unigd_device::put(std::unique_ptr<renderers::DrawCall> &&t_dc)
 
 void unigd_device::plt_prerender(int index, double width, double height)
 {
-  if (index == -1) index = m_target.get_newest_index();
+  if (index == -1)
+  {
+    index = m_target.get_newest_index();
+  }
 
   pDevDesc dd = get_active_pDevDesc();
 
@@ -438,7 +490,10 @@ bool unigd_device::plt_clear()
 
 bool unigd_device::plt_remove(int index)
 {
-  if (index == -1) index = m_target.get_newest_index();
+  if (index == -1)
+  {
+    index = m_target.get_newest_index();
+  }
 
   // remove from store
   bool r = m_data_store->remove(index, false);
@@ -470,7 +525,7 @@ bool unigd_device::plt_remove(int index)
 }
 
 bool unigd_device::plt_render(int index, double width, double height,
-                              renderers::render_target *t_renderer, double t_scale)
+                              renderers::render_target* t_renderer, double t_scale)
 {
   const auto index_norm = m_data_store->normalize_index(index);
 
@@ -498,7 +553,10 @@ int unigd_device::plt_index(int32_t id)
   return m_data_store->find_index(id).value_or(-1);
 }
 
-ex::device_state unigd_device::plt_state() { return m_data_store->state(); }
+ex::device_state unigd_device::plt_state()
+{
+  return m_data_store->state();
+}
 
 ex::find_results unigd_device::plt_query(int offset, int limit)
 {
@@ -517,6 +575,7 @@ bool unigd_device::api_remove(int32_t id)
   }
   return false;
 }
+
 bool unigd_device::api_clear()
 {
   try

@@ -4,11 +4,11 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
+#include <thread>
 #include <windows.h>
 
 #include <cpp11/R.hpp>
 #include <cpp11/protect.hpp>
-#include <thread>
 
 namespace unigd
 {
@@ -16,13 +16,13 @@ namespace async
 {
 namespace
 {
-const auto *UNIGD_WINDOW_CLASS_NAME = TEXT("unigd_window_class");
+const auto* UNIGD_WINDOW_CLASS_NAME = TEXT("unigd_window_class");
 const UINT UNIGD_MESSAGE_ID = WM_USER + 217;
 threadsafe_queue<function_wrapper> work_queue;
 bool ipc_initialized{false};
 HWND message_hwind;
 
-inline void r_print_error(const char *message)
+inline void r_print_error(const char* message)
 {
   REprintf("Error (unigd IPC): %s\n", message);
 }
@@ -70,12 +70,18 @@ inline HWND create_message_window()
                         HWND_MESSAGE, NULL, NULL, NULL);
 }
 
-inline void notify() { PostMessage(message_hwind, UNIGD_MESSAGE_ID, 0, 0); }
+inline void notify()
+{
+  PostMessage(message_hwind, UNIGD_MESSAGE_ID, 0, 0);
+}
 }  // namespace
 
 void ipc_open()
 {
-  if (ipc_initialized) return;
+  if (ipc_initialized)
+  {
+    return;
+  }
 
   if (!window_class_exists())
   {
@@ -104,7 +110,10 @@ void ipc_open()
 
 void ipc_close()
 {
-  if (!ipc_initialized) return;
+  if (!ipc_initialized)
+  {
+    return;
+  }
 
   if (DestroyWindow(message_hwind) == 0)
   {
@@ -121,7 +130,7 @@ void ipc_close()
   ipc_initialized = false;
 }
 
-void r_thread_impl(function_wrapper &&task)
+void r_thread_impl(function_wrapper&& task)
 {
   work_queue.push(std::move(task));
   notify();
