@@ -1,4 +1,4 @@
 url: https://nx10.github.io/unigd/
 template:
   bootstrap: 5
-
+  light-switch: true
