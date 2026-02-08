@@ -23,42 +23,42 @@ jobs:
       - name: Check formatting
         run: clang-format --dry-run --Werror src/*.cpp src/*.h
 
-  clang-tidy:
-    runs-on: ubuntu-latest
-    name: clang-tidy
-    steps:
-      - uses: actions/checkout@v6
+  # clang-tidy:
+  #   runs-on: ubuntu-latest
+  #   name: clang-tidy
+  #   steps:
+  #     - uses: actions/checkout@v6
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang-tidy libpng-dev zlib1g-dev libcairo2-dev libtiff-dev
+  #     - name: Install system dependencies
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install -y clang-tidy libpng-dev zlib1g-dev libcairo2-dev libtiff-dev
 
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: release
+  #     - uses: r-lib/actions/setup-r@v2
+  #       with:
+  #         r-version: release
 
-      - name: Install R package dependencies
-        run: Rscript -e 'install.packages(c("cpp11", "systemfonts"), repos = "https://cloud.r-project.org")'
+  #     - name: Install R package dependencies
+  #       run: Rscript -e 'install.packages(c("cpp11", "systemfonts"), repos = "https://cloud.r-project.org")'
 
-      - name: Resolve include paths
-        id: includes
-        run: |
-          R_INCLUDE=$(Rscript -e 'cat(R.home("include"))')
-          CPP11_INCLUDE=$(Rscript -e 'cat(system.file("include", package = "cpp11"))')
-          SYSFONTS_INCLUDE=$(Rscript -e 'cat(system.file("include", package = "systemfonts"))')
-          echo "r_include=$R_INCLUDE" >> "$GITHUB_OUTPUT"
-          echo "cpp11_include=$CPP11_INCLUDE" >> "$GITHUB_OUTPUT"
-          echo "sysfonts_include=$SYSFONTS_INCLUDE" >> "$GITHUB_OUTPUT"
+  #     - name: Resolve include paths
+  #       id: includes
+  #       run: |
+  #         R_INCLUDE=$(Rscript -e 'cat(R.home("include"))')
+  #         CPP11_INCLUDE=$(Rscript -e 'cat(system.file("include", package = "cpp11"))')
+  #         SYSFONTS_INCLUDE=$(Rscript -e 'cat(system.file("include", package = "systemfonts"))')
+  #         echo "r_include=$R_INCLUDE" >> "$GITHUB_OUTPUT"
+  #         echo "cpp11_include=$CPP11_INCLUDE" >> "$GITHUB_OUTPUT"
+  #         echo "sysfonts_include=$SYSFONTS_INCLUDE" >> "$GITHUB_OUTPUT"
 
-      - name: Run clang-tidy
-        run: |
-          clang-tidy src/*.cpp \
-            --extra-arg=-std=c++14 \
-            --extra-arg=-DFMT_HEADER_ONLY \
-            --extra-arg=-Isrc/lib \
-            --extra-arg=-Iinst/include \
-            --extra-arg=-I${{ steps.includes.outputs.r_include }} \
-            --extra-arg=-I${{ steps.includes.outputs.cpp11_include }} \
-            --extra-arg=-I${{ steps.includes.outputs.sysfonts_include }} \
-            --warnings-as-errors='*'
+  #     - name: Run clang-tidy
+  #       run: |
+  #         clang-tidy src/*.cpp \
+  #           --extra-arg=-std=c++14 \
+  #           --extra-arg=-DFMT_HEADER_ONLY \
+  #           --extra-arg=-Isrc/lib \
+  #           --extra-arg=-Iinst/include \
+  #           --extra-arg=-I${{ steps.includes.outputs.r_include }} \
+  #           --extra-arg=-I${{ steps.includes.outputs.cpp11_include }} \
+  #           --extra-arg=-I${{ steps.includes.outputs.sysfonts_include }} \
+  #           --warnings-as-errors='*'

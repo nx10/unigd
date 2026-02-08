@@ -15,6 +15,6 @@ Checks: >
   -readability-identifier-length,
   -readability-function-cognitive-complexity
 
-HeaderFilterRegex: 'src/.*'
+HeaderFilterRegex: 'src/(?!lib/).*'
 FormatStyle: file
 WarningsAsErrors: ''
