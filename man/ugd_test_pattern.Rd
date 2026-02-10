@@ -2,17 +2,18 @@
 % Please edit documentation in R/testgraphic.R
 \name{ugd_test_pattern}
 \alias{ugd_test_pattern}
-\title{Plot a test pattern that can be used to evaluate and compare graphics
-devices.}
+\title{Plot a 16-panel test pattern for evaluating graphics devices.}
 \usage{
 ugd_test_pattern()
 }
 \value{
-Nothing, but a plot is generated.
+Invisible \code{NULL}; called for the side effect of drawing.
 }
 \description{
-Plot a test pattern that can be used to evaluate and compare graphics
-devices.
+Renders a 4x4 grid of panels, each isolating a specific drawing primitive or
+device feature. Covers all 8 DrawCall types (Rect, Circle, Line, Polygon,
+Polyline, Path, Text, Raster) plus clipping, alpha blending, line styles,
+text metrics, anti-aliasing hints, and point characters.
 }
 \examples{
 \dontrun{
