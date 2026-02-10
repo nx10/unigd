@@ -1,3 +1,3 @@
 #ifndef UNIGD_VERSION
-#define UNIGD_VERSION "0.1.0.9000"
+#define UNIGD_VERSION "0.2.0"
 #endif
