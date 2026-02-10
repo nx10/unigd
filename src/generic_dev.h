@@ -66,8 +66,8 @@ class generic_dev : public std::enable_shared_from_this<generic_dev<T>>
     R_GE_checkVersionOrDie(R_GE_version);
     R_CheckDeviceAvailable();
 
-    auto container = std::make_unique<device_container>(
-        device_container{this->shared_from_this()});
+    auto container =
+        std::make_unique<device_container>(device_container{this->shared_from_this()});
     int devnum = -1;
 
     BEGIN_SUSPEND_INTERRUPTS
