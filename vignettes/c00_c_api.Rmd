@@ -1,0 +1,472 @@
+---
+title: "C/C++ API"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{C/C++ API}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+`unigd` exposes a C API that allows other R packages to interact with the
+graphics device from compiled code. This enables building applications like plot
+viewers, web servers, or IDE integrations on top of `unigd`.
+
+The API has `extern "C"` linkage, so it can be used from both C and C++ client
+code. It is a versioned vtable (struct of function pointers) obtained at runtime
+through R's `R_GetCCallable` mechanism. All functions are thread-safe, so
+clients can call into `unigd` from background threads.
+
+The examples in this document use C++ for brevity, but the API itself is plain C.
+
+## Architecture overview
+
+```
+R session
+ |
+ |  ugd()           opens a unigd graphics device
+ v
+unigd device        stores plot history, manages renderers
+ |
+ |  C API           function pointer table (unigd_api_v1)
+ v
+client package      attaches via device_attach(), receives callbacks,
+                    renders plots on demand
+```
+
+The API follows a **client model**: a client package registers itself with an
+open `unigd` device and receives lifecycle callbacks. It can then query device
+state, browse plot history, and render plots to any supported format.
+
+## Package setup
+
+### DESCRIPTION
+
+Your package needs to link against `unigd`:
+
+```
+Imports: unigd
+LinkingTo: unigd
+```
+
+`Imports` ensures `unigd` is loaded (and its shared library available) before
+your package. `LinkingTo` gives your compiler access to the headers in
+`unigd/inst/include/`.
+
+### Include the API header
+
+In your C/C++ source files:
+
+```c
+#include <unigd_api.h>
+```
+
+This single header provides `unigd_api_v1_create()` and
+`unigd_api_v1_destroy()` (factory functions that obtain the API vtable via
+`R_GetCCallable`), as well as all type definitions from `<unigd_api_v1.h>`
+(structs, handle types, and typedefs).
+
+## Initialization
+
+Obtain the API vtable once when your package is loaded. The recommended pattern
+uses a RAII guard and the `[[cpp11::init]]` attribute (which runs at
+`R_init_<pkg>` time):
+
+```cpp
+#include <cpp11/R.hpp>
+#include <unigd_api.h>
+
+namespace mypackage {
+
+// Global API pointer and client ID
+unigd_api_v1 *api = nullptr;
+UNIGD_CLIENT_ID client_id = 0;
+
+namespace {
+class api_guard {
+public:
+  ~api_guard() { destroy(); }
+
+  void create() {
+    if (api == nullptr) unigd_api_v1_create(&api);
+  }
+  void destroy() {
+    if (api != nullptr) {
+      unigd_api_v1_destroy(api);
+      api = nullptr;
+    }
+  }
+};
+
+api_guard guard;
+}  // namespace
+}  // namespace mypackage
+
+[[cpp11::init]] void import_unigd_api(DllInfo *dll) {
+  mypackage::guard.create();
+  mypackage::client_id = mypackage::api->register_client_id();
+}
+```
+
+After this runs, `mypackage::api` points to the vtable and
+`mypackage::client_id` holds a unique identifier for your package. The guard
+ensures `unigd_api_v1_destroy` is called when the shared library unloads.
+
+## Types
+
+### Handle types
+
+The API uses opaque `void *` handles for resource management. Each
+`*_create` / `*_find` function returns a handle that **must** be freed with the
+corresponding `*_destroy` function.
+
+| Type                          | Returned by              | Freed by                    |
+|-------------------------------|--------------------------|-----------------------------|
+| `UNIGD_HANDLE`                | `device_attach`          | `device_destroy`            |
+| `UNIGD_RENDER_HANDLE`         | `device_render_create`   | `device_render_destroy`     |
+| `UNIGD_FIND_HANDLE`           | `device_plots_find`      | `device_plots_find_destroy` |
+| `UNIGD_RENDERERS_HANDLE`      | `renderers`              | `renderers_destroy`         |
+| `UNIGD_RENDERERS_ENTRY_HANDLE`| `renderers_find`         | `renderers_find_destroy`    |
+
+### ID types
+
+| Type                  | Underlying    | Description                              |
+|-----------------------|---------------|------------------------------------------|
+| `UNIGD_PLOT_ID`       | `uint32_t`    | Stable identifier for a plot             |
+| `UNIGD_PLOT_INDEX`    | `uint32_t`    | Positional index (oldest = 1)            |
+| `UNIGD_PLOT_RELATIVE` | `int32_t`     | Signed offset (0 = latest, -1 = previous)|
+| `UNIGD_CLIENT_ID`     | `uint32_t`    | Unique client identifier                 |
+| `UNIGD_RENDERER_ID`   | `const char *`| Renderer string ID (e.g. `"svg"`, `"png"`)|
+
+### Structs
+
+#### `unigd_graphics_client`
+
+Callback table provided by the client to `device_attach`. All callbacks receive
+the `client_data` pointer that was passed to `device_attach`.
+
+```c
+struct unigd_graphics_client {
+    void (*start)(void *client_data);        // Device activated
+    void (*close)(void *client_data);        // Device closing
+    void (*state_change)(void *client_data); // Plot state changed
+    const char *(*info)(void *client_data);  // Return client info string
+};
+```
+
+- **`start`**: Called once after `device_attach` succeeds. Use this to
+  launch background threads or initialize resources.
+- **`close`**: Called when the device is closed (e.g. `dev.off()` in R).
+  Clean up resources and call `device_destroy` on the handle here. After this
+  returns, the device handle is no longer valid.
+- **`state_change`**: Called whenever a plot is created, modified, or removed.
+  Typically used to notify connected clients (e.g. push a WebSocket message).
+- **`info`**: Should return a static string identifying the client
+  (e.g. `"mypkg 1.0.0"`).
+
+#### `unigd_device_state`
+
+```c
+struct unigd_device_state {
+    int upid;                // Update ID, increments on every state change
+    UNIGD_PLOT_INDEX hsize;  // Number of plots in history
+    bool active;             // Whether the device is active
+};
+```
+
+The `upid` field is useful for change detection: if the `upid` hasn't changed
+since the last check, no plots have been added, removed, or redrawn.
+
+#### `unigd_render_args`
+
+```c
+struct unigd_render_args {
+    double width;   // Plot width in inches (or pixels for raster)
+    double height;  // Plot height in inches (or pixels for raster)
+    double scale;   // Zoom/scale factor (1.0 = 100%)
+};
+```
+
+Pass `width = -1` and `height = -1` to use the device's current dimensions.
+
+#### `unigd_render_access`
+
+```c
+struct unigd_render_access {
+    const uint8_t *buffer;  // Pointer to rendered data
+    uint64_t size;          // Size in bytes
+};
+```
+
+The buffer is valid until the corresponding `UNIGD_RENDER_HANDLE` is destroyed.
+
+#### `unigd_find_results`
+
+```c
+struct unigd_find_results {
+    unigd_device_state state;  // Device state at query time
+    UNIGD_PLOT_INDEX size;     // Number of results
+    UNIGD_PLOT_ID *ids;        // Array of plot IDs
+};
+```
+
+#### `unigd_renderer_info`
+
+```c
+struct unigd_renderer_info {
+    UNIGD_RENDERER_ID id;       // e.g. "svg", "png"
+    const char *mime;           // e.g. "image/svg+xml"
+    const char *fileext;        // e.g. "svg"
+    const char *name;           // Human-readable name
+    const char *type;           // Renderer category
+    const char *description;    // Short description
+    bool text;                  // true if output is text, false if binary
+};
+```
+
+## Attaching to a device
+
+A client attaches to an open `unigd` device by providing a callback struct, its
+client ID, and an arbitrary data pointer:
+
+```cpp
+class MyClient {
+  unigd_api_v1 *m_api = nullptr;
+  UNIGD_HANDLE m_handle = nullptr;
+  unigd_graphics_client m_client;
+
+public:
+  MyClient() {
+    m_client.start = [](void *d) {
+      static_cast<MyClient *>(d)->on_start();
+    };
+    m_client.close = [](void *d) {
+      static_cast<MyClient *>(d)->on_close();
+    };
+    m_client.state_change = [](void *d) {
+      static_cast<MyClient *>(d)->on_state_change();
+    };
+    m_client.info = [](void *) { return "mypkg 1.0.0"; };
+  }
+
+  bool attach(int devnum) {
+    m_api = mypackage::api;
+    m_handle = m_api->device_attach(
+        devnum,              // R device number
+        &m_client,           // callback table
+        mypackage::client_id, // from register_client_id()
+        this                 // client_data passed to callbacks
+    );
+    return m_handle != nullptr;
+  }
+
+  void on_start() {
+    // Called after attach succeeds.
+    // Launch background work here.
+  }
+
+  void on_state_change() {
+    auto state = m_api->device_state(m_handle);
+    // React to state.upid, state.hsize, etc.
+  }
+
+  void on_close() {
+    // Device is closing. Clean up.
+    if (m_api && m_handle) {
+      m_api->device_destroy(m_handle);
+    }
+    delete this;
+  }
+};
+```
+
+The `devnum` parameter is the R graphics device number, typically obtained from
+`dev.cur()` after opening a `ugd()` device.
+
+## Querying device state
+
+```cpp
+unigd_device_state state = api->device_state(handle);
+
+// state.upid   incremented on every change
+// state.hsize  total number of plots in history
+// state.active false after dev.off()
+```
+
+## Browsing plot history
+
+Use `device_plots_find` to query plot IDs with pagination:
+
+```cpp
+unigd_find_results results;
+UNIGD_FIND_HANDLE fh = api->device_plots_find(
+    handle,
+    0,   // offset: 0 = start from latest, negative = relative
+    10,  // limit: max number of results (0 = all)
+    &results
+);
+
+for (UNIGD_PLOT_INDEX i = 0; i < results.size; ++i) {
+  UNIGD_PLOT_ID id = results.ids[i];
+  // ... use the plot ID ...
+}
+
+// Always free the results
+api->device_plots_find_destroy(fh);
+```
+
+To remove a single plot or clear all history:
+
+```cpp
+api->device_plots_remove(handle, plot_id);  // returns true on success
+api->device_plots_clear(handle);            // returns true on success
+```
+
+## Rendering plots
+
+Rendering is a two-step process: create the render (which may trigger a redraw),
+then access the buffer.
+
+```cpp
+// 1. Look up the renderer (optional, useful to get MIME type)
+unigd_renderer_info rinfo;
+auto rinfo_h = api->renderers_find("svg", &rinfo);
+// rinfo.mime == "image/svg+xml"
+// rinfo.text == true
+
+// 2. Render a specific plot
+unigd_render_access render;
+auto render_h = api->device_render_create(
+    handle,
+    "svg",                  // renderer ID
+    plot_id,                // from device_plots_find
+    {720.0, 576.0, 1.0},   // {width, height, scale}
+    &render
+);
+
+if (render_h) {
+  // render.buffer contains the SVG data
+  // render.size is the byte length
+  std::string svg(render.buffer, render.buffer + render.size);
+}
+
+// 3. Free resources
+api->device_render_destroy(render_h);
+api->renderers_find_destroy(rinfo_h);
+```
+
+To enumerate all available renderers:
+
+```cpp
+unigd_renderers_list list;
+auto rh = api->renderers(&list);
+
+for (uint64_t i = 0; i < list.size; ++i) {
+  const auto &r = list.entries[i];
+  // r.id, r.mime, r.fileext, r.name, r.text, ...
+}
+
+api->renderers_destroy(rh);
+```
+
+## Retrieving a client from a device
+
+If your R code needs to look up a previously attached client (e.g. to expose
+its state to R), use `device_get`:
+
+```cpp
+void *data = api->device_get(devnum, mypackage::client_id);
+if (data) {
+  auto *client = static_cast<MyClient *>(data);
+  // ... use client ...
+}
+```
+
+This returns the `client_data` pointer that was passed to `device_attach`.
+
+## Logging
+
+The API provides a thread-safe logging function that prints to the R console:
+
+```cpp
+api->log("Something happened");
+// Output: "unigd client: Something happened"
+```
+
+Safe to call from any thread.
+
+## Memory management
+
+Every function that returns a handle allocates memory that must be freed by the
+corresponding destroy function. Failing to do so will leak memory.
+
+| Allocator                | Deallocator                |
+|--------------------------|----------------------------|
+| `device_attach`          | `device_destroy`           |
+| `device_render_create`   | `device_render_destroy`    |
+| `device_plots_find`      | `device_plots_find_destroy`|
+| `renderers`              | `renderers_destroy`        |
+| `renderers_find`         | `renderers_find_destroy`   |
+
+The `unigd_render_access` buffer is owned by its `UNIGD_RENDER_HANDLE`. Copy
+the data out if you need it after calling `device_render_destroy`.
+
+Similarly, the `unigd_find_results.ids` array is owned by its
+`UNIGD_FIND_HANDLE` and becomes invalid after `device_plots_find_destroy`.
+
+## Thread safety
+
+All API functions are safe to call from any thread. Internally, `unigd` uses a
+shared mutex to synchronize access to the plot store.
+
+The `state_change` callback is invoked from R's main thread (during graphics
+engine operations). If your callback needs to communicate with background
+threads, use appropriate synchronization.
+
+## API reference
+
+### General
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `log` | `void (const char *)` | Print a message to the R console (thread-safe) |
+| `info` | `const char *()` | Returns `"unigd <version>"` |
+
+### Client registration
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `register_client_id` | `UNIGD_CLIENT_ID ()` | Obtain a unique client ID |
+
+### Device operations
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `device_attach` | `UNIGD_HANDLE (int devnum, unigd_graphics_client *, UNIGD_CLIENT_ID, void *)` | Attach client to device |
+| `device_get` | `void *(int devnum, UNIGD_CLIENT_ID)` | Retrieve client data |
+| `device_destroy` | `void (UNIGD_HANDLE)` | Free device handle |
+| `device_state` | `unigd_device_state (UNIGD_HANDLE)` | Query device state |
+
+### Plot history
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `device_plots_find` | `UNIGD_FIND_HANDLE (UNIGD_HANDLE, UNIGD_PLOT_RELATIVE, UNIGD_PLOT_INDEX, unigd_find_results *)` | Query plot IDs |
+| `device_plots_find_destroy` | `void (UNIGD_FIND_HANDLE)` | Free find results |
+| `device_plots_remove` | `bool (UNIGD_HANDLE, UNIGD_PLOT_ID)` | Remove a plot |
+| `device_plots_clear` | `bool (UNIGD_HANDLE)` | Clear all plots |
+
+### Rendering
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `device_render_create` | `UNIGD_RENDER_HANDLE (UNIGD_HANDLE, UNIGD_RENDERER_ID, UNIGD_PLOT_ID, unigd_render_args, unigd_render_access *)` | Render a plot |
+| `device_render_destroy` | `void (UNIGD_RENDER_HANDLE)` | Free render data |
+
+### Renderers
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `renderers` | `UNIGD_RENDERERS_HANDLE (unigd_renderers_list *)` | List all renderers |
+| `renderers_destroy` | `void (UNIGD_RENDERERS_HANDLE)` | Free renderer list |
+| `renderers_find` | `UNIGD_RENDERERS_ENTRY_HANDLE (UNIGD_RENDERER_ID, unigd_renderer_info *)` | Look up a renderer |
+| `renderers_find_destroy` | `void (UNIGD_RENDERERS_ENTRY_HANDLE)` | Free renderer lookup |
