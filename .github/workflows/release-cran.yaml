@@ -56,12 +56,20 @@ jobs:
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
           error-on: '"warning"'
 
-  submit:
+  release:
     needs: check
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v6
+
+      - name: Set release status to pending
+        if: github.event_name == 'release'
+        run: |
+          gh release edit "${{ github.event.release.tag_name }}" \
+            --notes "Release is being built and submitted to CRAN..."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Fix script permissions
         run: chmod +x configure cleanup
@@ -77,19 +85,6 @@ jobs:
         with:
           extra-packages: any::devtools
 
-      - name: Update release notes from NEWS.md
-        if: github.event_name == 'release'
-        run: |
-          {
-            awk '/^# /{if(found) exit; found=1; next} found' NEWS.md
-            echo ""
-            echo "---"
-            echo ""
-            echo "[![CRAN](https://www.r-pkg.org/badges/version/unigd)](https://CRAN.R-project.org/package=unigd) Install from CRAN: \`install.packages(\"unigd\")\`"
-          } | gh release edit "${{ github.event.release.tag_name }}" --notes-file -
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build source tarball
         run: |
           pkgbuild::build(".", dest_path = ".")
@@ -103,5 +98,19 @@ jobs:
 
       - name: Submit to CRAN
         run: |
+          assignInNamespace("yesno", function(...) FALSE, "devtools")
           devtools::submit_cran()
         shell: Rscript {0}
+
+      - name: Update release notes from NEWS.md
+        if: github.event_name == 'release'
+        run: |
+          {
+            awk '/^# /{if(found) exit; found=1; next} found' NEWS.md
+            echo ""
+            echo "---"
+            echo ""
+            echo "CRAN status: [![CRAN](https://www.r-pkg.org/badges/version/unigd)](https://CRAN.R-project.org/package=unigd)"
+          } | gh release edit "${{ github.event.release.tag_name }}" --notes-file -
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
