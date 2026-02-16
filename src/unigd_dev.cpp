@@ -10,7 +10,11 @@
 #include <cpp11/function.hpp>
 #include <cpp11/list.hpp>
 #include <cpp11/strings.hpp>
-#include <svglite_utils.h>
+#include <fmt/format.h>
+#include <systemfonts.h>
+
+#include <cstring>
+#include <string_view>
 
 #include "debug_print.h"
 #include "r_thread.h"
@@ -18,6 +22,39 @@
 
 namespace unigd
 {
+static bool is_bold(int face) { return face == 2 || face == 4; }
+static bool is_italic(int face) { return face == 3 || face == 4; }
+
+static const char* normalize_family(const char* family, int face)
+{
+  if (face == 5) return "symbol";
+  if (family[0] == '\0') return "sans";
+  return family;
+}
+
+static const char* face_key(int face)
+{
+  switch (face)
+  {
+    case 4: return "bolditalic";
+    case 2: return "bold";
+    case 3: return "italic";
+    case 5: return "symbol";
+    default: return "plain";
+  }
+}
+
+static std::string lookup_user_alias(const char* family, const cpp11::list& aliases,
+                                     int face, const char* field)
+{
+  if (aliases[family] == R_NilValue) return {};
+  cpp11::list family_entry(aliases[family]);
+  if (family_entry[face_key(face)] == R_NilValue) return {};
+  cpp11::list face_entry(family_entry[face_key(face)]);
+  if (face_entry[field] == R_NilValue) return {};
+  return cpp11::as_cpp<std::string>(face_entry[field]);
+}
+
 static inline cpp11::list r_graphics_par_get()
 {
   using namespace cpp11::literals;
@@ -119,6 +156,72 @@ bool unigd_device::remove_client()
   return true;
 }
 
+const FontCacheEntry& unigd_device::resolve_font(const char* family, int face)
+{
+  auto key = std::make_pair(std::string(family), face);
+  auto it = m_font_cache.find(key);
+  if (it != m_font_cache.end())
+  {
+    return it->second;
+  }
+
+  const char* norm = normalize_family(family, face);
+
+  // Resolve font file: user alias overrides systemfonts discovery
+  FontSettings font = {};
+  std::string alias_file = lookup_user_alias(norm, user_aliases, face, "file");
+  if (!alias_file.empty())
+  {
+    std::strncpy(font.file, alias_file.c_str(), PATH_MAX);
+    font.file[PATH_MAX] = '\0';
+    font.index = 0;
+    font.n_features = 0;
+  }
+  else
+  {
+    font = locate_font_with_features(norm, is_italic(face), is_bold(face));
+  }
+
+  FontCacheEntry entry;
+  entry.file = font.file;
+  entry.index = font.index;
+  entry.weight = get_font_weight(font.file, font.index);
+
+  // Resolve display name: system alias > user alias > font file metadata > family
+  if (system_aliases[norm] != R_NilValue)
+  {
+    cpp11::sexp sys = system_aliases[norm];
+    if (TYPEOF(sys) == STRSXP && Rf_length(sys) == 1)
+    {
+      entry.name = cpp11::as_cpp<std::string>(sys);
+    }
+  }
+  if (entry.name.empty())
+  {
+    entry.name = lookup_user_alias(norm, user_aliases, face, "name");
+  }
+  if (entry.name.empty())
+  {
+    char buf[100];
+    if (get_font_family(font.file, font.index, buf, 100))
+      entry.name = std::string(buf, strnlen(buf, 100));
+    else
+      entry.name = norm;
+  }
+
+  // Build CSS font-feature-settings
+  for (int i = 0; i < font.n_features; ++i)
+  {
+    auto tag = std::string_view(font.features[i].feature, 4);
+    auto sep = (i == font.n_features - 1) ? ';' : ',';
+    fmt::format_to(std::back_inserter(entry.features_css), "'{}' {}{}", tag,
+                   font.features[i].setting, sep);
+  }
+
+  auto result = m_font_cache.emplace(std::move(key), std::move(entry));
+  return result.first->second;
+}
+
 // DEVICE CALLBACKS
 
 void unigd_device::dev_activate(pDevDesc dd)
@@ -192,10 +295,10 @@ void unigd_device::dev_metricInfo(int c, pGEcontext gc, double* ascent, double* 
     c = -c;
   }
 
-  FontSettings font = get_font_file(gc->fontfamily, gc->fontface, user_aliases);
+  const auto& font = resolve_font(gc->fontfamily, gc->fontface);
 
-  int error = glyph_metrics(c, font.file, font.index, gc->ps * gc->cex, 1e4, ascent,
-                            descent, width);
+  int error = glyph_metrics(c, font.file.c_str(), font.index, gc->ps * gc->cex, 1e4,
+                            ascent, descent, width);
   if (error != 0)
   {
     *ascent = 0;
@@ -210,11 +313,12 @@ void unigd_device::dev_metricInfo(int c, pGEcontext gc, double* ascent, double* 
 
 double unigd_device::dev_strWidth(const char* str, pGEcontext gc, pDevDesc dd)
 {
-  FontSettings font = get_font_file(gc->fontfamily, gc->fontface, user_aliases);
+  const auto& font = resolve_font(gc->fontfamily, gc->fontface);
 
   double width = 0.0;
 
-  int error = string_width(str, font.file, font.index, gc->ps * gc->cex, 1e4, 1, &width);
+  int error =
+      string_width(str, font.file.c_str(), font.index, gc->ps * gc->cex, 1e4, 1, &width);
 
   if (error != 0)
   {
@@ -322,29 +426,12 @@ void unigd_device::dev_line(double x1, double y1, double x2, double y2, pGEconte
 void unigd_device::dev_text(double x, double y, const char* str, double rot, double hadj,
                             pGEcontext gc, pDevDesc dd)
 {
-  FontSettings font_info = get_font_file(gc->fontfamily, gc->fontface, user_aliases);
-
-  int weight = get_font_weight(font_info.file, font_info.index);
-
-  std::string feature = "";
-  for (int i = 0; i < font_info.n_features; ++i)
-  {
-    feature += "'";
-    feature += font_info.features[i].feature[0];
-    feature += font_info.features[i].feature[1];
-    feature += font_info.features[i].feature[2];
-    feature += font_info.features[i].feature[3];
-    feature += "' ";
-    feature += std::to_string(font_info.features[i].setting);
-    feature += (i == font_info.n_features - 1 ? ";" : ",");
-  }
+  const auto& font = resolve_font(gc->fontfamily, gc->fontface);
 
   put(std::make_unique<renderers::Text>(
       gc->col, gvertex<double>{x, y}, str, rot, hadj,
-      renderers::TextInfo{
-          weight, feature,
-          fontname(gc->fontfamily, gc->fontface, system_aliases, user_aliases, font_info),
-          gc->cex * gc->ps, is_italic(gc->fontface), dev_strWidth(str, gc, dd)}));
+      renderers::TextInfo{font.weight, font.features_css, font.name, gc->cex * gc->ps,
+                          is_italic(gc->fontface), dev_strWidth(str, gc, dd)}));
 }
 
 void unigd_device::dev_rect(double x0, double y0, double x1, double y1, pGEcontext gc,

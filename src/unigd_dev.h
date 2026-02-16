@@ -3,8 +3,11 @@
 
 #include <compat/optional.hpp>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <mutex>
+#include <string>
+#include <utility>
 
 #include <cpp11/list.hpp>
 
@@ -24,6 +27,15 @@ struct device_params
   double pointsize;
   cpp11::list aliases;
   bool reset_par;
+};
+
+struct FontCacheEntry
+{
+  std::string file;
+  unsigned int index;
+  std::string name;
+  int weight;
+  std::string features_css;
 };
 
 class DeviceTarget
@@ -131,11 +143,15 @@ class unigd_device : public generic_dev<unigd_device>
 
   void put(std::unique_ptr<renderers::DrawCall>&& t_dc);
 
+  const FontCacheEntry& resolve_font(const char* family, int face);
+
   // set device size
   void resize_device_to_page(pDevDesc dd);
 
   // graphical parameters for reseting
   cpp11::list m_reset_par;
+
+  std::map<std::pair<std::string, int>, FontCacheEntry> m_font_cache;
 
   std::vector<std::unique_ptr<unigd::renderers::DrawCall>> m_dc_buffer{};
 };
