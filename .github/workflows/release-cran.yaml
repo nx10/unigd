@@ -77,6 +77,19 @@ jobs:
         with:
           extra-packages: any::devtools
 
+      - name: Update release notes from NEWS.md
+        if: github.event_name == 'release'
+        run: |
+          {
+            awk '/^# /{if(found) exit; found=1; next} found' NEWS.md
+            echo ""
+            echo "---"
+            echo ""
+            echo "[![CRAN](https://www.r-pkg.org/badges/version/unigd)](https://CRAN.R-project.org/package=unigd) Install from CRAN: \`install.packages(\"unigd\")\`"
+          } | gh release edit "${{ github.event.release.tag_name }}" --notes-file -
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build source tarball
         run: |
           pkgbuild::build(".", dest_path = ".")
