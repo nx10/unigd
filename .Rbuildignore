@@ -18,3 +18,7 @@
 ^\.clang-tidy$
 ^tools$
 ^inst/WORDLIST$
+^bench$
+^\.clangd$
+^\.claude$
+^CLAUDE\.md$

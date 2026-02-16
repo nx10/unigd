@@ -35,11 +35,11 @@ Or get the latest development version from GitHub:
 remotes::install_github("nx10/unigd")
 ```
 
-See [system requirements](https://nx10.github.io/unigd/articles/a00_installation.html#system-requirements) for troubleshooting.
+See [system requirements](https://nx10.dev/unigd/articles/a00_installation.html#system-requirements) for troubleshooting.
 
 ## Getting started
 
-See [the guide](https://nx10.github.io/unigd/articles/b00_guide.html) for more details.
+See [the guide](https://nx10.dev/unigd/articles/b00_guide.html) for more details.
 
 ## Contributions welcome!
 

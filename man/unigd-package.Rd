@@ -12,7 +12,7 @@ Universal graphics device
 Useful links:
 \itemize{
   \item \url{https://github.com/nx10/unigd}
-  \item \url{https://nx10.github.io/unigd/}
+  \item \url{https://nx10.dev/unigd/}
   \item Report bugs at \url{https://github.com/nx10/unigd/issues}
 }
 
