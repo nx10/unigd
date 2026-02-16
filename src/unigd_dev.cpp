@@ -2,8 +2,10 @@
 #include "unigd_dev.h"
 
 #include <cmath>
+#include <cstring>
 #include <memory>
 #include <string>
+#include <string_view>
 
 #include <cpp11/as.hpp>
 #include <cpp11/doubles.hpp>
@@ -13,22 +15,32 @@
 #include <fmt/format.h>
 #include <systemfonts.h>
 
-#include <cstring>
-#include <string_view>
-
 #include "debug_print.h"
 #include "r_thread.h"
 #include "renderers.h"
 
 namespace unigd
 {
-static bool is_bold(int face) { return face == 2 || face == 4; }
-static bool is_italic(int face) { return face == 3 || face == 4; }
+static bool is_bold(int face)
+{
+  return face == 2 || face == 4;
+}
+
+static bool is_italic(int face)
+{
+  return face == 3 || face == 4;
+}
 
 static const char* normalize_family(const char* family, int face)
 {
-  if (face == 5) return "symbol";
-  if (family[0] == '\0') return "sans";
+  if (face == 5)
+  {
+    return "symbol";
+  }
+  if (family[0] == '\0')
+  {
+    return "sans";
+  }
   return family;
 }
 
@@ -36,22 +48,36 @@ static const char* face_key(int face)
 {
   switch (face)
   {
-    case 4: return "bolditalic";
-    case 2: return "bold";
-    case 3: return "italic";
-    case 5: return "symbol";
-    default: return "plain";
+    case 4:
+      return "bolditalic";
+    case 2:
+      return "bold";
+    case 3:
+      return "italic";
+    case 5:
+      return "symbol";
+    default:
+      return "plain";
   }
 }
 
 static std::string lookup_user_alias(const char* family, const cpp11::list& aliases,
                                      int face, const char* field)
 {
-  if (aliases[family] == R_NilValue) return {};
+  if (aliases[family] == R_NilValue)
+  {
+    return {};
+  }
   cpp11::list family_entry(aliases[family]);
-  if (family_entry[face_key(face)] == R_NilValue) return {};
+  if (family_entry[face_key(face)] == R_NilValue)
+  {
+    return {};
+  }
   cpp11::list face_entry(family_entry[face_key(face)]);
-  if (face_entry[field] == R_NilValue) return {};
+  if (face_entry[field] == R_NilValue)
+  {
+    return {};
+  }
   return cpp11::as_cpp<std::string>(face_entry[field]);
 }
 
@@ -204,9 +230,13 @@ const FontCacheEntry& unigd_device::resolve_font(const char* family, int face)
   {
     char buf[100];
     if (get_font_family(font.file, font.index, buf, 100))
+    {
       entry.name = std::string(buf, strnlen(buf, 100));
+    }
     else
+    {
       entry.name = norm;
+    }
   }
 
   // Build CSS font-feature-settings
