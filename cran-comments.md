@@ -1,23 +1,23 @@
+## Resubmission
+
+This package was archived on 2026-02-06 due to fmt 12.x compilation errors on
+r-devel (Fedora). This release fixes those errors by upgrading the vendored fmt
+library to 12.1.0 and resolving all related compiler warnings.
+
 ## Test environments
-- GitHub rlib/actions
-- R-hub2 actions
+
+- GitHub Actions: macOS (release, oldrel), Windows (release), Ubuntu (devel,
+  release, oldrel-1, oldrel-2)
+- R-hub2
 
 ## R CMD check results
-There were no ERRORs or WARNINGs. 
 
-> checking C++ specification ... NOTE
-    Specified C++14: please drop specification unless essential
-
-C++14 is essential for this package.
+There were no ERRORs or WARNINGs.
 
 > checking installed package size ... NOTE
-    installed size is  9.6Mb
+    installed size is 15.0Mb
     sub-directories of 1Mb or more:
-      libs   8.4Mb
+      libs  13.8Mb
 
-This package uses larger libraries.
-
-## GCC 15 error
-
-The missing standard library include has been added.
-Package successfully builds with the current GCC 15 snapshot.
+This package contains compiled C++ code, which accounts for the larger
+installed size.

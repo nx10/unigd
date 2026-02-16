@@ -1,3 +1,11 @@
+# unigd 0.2.0
+
+- Now requires R >= 4.2.0.
+- Upgraded vendored fmt library to 12.1.0.
+- Fixed compiler warnings (clang 17, GCC 15).
+- Modernized build configuration.
+- Added C/C++ API and benchmark vignettes.
+
 # unigd 0.1.3
 
 - Added missing standard library include for GCC 15.

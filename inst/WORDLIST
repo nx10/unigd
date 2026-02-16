@@ -1,3 +1,4 @@
+AGG
 Allocator
 async
 bottlenecking
@@ -18,7 +19,10 @@ lifecycle
 mutex
 ORCID
 Polyline
+pre
+px
 RAII
+rasterizer
 Rect
 renderer
 Renderer
@@ -31,5 +35,7 @@ structs
 Structs
 svglite
 typedefs
+unigd's
+vendored
 vtable
 WebSocket
